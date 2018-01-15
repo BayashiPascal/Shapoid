@@ -1,0 +1,14 @@
+UnitTestCreateCloneIsEqualFree OK
+Type: Facoid
+Dim: 3
+Pos: <0.000,0.000,0.000>
+Axis(0): <1.000,0.000,0.000>
+Axis(1): <0.000,1.000,0.000>
+Axis(2): <0.000,0.000,1.000>
+UnitTestLoadSavePrint OK
+UnitTestGetSetTypeDimPosAxis OK
+UnitTestTranslateScaleGrowRotate OK
+UnitTestImportExportCoordIsPosInside OK
+UnitTestGetBoundingBox OK
+UnitTestGetPosDepthCenterCoverage OK
+UnitTestAll OK
