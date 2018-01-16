@@ -97,6 +97,13 @@ extern const char *ShapoidTypeString[3];
   Spheroid*: _ShapoidGetPos, \
   default: PBErrInvalidPolymorphism)((Shapoid*)(T))
 
+#define ShapoidPos(T) _Generic((T), \
+  Shapoid*: _ShapoidPos, \
+  Facoid*: _ShapoidPos, \
+  Pyramidoid*: _ShapoidPos, \
+  Spheroid*: _ShapoidPos, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(T))
+
 #define ShapoidSetAxis(T, I, V) _Generic((T), \
   Shapoid*: _ShapoidSetAxis, \
   Facoid*: _ShapoidSetAxis, \
@@ -116,6 +123,13 @@ extern const char *ShapoidTypeString[3];
   Facoid*: _ShapoidGetAxis, \
   Pyramidoid*: _ShapoidGetAxis, \
   Spheroid*: _ShapoidGetAxis, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(T), I)
+
+#define ShapoidAxis(T, I) _Generic((T), \
+  Shapoid*: _ShapoidAxis, \
+  Facoid*: _ShapoidAxis, \
+  Pyramidoid*: _ShapoidAxis, \
+  Spheroid*: _ShapoidAxis, \
   default: PBErrInvalidPolymorphism)((Shapoid*)(T), I)
 
 #define ShapoidTranslate(T, V) _Generic((T), \
@@ -296,17 +310,29 @@ inline
 #endif 
 const char* _ShapoidGetTypeAsString(Shapoid *that);
 
-// Return a VecFloat equal to the position of the Shapoid
+// Return a VecFloat equals to the position of the Shapoid
 #if BUILDMODE != 0
 inline
 #endif 
 VecFloat* _ShapoidGetPos(Shapoid *that);
 
-// Return a VecFloat equal to the 'dim'-th axis of the Shapoid
+// Return a VecFloat equals to the 'dim'-th axis of the Shapoid
 #if BUILDMODE != 0
 inline
 #endif 
 VecFloat* _ShapoidGetAxis(Shapoid *that, int dim);
+
+// Return the position of the Shapoid
+#if BUILDMODE != 0
+inline
+#endif 
+VecFloat* _ShapoidPos(Shapoid *that);
+
+// Return the 'dim'-th axis of the Shapoid
+#if BUILDMODE != 0
+inline
+#endif 
+VecFloat* _ShapoidAxis(Shapoid *that, int dim);
 
 // Set the position of the Shapoid to 'pos'
 #if BUILDMODE != 0

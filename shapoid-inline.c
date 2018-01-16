@@ -51,7 +51,7 @@ const char* _ShapoidGetTypeAsString(Shapoid *that) {
   return ShapoidTypeString[that->_type];
 }
 
-// Return a VecFloat equal to the position of the Shapoid
+// Return a VecFloat equals to the position of the Shapoid
 #if BUILDMODE != 0
 inline
 #endif 
@@ -67,7 +67,7 @@ VecFloat* _ShapoidGetPos(Shapoid *that) {
   return VecClone(that->_pos);
 }
 
-// Return a VecFloat equal to the 'dim'-th axis of the Shapoid
+// Return a VecFloat equals to the 'dim'-th axis of the Shapoid
 #if BUILDMODE != 0
 inline
 #endif 
@@ -87,6 +87,44 @@ VecFloat* _ShapoidGetAxis(Shapoid *that, int dim) {
 #endif
   // Return a clone of the axis
   return VecClone(that->_axis[dim]);
+}
+
+// Return the position of the Shapoid
+#if BUILDMODE != 0
+inline
+#endif 
+VecFloat* _ShapoidPos(Shapoid *that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Return the position
+  return that->_pos;
+}
+
+// Return the 'dim'-th axis of the Shapoid
+#if BUILDMODE != 0
+inline
+#endif 
+VecFloat* _ShapoidAxis(Shapoid *that, int dim) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (dim < 0 || dim >= that->_dim) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "Axis' index is invalid (0<=%d<%d)", 
+      dim, that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Return the axis
+  return that->_axis[dim];
 }
 
 // Set the position of the Shapoid to 'pos'
