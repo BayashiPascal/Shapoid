@@ -131,7 +131,7 @@ void UnitTestCreateCloneIsEqualFree() {
 
 void UnitTestLoadSavePrint() {
   int dim = 3;
-  Shapoid *facoid = FacoidCreate(dim);
+  Facoid *facoid = FacoidCreate(dim);
   FILE *file = fopen("./facoid.txt", "w");
   if (ShapoidSave(facoid, file) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
@@ -140,7 +140,7 @@ void UnitTestLoadSavePrint() {
   }
   fclose(file);
   file = fopen("./facoid.txt", "r");
-  Shapoid *load = NULL;
+  Facoid *load = NULL;
   if (ShapoidLoad(&load, file) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidLoad failed");
@@ -160,9 +160,9 @@ void UnitTestLoadSavePrint() {
 
 void UnitTestGetSetTypeDimPosAxis() {
   int dim = 3;
-  Shapoid *facoid = FacoidCreate(dim);
-  Shapoid *pyramidoid = PyramidoidCreate(dim);
-  Shapoid *spheroid = SpheroidCreate(dim);
+  Facoid *facoid = FacoidCreate(dim);
+  Pyramidoid *pyramidoid = PyramidoidCreate(dim);
+  Spheroid *spheroid = SpheroidCreate(dim);
   if (ShapoidGetType(facoid) != ShapoidTypeFacoid ||
     ShapoidGetType(pyramidoid) != ShapoidTypePyramidoid ||
     ShapoidGetType(spheroid) != ShapoidTypeSpheroid) {
@@ -197,7 +197,7 @@ void UnitTestGetSetTypeDimPosAxis() {
   for (int i = dim; i--;)
     VecSet(v, i, (float)i);
   ShapoidSetPos(facoid, v);
-  if (VecIsEqual(v, facoid->_pos) == false) {
+  if (VecIsEqual(v, ((Shapoid*)facoid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidSetPos failed");
     PBErrCatch(ShapoidErr);
@@ -206,7 +206,7 @@ void UnitTestGetSetTypeDimPosAxis() {
     VecSetNull(v);
     VecSet(v, i, 2.0);
     ShapoidSetAxis(facoid, i, v);
-    if (VecIsEqual(v, facoid->_axis[i]) == false) {
+    if (VecIsEqual(v, ((Shapoid*)facoid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidSetAxis failed");
       PBErrCatch(ShapoidErr);
@@ -221,12 +221,12 @@ void UnitTestGetSetTypeDimPosAxis() {
 
 void UnitTestTranslateScaleGrowRotate() {
   int dim = 2;
-  Shapoid *facoid = FacoidCreate(dim);
+  Facoid *facoid = FacoidCreate(dim);
   VecFloat *v = VecFloatCreate(dim);
   for (int i = dim; i--;)
     VecSet(v, i, 1.0);
   ShapoidTranslate(facoid, v);
-  if (VecIsEqual(v, facoid->_pos) == false) {
+  if (VecIsEqual(v, ((Shapoid*)facoid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidTranslate failed");
     PBErrCatch(ShapoidErr);
@@ -234,8 +234,8 @@ void UnitTestTranslateScaleGrowRotate() {
   float scale = 2.0;
   ShapoidScale(facoid, scale);
   VecSetNull(v);
-  VecSetNull(facoid->_pos);
-  if (VecIsEqual(v, facoid->_pos) == false) {
+  VecSetNull(((Shapoid*)facoid)->_pos);
+  if (VecIsEqual(v, ((Shapoid*)facoid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidScaleScalar failed");
     PBErrCatch(ShapoidErr);
@@ -246,7 +246,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, scale);
       else
         VecSet(v, j, 0.0);
-    if (VecIsEqual(v, facoid->_axis[i]) == false) {
+    if (VecIsEqual(v, ((Shapoid*)facoid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidScaleScalar failed");
       PBErrCatch(ShapoidErr);
@@ -256,7 +256,7 @@ void UnitTestTranslateScaleGrowRotate() {
     VecSet(v, i, 1.0 + (float)i);
   ShapoidScale(facoid, v);
   VecSetNull(v);
-  if (VecIsEqual(v, facoid->_pos) == false) {
+  if (VecIsEqual(v, ((Shapoid*)facoid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidScaleVector failed");
     PBErrCatch(ShapoidErr);
@@ -267,7 +267,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, scale * (1.0 + (float)i));
       else
         VecSet(v, j, 0.0);
-    if (VecIsEqual(v, facoid->_axis[i]) == false) {
+    if (VecIsEqual(v, ((Shapoid*)facoid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidScaleVector failed");
       PBErrCatch(ShapoidErr);
@@ -279,7 +279,7 @@ void UnitTestTranslateScaleGrowRotate() {
   ShapoidGrow(facoid, scale);
   for (int i = dim; i--;)
     VecSet(v, i, -0.5);
-  if (VecIsEqual(v, facoid->_pos) == false) {
+  if (VecIsEqual(v, ((Shapoid*)facoid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidGrowScalar failed");
     PBErrCatch(ShapoidErr);
@@ -290,13 +290,13 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, scale);
       else
         VecSet(v, j, 0.0);
-    if (VecIsEqual(v, facoid->_axis[i]) == false) {
+    if (VecIsEqual(v, ((Shapoid*)facoid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidGrowScalar failed");
       PBErrCatch(ShapoidErr);
     }
   }
-  Shapoid *pyramidoid = PyramidoidCreate(dim);
+  Pyramidoid *pyramidoid = PyramidoidCreate(dim);
   VecFloat *centerA = ShapoidGetCenter(pyramidoid);
   ShapoidGrow(pyramidoid, scale);
   VecFloat *centerB = ShapoidGetCenter(pyramidoid);
@@ -311,7 +311,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, scale);
       else
         VecSet(v, j, 0.0);
-    if (VecIsEqual(v, pyramidoid->_axis[i]) == false) {
+    if (VecIsEqual(v, ((Shapoid*)pyramidoid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidGrowScalar failed");
       PBErrCatch(ShapoidErr);
@@ -319,10 +319,10 @@ void UnitTestTranslateScaleGrowRotate() {
   }
   VecFree(&centerA);
   VecFree(&centerB);
-  Shapoid *spheroid = SpheroidCreate(dim);
+  Spheroid *spheroid = SpheroidCreate(dim);
   ShapoidGrow(spheroid, scale);
   VecSetNull(v);
-  if (VecIsEqual(v, spheroid->_pos) == false) {
+  if (VecIsEqual(v, ((Shapoid*)spheroid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidGrowScalar failed");
     PBErrCatch(ShapoidErr);
@@ -333,7 +333,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, scale);
       else
         VecSet(v, j, 0.0);
-    if (VecIsEqual(v, spheroid->_axis[i]) == false) {
+    if (VecIsEqual(v, ((Shapoid*)spheroid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidGrowScalar failed");
       PBErrCatch(ShapoidErr);
@@ -350,7 +350,7 @@ void UnitTestTranslateScaleGrowRotate() {
   float pa[2] = {0.000,-0.500}; 
   for (int i = dim; i--;)
     VecSet(v, i, pa[i]);
-  if (VecIsEqual(v, facoid->_pos) == false) {
+  if (VecIsEqual(v, ((Shapoid*)facoid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidGrowVector failed");
     PBErrCatch(ShapoidErr);
@@ -361,7 +361,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, VecGet(scalev, i));
       else
         VecSet(v, j, 0.0);
-    if (VecIsEqual(v, facoid->_axis[i]) == false) {
+    if (VecIsEqual(v, ((Shapoid*)facoid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidGrowVector failed");
       PBErrCatch(ShapoidErr);
@@ -382,7 +382,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, VecGet(scalev, i));
       else
         VecSet(v, j, 0.0);
-    if (VecIsEqual(v, pyramidoid->_axis[i]) == false) {
+    if (VecIsEqual(v, ((Shapoid*)pyramidoid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidGrowVector failed");
       PBErrCatch(ShapoidErr);
@@ -393,7 +393,7 @@ void UnitTestTranslateScaleGrowRotate() {
   spheroid = SpheroidCreate(dim);
   ShapoidGrow(spheroid, scalev);
   VecSetNull(v);
-  if (VecIsEqual(v, spheroid->_pos) == false) {
+  if (VecIsEqual(v, ((Shapoid*)spheroid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidGrowVector failed");
     PBErrCatch(ShapoidErr);
@@ -404,7 +404,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, VecGet(scalev, i));
       else
         VecSet(v, j, 0.0);
-    if (VecIsEqual(v, spheroid->_axis[i]) == false) {
+    if (VecIsEqual(v, ((Shapoid*)spheroid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidGrowVector failed");
       PBErrCatch(ShapoidErr);
@@ -423,9 +423,11 @@ void UnitTestTranslateScaleGrowRotate() {
   float pc[2] = {0.0, 1.0};
   float pd[2] = {-1.0, 0.0};
   for (int i = dim; i--;) {
-    if (ISEQUALF(VecGet(facoid->_pos, i), pb[i]) == false ||
-      ISEQUALF(VecGet(facoid->_axis[0], i), pc[i]) == false ||
-      ISEQUALF(VecGet(facoid->_axis[1], i), pd[i]) == false) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pb[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pc[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pd[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidRotate2D failed");
       PBErrCatch(ShapoidErr);
@@ -436,9 +438,12 @@ void UnitTestTranslateScaleGrowRotate() {
   float pf[2] = {0.0, 1.0};
   float pg[2] = {-1.0, 0.0};
   for (int i = dim; i--;) {
-    if (ISEQUALF(VecGet(pyramidoid->_pos, i), pe[i]) == false ||
-      ISEQUALF(VecGet(pyramidoid->_axis[0], i), pf[i]) == false ||
-      ISEQUALF(VecGet(pyramidoid->_axis[1], i), pg[i]) == false) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pe[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      pf[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      pg[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidRotate2D failed");
       PBErrCatch(ShapoidErr);
@@ -449,9 +454,12 @@ void UnitTestTranslateScaleGrowRotate() {
   float pi[2] = {0.0, 1.0};
   float pj[2] = {-1.0, 0.0};
   for (int i = dim; i--;) {
-    if (ISEQUALF(VecGet(spheroid->_pos, i), ph[i]) == false ||
-      ISEQUALF(VecGet(spheroid->_axis[0], i), pi[i]) == false ||
-      ISEQUALF(VecGet(spheroid->_axis[1], i), pj[i]) == false) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      ph[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      pi[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      pj[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidRotate2D failed");
       PBErrCatch(ShapoidErr);
@@ -466,9 +474,9 @@ void UnitTestTranslateScaleGrowRotate() {
 
 void UnitTestImportExportCoordIsPosInside() {
   int dim = 2;
-  Shapoid *facoid = FacoidCreate(dim);
-  Shapoid *pyramidoid = PyramidoidCreate(dim);
-  Shapoid *spheroid = SpheroidCreate(dim);
+  Facoid *facoid = FacoidCreate(dim);
+  Pyramidoid *pyramidoid = PyramidoidCreate(dim);
+  Spheroid *spheroid = SpheroidCreate(dim);
   VecFloat *v = VecFloatCreate(dim);
   for (int i = dim; i--;)
     VecSet(v, i, 1.0 + (float)i);
@@ -607,9 +615,9 @@ void UnitTestImportExportCoordIsPosInside() {
 
 void UnitTestGetBoundingBox() {
   int dim = 2;
-  Shapoid *facoid = FacoidCreate(dim);
-  Shapoid *pyramidoid = PyramidoidCreate(dim);
-  Shapoid *spheroid = SpheroidCreate(dim);
+  Facoid *facoid = FacoidCreate(dim);
+  Pyramidoid *pyramidoid = PyramidoidCreate(dim);
+  Spheroid *spheroid = SpheroidCreate(dim);
   VecFloat *v = VecFloatCreate(dim);
   for (int i = dim; i--;)
     VecSet(v, i, 1.0 + (float)i);
@@ -624,40 +632,47 @@ void UnitTestGetBoundingBox() {
   ShapoidRotate2D(facoid, theta);
   ShapoidRotate2D(pyramidoid, theta);
   ShapoidRotate2D(spheroid, theta);
-  Shapoid *boundA = ShapoidGetBoundingBox(facoid);
+  Facoid *boundA = ShapoidGetBoundingBox(facoid);
   float pa[2] = {-1.414214, -0.414213};
   float pb[2] = {2.828427, 0.0};
   float pc[2] = {0.0, 2.828427};
   for (int i = dim; i--;) {
-    if (ISEQUALF(VecGet(boundA->_pos, i), pa[i]) == false ||
-      ISEQUALF(VecGet(boundA->_axis[0], i), pb[i]) == false ||
-      ISEQUALF(VecGet(boundA->_axis[1], i), pc[i]) == false) {
+    if (ISEQUALF(VecGet(((Shapoid*)boundA)->_pos, i), 
+      pa[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)boundA)->_axis[0], i), 
+      pb[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)boundA)->_axis[1], i), 
+      pc[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidGetBoundingBox failed");
       PBErrCatch(ShapoidErr);
     }
   }
-  Shapoid *boundB = ShapoidGetBoundingBox(pyramidoid);
+  Facoid *boundB = ShapoidGetBoundingBox(pyramidoid);
   float pd[2] = {-1.414214, -1.4142143};
   float pe[2] = {2.828427, 0.0};
   float pf[2] = {0.0, 3.690356};
   for (int i = dim; i--;) {
-    if (ISEQUALF(VecGet(boundB->_pos, i), pd[i]) == false ||
-      ISEQUALF(VecGet(boundB->_axis[0], i), pe[i]) == false ||
-      ISEQUALF(VecGet(boundB->_axis[1], i), pf[i]) == false) {
+    if (ISEQUALF(VecGet(((Shapoid*)boundB)->_pos, i), pd[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)boundB)->_axis[0], i), 
+      pe[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)boundB)->_axis[1], i), 
+      pf[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidGetBoundingBox failed");
       PBErrCatch(ShapoidErr);
     }
   }
-  Shapoid *boundC = ShapoidGetBoundingBox(spheroid);
+  Facoid *boundC = ShapoidGetBoundingBox(spheroid);
   float pg[2] = {-0.414214, 0.585786};
   float ph[2] = {2.828427, 0.0};
   float pi[2] = {0.0, 2.828427};
   for (int i = dim; i--;) {
-    if (ISEQUALF(VecGet(boundC->_pos, i), pg[i]) == false ||
-      ISEQUALF(VecGet(boundC->_axis[0], i), ph[i]) == false ||
-      ISEQUALF(VecGet(boundC->_axis[1], i), pi[i]) == false) {
+    if (ISEQUALF(VecGet(((Shapoid*)boundC)->_pos, i), pg[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)boundC)->_axis[0], i), 
+      ph[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)boundC)->_axis[1], i), 
+      pi[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidGetBoundingBox failed");
       PBErrCatch(ShapoidErr);
@@ -667,14 +682,16 @@ void UnitTestGetBoundingBox() {
   GSetPush(&set, facoid);
   GSetPush(&set, pyramidoid);
   GSetPush(&set, spheroid);
-  Shapoid *boundD = ShapoidGetBoundingBox(&set);
+  Facoid *boundD = ShapoidGetBoundingBox(&set);
   float pj[2] = {-1.414214, -1.4142143};
   float pk[2] = {3.828427, 0.0};
   float pl[2] = {0.0, 4.828427};
   for (int i = dim; i--;) {
-    if (ISEQUALF(VecGet(boundD->_pos, i), pj[i]) == false ||
-      ISEQUALF(VecGet(boundD->_axis[0], i), pk[i]) == false ||
-      ISEQUALF(VecGet(boundD->_axis[1], i), pl[i]) == false) {
+    if (ISEQUALF(VecGet(((Shapoid*)boundD)->_pos, i), pj[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)boundD)->_axis[0], i), 
+      pk[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)boundD)->_axis[1], i), 
+      pl[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidGetBoundingBox failed");
       PBErrCatch(ShapoidErr);
@@ -694,9 +711,9 @@ void UnitTestGetBoundingBox() {
 
 void UnitTestGetPosDepthCenterCoverage() {
   int dim = 2;
-  Shapoid *facoid = FacoidCreate(dim);
-  Shapoid *pyramidoid = PyramidoidCreate(dim);
-  Shapoid *spheroid = SpheroidCreate(dim);
+  Facoid *facoid = FacoidCreate(dim);
+  Pyramidoid *pyramidoid = PyramidoidCreate(dim);
+  Spheroid *spheroid = SpheroidCreate(dim);
   VecFloat *center = ShapoidGetCenter(facoid);
   if (ISEQUALF(VecGet(center, 0), 0.5) == false ||
     ISEQUALF(VecGet(center, 1), 0.5) == false) {

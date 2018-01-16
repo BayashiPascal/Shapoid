@@ -6,7 +6,7 @@
 #if BUILDMODE != 0
 inline
 #endif 
-int ShapoidGetDim(Shapoid *that) {
+int _ShapoidGetDim(Shapoid *that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -22,7 +22,7 @@ int ShapoidGetDim(Shapoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-ShapoidType ShapoidGetType(Shapoid *that) {
+ShapoidType _ShapoidGetType(Shapoid *that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -39,7 +39,7 @@ ShapoidType ShapoidGetType(Shapoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-const char* ShapoidGetTypeAsString(Shapoid *that) {
+const char* _ShapoidGetTypeAsString(Shapoid *that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -55,7 +55,7 @@ const char* ShapoidGetTypeAsString(Shapoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* ShapoidGetPos(Shapoid *that) {
+VecFloat* _ShapoidGetPos(Shapoid *that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -71,7 +71,7 @@ VecFloat* ShapoidGetPos(Shapoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* ShapoidGetAxis(Shapoid *that, int dim) {
+VecFloat* _ShapoidGetAxis(Shapoid *that, int dim) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -93,7 +93,7 @@ VecFloat* ShapoidGetAxis(Shapoid *that, int dim) {
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidSetPos(Shapoid *that, VecFloat *pos) {
+void _ShapoidSetPos(Shapoid *that, VecFloat *pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -120,7 +120,7 @@ void ShapoidSetPos(Shapoid *that, VecFloat *pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidSetAxis(Shapoid *that, int dim, VecFloat *v) {
+void _ShapoidSetAxis(Shapoid *that, int dim, VecFloat *v) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -155,7 +155,7 @@ void ShapoidSetAxis(Shapoid *that, int dim, VecFloat *v) {
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidTranslate(Shapoid *that, VecFloat *v) {
+void _ShapoidTranslate(Shapoid *that, VecFloat *v) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -322,13 +322,12 @@ void ShapoidGrowScalar(Shapoid *that, float c) {
   ShapoidUpdateSysLinEqImport(that);
 }
 
-
 // Rotate the Shapoid of dimension 2 by 'theta' (in radians, CCW)
 // relatively to its center
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidRotate2D(Shapoid *that, float theta) {
+void _ShapoidRotate2D(Shapoid *that, float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -377,7 +376,7 @@ void ShapoidRotate2D(Shapoid *that, float theta) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* ShapoidImportCoord(Shapoid *that, VecFloat *pos) {
+VecFloat* _ShapoidImportCoord(Shapoid *that, VecFloat *pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -406,13 +405,16 @@ VecFloat* ShapoidImportCoord(Shapoid *that, VecFloat *pos) {
   // return the result
   return res;
 }
+#if BUILDMODE != 0
+inline
+#endif 
 
 // Convert the coordinates of 'pos' from the Shapoid coordinates system 
 // toward standard coordinate system
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* ShapoidExportCoord(Shapoid *that, VecFloat *pos) {
+VecFloat* _ShapoidExportCoord(Shapoid *that, VecFloat *pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -443,7 +445,7 @@ VecFloat* ShapoidExportCoord(Shapoid *that, VecFloat *pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* ShapoidGetCenter(Shapoid *that) {
+VecFloat* _ShapoidGetCenter(Shapoid *that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -458,21 +460,80 @@ VecFloat* ShapoidGetCenter(Shapoid *that) {
     PBErrCatch(ShapoidErr);
   }
 #endif
+  if (ShapoidGetType(that) == ShapoidTypeFacoid)
+    return FacoidGetCenter((Facoid*)that);
+  else if (ShapoidGetType(that) == ShapoidTypePyramidoid)
+    return PyramidoidGetCenter((Pyramidoid*)that);
+  else if (ShapoidGetType(that) == ShapoidTypeSpheroid)
+    return SpheroidGetCenter((Spheroid*)that);
+  else
+    return NULL;
+}
+
+#if BUILDMODE != 0
+inline
+#endif 
+VecFloat* FacoidGetCenter(Facoid *that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
   // Declare a variable to memorize the result in Shapoid 
   // coordinate system
   VecFloat *coord = VecFloatCreate(ShapoidGetDim(that));
-  // If we could allocate memory
-  if (coord != NULL) {
-    // For each dimension
-    for (int dim = ShapoidGetDim(that); dim--;) {
-      if (ShapoidGetType(that) == ShapoidTypeFacoid)
-        VecSet(coord, dim, 0.5);
-      else if (ShapoidGetType(that) == ShapoidTypePyramidoid)
-        VecSet(coord, dim, 1.0 / (1.0 + ShapoidGetDim(that)));
-      else if (ShapoidGetType(that) == ShapoidTypeSpheroid)
-        VecSet(coord, dim, 0.0);
-    }
+  // For each dimension
+  for (int dim = ShapoidGetDim(that); dim--;)
+    VecSet(coord, dim, 0.5);
+  // Convert the coordinates in standard coordinate system
+  VecFloat *res = ShapoidExportCoord(that, coord);
+  // Free memory
+  VecFree(&coord);
+  // Return the result
+  return res;
+}
+
+#if BUILDMODE != 0
+inline
+#endif 
+VecFloat* PyramidoidGetCenter(Pyramidoid *that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
   }
+#endif
+  // Declare a variable to memorize the result in Shapoid 
+  // coordinate system
+  VecFloat *coord = VecFloatCreate(ShapoidGetDim(that));
+  // For each dimension
+  for (int dim = ShapoidGetDim(that); dim--;)
+    VecSet(coord, dim, 1.0 / (1.0 + ShapoidGetDim(that)));
+  // Convert the coordinates in standard coordinate system
+  VecFloat *res = ShapoidExportCoord(that, coord);
+  // Free memory
+  VecFree(&coord);
+  // Return the result
+  return res;
+}
+
+#if BUILDMODE != 0
+inline
+#endif 
+VecFloat* SpheroidGetCenter(Spheroid *that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Declare a variable to memorize the result in Shapoid 
+  // coordinate system
+  VecFloat *coord = VecFloatCreate(ShapoidGetDim(that));
   // Convert the coordinates in standard coordinate system
   VecFloat *res = ShapoidExportCoord(that, coord);
   // Free memory
@@ -485,7 +546,7 @@ VecFloat* ShapoidGetCenter(Shapoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool ShapoidIsEqual(Shapoid *that, Shapoid *tho) {
+bool _ShapoidIsEqual(Shapoid *that, Shapoid *tho) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -539,5 +600,348 @@ void ShapoidUpdateSysLinEqImport(Shapoid *that) {
   SysLinEqSetM(that->_sysLinEqImport, mat);
   // Free memory
   MatFree(&mat);
+}
+
+// Return true if 'pos' (in stand coordinate system) is inside the 
+// Shapoid
+// Else return false
+#if BUILDMODE != 0
+inline
+#endif 
+bool _ShapoidIsPosInside(Shapoid *that, VecFloat *pos) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (pos == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'pos' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecDim(pos) != that->_dim) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+      that->_dim, VecDim(pos));
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_type != ShapoidTypeFacoid &&
+    that->_type != ShapoidTypeSpheroid &&
+    that->_type != ShapoidTypePyramidoid) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "No implementation for 'that' 's type");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // If the Shapoid is a Facoid
+  if (that->_type == ShapoidTypeFacoid) {
+    return FacoidIsPosInside((Facoid*)that, pos);
+  // Else, if the Shapoid is a Pyramidoid
+  } else if (that->_type == ShapoidTypePyramidoid) {
+    return PyramidoidIsPosInside((Pyramidoid*)that, pos);
+  // Else, if the Shapoid is a Spheroid
+  } else if (that->_type == ShapoidTypeSpheroid) {
+    return SpheroidIsPosInside((Spheroid*)that, pos);
+  } else 
+    return false;
+}
+
+#if BUILDMODE != 0
+inline
+#endif 
+bool FacoidIsPosInside(Facoid *that, VecFloat *pos) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (pos == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'pos' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecDim(pos) != ShapoidGetDim(that)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+      ShapoidGetDim(that), VecDim(pos));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Get the coordinates of pos in the Shapoid coordinate system
+  VecFloat *coord = ShapoidImportCoord(that, pos);
+  // Declare a variable to memorize the result
+  bool ret = false;
+  // pos is in the Shapoid if all the coord in Shapoid coord 
+  // system are in [0.0, 1.0]
+  ret = true;
+  for (int dim = ShapoidGetDim(that); dim-- && ret == true;) {
+    float v = VecGet(coord, dim);
+    if (v < 0.0 || v > 1.0)
+      ret = false;
+  }
+  // Free memory
+  VecFloatFree(&coord);
+  // Return the result
+  return ret;
+}
+
+#if BUILDMODE != 0
+inline
+#endif 
+bool PyramidoidIsPosInside(Pyramidoid *that, VecFloat *pos) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (pos == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'pos' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecDim(pos) != ShapoidGetDim(that)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+      ShapoidGetDim(that), VecDim(pos));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Get the coordinates of pos in the Shapoid coordinate system
+  VecFloat *coord = ShapoidImportCoord(that, pos);
+  // Declare a variable to memorize the result
+  bool ret = false;
+  // pos is in the Shapoid if all the coord in Shapoid coord 
+  // system are in [0.0, 1.0] and their sum is in [0.0, 1.0]
+  ret = true;
+  float sum = 0.0;
+  for (int dim = ShapoidGetDim(that); dim-- && ret == true;) {
+    float v = VecGet(coord, dim);
+    sum += v;
+    if (v < 0.0 || v > 1.0)
+      ret = false;
+  }
+  if (ret == true && sum > 1.0)
+    ret = false;
+  // Free memory
+  VecFloatFree(&coord);
+  // Return the result
+  return ret;
+}
+
+#if BUILDMODE != 0
+inline
+#endif 
+bool SpheroidIsPosInside(Spheroid *that, VecFloat *pos) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (pos == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'pos' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecDim(pos) != ShapoidGetDim(that)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+      ShapoidGetDim(that), VecDim(pos));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Get the coordinates of pos in the Shapoid coordinate system
+  VecFloat *coord = ShapoidImportCoord(that, pos);
+  // Declare a variable to memorize the result
+  bool ret = false;
+  // pos is in the Shapoid if its norm is in [0.0, 0.5]
+  float norm = VecNorm(coord);
+  if (norm <= 0.5)
+    ret = true;
+  // Free memory
+  VecFloatFree(&coord);
+  // Return the result
+  return ret;
+}
+
+// Get the depth value in the Shapoid of 'pos'
+// The depth is defined as follow: the point with depth equals 1.0 is 
+// the farthest point from the surface of the Shapoid (inside it),
+// points with depth equals to 0.0 are point on the surface of the
+// Shapoid. Depth is continuous and derivable over the volume of the
+// Shapoid
+#if BUILDMODE != 0
+inline
+#endif 
+float _ShapoidGetPosDepth(Shapoid *that, VecFloat *pos) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (pos == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'pos' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecDim(pos) != that->_dim) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+      that->_dim, VecDim(pos));
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_type != ShapoidTypeFacoid &&
+    that->_type != ShapoidTypeSpheroid &&
+    that->_type != ShapoidTypePyramidoid) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "No implementation for 'that' 's type");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // If the Shapoid is a Facoid
+  if (that->_type == ShapoidTypeFacoid) {
+    return FacoidGetPosDepth((Facoid*)that, pos);
+  // Else, if the Shapoid is a Pyramidoid
+  } else if (that->_type == ShapoidTypePyramidoid) {
+    return PyramidoidGetPosDepth((Pyramidoid*)that, pos);
+  // Else, if the Shapoid is a Spheroid
+  } else if (that->_type == ShapoidTypeSpheroid) {
+    return SpheroidGetPosDepth((Spheroid*)that, pos);
+  } else {
+    return 0.0;
+  }
+}
+
+#if BUILDMODE != 0
+inline
+#endif 
+float FacoidGetPosDepth(Facoid *that, VecFloat *pos) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (pos == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'pos' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecDim(pos) != ShapoidGetDim(that)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+      ShapoidGetDim(that), VecDim(pos));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Get the coordinates of pos in the Shapoid coordinate system
+  VecFloat *coord = ShapoidImportCoord(that, pos);
+  // Declare a variable to memorize the result
+  float ret = 1.0;
+  for (int dim = ShapoidGetDim(that); dim-- && ret > PBMATH_EPSILON;) {
+    float v = VecGet(coord, dim);
+    if (v < 0.0 || VecGet(coord, dim) > 1.0)
+      ret = 0.0;
+    else
+      ret *= 1.0 - pow(0.5 - v, 2.0) * 4.0;
+  }
+  // Free memory
+  VecFloatFree(&coord);
+  // Return the result
+  return ret;
+}
+
+#if BUILDMODE != 0
+inline
+#endif 
+float PyramidoidGetPosDepth(Pyramidoid *that, VecFloat *pos) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (pos == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'pos' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecDim(pos) != ShapoidGetDim(that)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+      ShapoidGetDim(that), VecDim(pos));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Get the coordinates of pos in the Shapoid coordinate system
+  VecFloat *coord = ShapoidImportCoord(that, pos);
+  // Declare a variable to memorize the result
+  float ret = 1.0;
+  float sum = 0.0;
+  bool flag = true;
+  for (int dim = ShapoidGetDim(that); dim-- && ret > PBMATH_EPSILON;) {
+    float v = VecGet(coord, dim);
+    sum += v;
+    if (v < 0.0 || v > 1.0)
+      flag = false;
+  }
+  if (flag == true && sum > 1.0)
+    flag = false;
+  if (flag == false)
+    ret = 0.0;
+  else {
+    ret = 1.0;
+    for (int dim = ShapoidGetDim(that); dim--;) {
+      float z = 0.0;
+      for (int d = ShapoidGetDim(that); d--;)
+        if (d != dim)
+          z += VecGet(coord, d);
+      ret *= 
+        (1.0 - 4.0 * pow(0.5 - VecGet(coord, dim) / (1.0 - z), 2.0));
+    }
+  }
+  // Free memory
+  VecFloatFree(&coord);
+  // Return the result
+  return ret;
+}
+
+#if BUILDMODE != 0
+inline
+#endif 
+float SpheroidGetPosDepth(Spheroid *that, VecFloat *pos) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (pos == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'pos' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecDim(pos) != ShapoidGetDim(that)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+      ShapoidGetDim(that), VecDim(pos));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Get the coordinates of pos in the Shapoid coordinate system
+  VecFloat *coord = ShapoidImportCoord(that, pos);
+  // Declare a variable to memorize the result
+  float ret = 0.0;
+  float norm = VecNorm(coord);
+  if (norm <= 0.5)
+    ret = 1.0 - norm * 2.0;
+  // Free memory
+  VecFloatFree(&coord);
+  // Return the result
+  return ret;
 }
 

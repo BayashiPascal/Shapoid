@@ -64,7 +64,7 @@ Shapoid* ShapoidCreate(int dim, ShapoidType type) {
 }
 
 // Clone a Shapoid
-Shapoid* ShapoidClone(Shapoid *that) {
+Shapoid* _ShapoidClone(Shapoid *that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -86,7 +86,7 @@ Shapoid* ShapoidClone(Shapoid *that) {
 }
 
 // Free memory used by a Shapoid
-void ShapoidFree(Shapoid **that) {
+void _ShapoidFree(Shapoid **that) {
   // Check argument
   if (that == NULL || *that == NULL)
     return;
@@ -103,7 +103,7 @@ void ShapoidFree(Shapoid **that) {
 // Load the Shapoid from the stream
 // If the Shapoid is already allocated, it is freed before loading
 // Return true upon success else false
-bool ShapoidLoad(Shapoid **that, FILE *stream) {
+bool _ShapoidLoad(Shapoid **that, FILE *stream, ShapoidType type) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -128,10 +128,13 @@ bool ShapoidLoad(Shapoid **that, FILE *stream) {
     return false;
   if (dim <= 0)
     return false;
-  ShapoidType type;
-  ret = fscanf(stream, "%u", &type);
+  ShapoidType typeLoad;
+  ret = fscanf(stream, "%u", &typeLoad);
   // If we coudln't fscanf
   if (ret == EOF)
+    return false;
+  // Check the type
+  if (type != typeLoad)
     return false;
   // Allocate memory
   *that = ShapoidCreate(dim, type);
@@ -152,7 +155,7 @@ bool ShapoidLoad(Shapoid **that, FILE *stream) {
 
 // Save the Shapoid to the stream
 // Return true upon success else false
-bool ShapoidSave(Shapoid *that, FILE *stream) {
+bool _ShapoidSave(Shapoid *that, FILE *stream) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -184,7 +187,7 @@ bool ShapoidSave(Shapoid *that, FILE *stream) {
 }
 
 // Print the Shapoid on 'stream'
-void ShapoidPrintln(Shapoid *that, FILE *stream) {
+void _ShapoidPrintln(Shapoid *that, FILE *stream) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -210,82 +213,12 @@ void ShapoidPrintln(Shapoid *that, FILE *stream) {
   }
 }
 
-// Return true if 'pos' (in stand coordinate system) is inside the 
-// Shapoid
-// Else return false
-bool ShapoidIsPosInside(Shapoid *that, VecFloat *pos) {
-#if BUILDMODE == 0
-  if (that == NULL) {
-    ShapoidErr->_type = PBErrTypeNullPointer;
-    sprintf(ShapoidErr->_msg, "'that' is null");
-    PBErrCatch(ShapoidErr);
-  }
-  if (pos == NULL) {
-    ShapoidErr->_type = PBErrTypeNullPointer;
-    sprintf(ShapoidErr->_msg, "'pos' is null");
-    PBErrCatch(ShapoidErr);
-  }
-  if (VecDim(pos) != that->_dim) {
-    ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
-      that->_dim, VecDim(pos));
-    PBErrCatch(ShapoidErr);
-  }
-  if (that->_type != ShapoidTypeFacoid &&
-    that->_type != ShapoidTypeSpheroid &&
-    that->_type != ShapoidTypePyramidoid) {
-    ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "No implementation for 'that' 's type");
-    PBErrCatch(ShapoidErr);
-  }
-#endif
-  // Get the coordinates of pos in the Shapoid coordinate system
-  VecFloat *coord = ShapoidImportCoord(that, pos);
-  // Declare a variable to memorize the result
-  bool ret = false;
-  // If the Shapoid is a Facoid
-  if (that->_type == ShapoidTypeFacoid) {
-    // pos is in the Shapoid if all the coord in Shapoid coord 
-    // system are in [0.0, 1.0]
-    ret = true;
-    for (int dim = that->_dim; dim-- && ret == true;) {
-      float v = VecGet(coord, dim);
-      if (v < 0.0 || v > 1.0)
-        ret = false;
-    }
-  // Else, if the Shapoid is a Pyramidoid
-  } else if (that->_type == ShapoidTypePyramidoid) {
-    // pos is in the Shapoid if all the coord in Shapoid coord 
-    // system are in [0.0, 1.0] and their sum is in [0.0, 1.0]
-    ret = true;
-    float sum = 0.0;
-    for (int dim = that->_dim; dim-- && ret == true;) {
-      float v = VecGet(coord, dim);
-      sum += v;
-      if (v < 0.0 || v > 1.0)
-        ret = false;
-    }
-    if (ret == true && sum > 1.0)
-      ret = false;
-  // Else, if the Shapoid is a Spheroid
-  } else if (that->_type == ShapoidTypeSpheroid) {
-    // pos is in the Shapoid if its norm is in [0.0, 0.5]
-    float norm = VecNorm(coord);
-    if (norm <= 0.5)
-      ret = true;
-  }
-  // Free memory
-  VecFloatFree(&coord);
-  // Return the result
-  return ret;
-}
-
 // Get a bounding box of the Shapoid. The bounding box is aligned
 // on the standard coordinate system (its axis are colinear with
 // the axis of the standard coordinate system).
 // The bounding box is returned as a Facoid, which position is
 // at the minimum value along each axis.
-Shapoid* ShapoidGetBoundingBoxThat(Shapoid *that) {
+Facoid* _ShapoidGetBoundingBox(Shapoid *that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -300,90 +233,133 @@ Shapoid* ShapoidGetBoundingBoxThat(Shapoid *that) {
     PBErrCatch(ShapoidErr);
   }
 #endif
-  // Declare a variable to memorize the result
-  Shapoid *res = FacoidCreate(ShapoidGetDim(that));
   // If the Shapoid is a Facoid
   if (that->_type == ShapoidTypeFacoid) {
-    // For each axis
-    for (int dim = that->_dim; dim--;) {
-      // Declare a variable to memorize the bound of the interval on 
-      // this axis
-      float bound[2];
-      bound[0] = bound[1] = VecGet(that->_pos, dim);
-      // For each parameter
-      for (int param = that->_dim; param--;) {
-        // Get the value of the axis influencing the current dimension
-        float v = VecGet(that->_axis[param], dim);
-        // If the value is negative, update the minimum bound
-        if (v < 0.0)
-          bound[0] += v;
-        // Else, if the value is negative, update the minimum bound
-        else
-          bound[1] += v;
-      }
-      // Memorize the result
-      VecSet(res->_pos, dim, bound[0]);
-      VecSet(res->_axis[dim], dim, bound[1] - bound[0]);
-    }
+    return FacoidGetBoundingBox((Facoid*)that);
   // Else, if the Shapoid is a Pyramidoid
   } else  if (that->_type == ShapoidTypePyramidoid) {
-    // For each axis
-    for (int dim = that->_dim; dim--;) {
-      // Declare a variable to memorize the bound of the interval on 
-      // this axis
-      float bound[2];
-      bound[0] = bound[1] = VecGet(that->_pos, dim);
-      // For each parameter
-      for (int param = that->_dim; param--;) {
-        // Get the value of the axis influencing the current dimension
-        float v = VecGet(that->_axis[param], dim);
-        // Search the min and max values
-        if (v < bound[0])
-          bound[0] = v;
-        if (v > bound[1])
-          bound[1] = v;
-      }
-      // Memorize the result
-      VecSet(res->_pos, dim, bound[0]);
-      VecSet(res->_axis[dim], dim, bound[1] - bound[0]);
-    }
+    return PyramidoidGetBoundingBox((Pyramidoid*)that);
   // Else, if the Shapoid is a Spheroid
   } else  if (that->_type == ShapoidTypeSpheroid) {
-    // In case of a Spheroid, things get complicate
-    // We'll approximate the bounding box of the Spheroid 
-    // with the one of the same Spheroid viewed as a Facoid
-    // and simply take care that the _pos is at the center of the 
-    // Spheroid
-    // For each axis
-    for (int dim = that->_dim; dim--;) {
-      // Declare a variable to memorize the bound of the interval on 
-      // this axis
-      float bound[2];
-      bound[0] = VecGet(that->_pos, dim);
-      // Correct position
-      // For each parameter
-      for (int param = that->_dim; param--;) {
-        // Get the value of the axis influencing the current dimension
-        float v = VecGet(that->_axis[param], dim);
-        // Correct the pos
-        bound[0] -= 0.5 * v;
-      }
-      bound[1] = bound[0];
-      // For each parameter
-      for (int param = that->_dim; param--;) {
-        // Get the value of the axis influencing the current dimension
-        float v = VecGet(that->_axis[param], dim);
-        // If the value is negative, update the minimum bound
-        if (v < 0.0)
-          bound[0] += v;
-        // Else, if the value is negative, update the minimum bound
-        else
-          bound[1] += v;
-      }
-      // Memorize the result
-      VecSet(res->_pos, dim, bound[0]);
-      VecSet(res->_axis[dim], dim, bound[1] - bound[0]);
+    return SpheroidGetBoundingBox((Spheroid*)that);
+  } else {
+    return NULL;
+  }
+}
+
+Facoid* FacoidGetBoundingBox(Facoid *that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Declare a variable to memorize the result
+  Facoid *res = FacoidCreate(ShapoidGetDim(that));
+  // For each axis
+  for (int dim = ShapoidGetDim(that); dim--;) {
+    // Declare a variable to memorize the bound of the interval on 
+    // this axis
+    float bound[2];
+    bound[0] = bound[1] = VecGet(((Shapoid*)that)->_pos, dim);
+    // For each parameter
+    for (int param = ShapoidGetDim(that); param--;) {
+      // Get the value of the axis influencing the current dimension
+      float v = VecGet(((Shapoid*)that)->_axis[param], dim);
+      // If the value is negative, update the minimum bound
+      if (v < 0.0)
+        bound[0] += v;
+      // Else, if the value is negative, update the minimum bound
+      else
+        bound[1] += v;
     }
+    // Memorize the result
+    VecSet(((Shapoid*)res)->_pos, dim, bound[0]);
+    VecSet(((Shapoid*)res)->_axis[dim], dim, bound[1] - bound[0]);
+  }
+  // Return the result
+  return res;
+}
+
+Facoid* PyramidoidGetBoundingBox(Pyramidoid *that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Declare a variable to memorize the result
+  Facoid *res = FacoidCreate(ShapoidGetDim(that));
+  // For each axis
+  for (int dim = ShapoidGetDim(that); dim--;) {
+    // Declare a variable to memorize the bound of the interval on 
+    // this axis
+    float bound[2];
+    bound[0] = bound[1] = VecGet(((Shapoid*)that)->_pos, dim);
+    // For each parameter
+    for (int param = ShapoidGetDim(that); param--;) {
+      // Get the value of the axis influencing the current dimension
+      float v = VecGet(((Shapoid*)that)->_axis[param], dim);
+      // Search the min and max values
+      if (v < bound[0])
+        bound[0] = v;
+      if (v > bound[1])
+        bound[1] = v;
+    }
+    // Memorize the result
+    VecSet(((Shapoid*)res)->_pos, dim, bound[0]);
+    VecSet(((Shapoid*)res)->_axis[dim], dim, bound[1] - bound[0]);
+  }
+  // Return the result
+  return res;
+}
+
+Facoid* SpheroidGetBoundingBox(Spheroid *that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Declare a variable to memorize the result
+  Facoid *res = FacoidCreate(ShapoidGetDim(that));
+  // In case of a Spheroid, things get complicate
+  // We'll approximate the bounding box of the Spheroid 
+  // with the one of the same Spheroid viewed as a Facoid
+  // and simply take care that the _pos is at the center of the 
+  // Spheroid
+  // For each axis
+  for (int dim = ShapoidGetDim(that); dim--;) {
+    // Declare a variable to memorize the bound of the interval on 
+    // this axis
+    float bound[2];
+    bound[0] = VecGet(((Shapoid*)that)->_pos, dim);
+    // Correct position
+    // For each parameter
+    for (int param = ShapoidGetDim(that); param--;) {
+      // Get the value of the axis influencing the current dimension
+      float v = VecGet(((Shapoid*)that)->_axis[param], dim);
+      // Correct the pos
+      bound[0] -= 0.5 * v;
+    }
+    bound[1] = bound[0];
+    // For each parameter
+    for (int param = ShapoidGetDim(that); param--;) {
+      // Get the value of the axis influencing the current dimension
+      float v = VecGet(((Shapoid*)that)->_axis[param], dim);
+      // If the value is negative, update the minimum bound
+      if (v < 0.0)
+        bound[0] += v;
+      // Else, if the value is negative, update the minimum bound
+      else
+        bound[1] += v;
+    }
+    // Memorize the result
+    VecSet(((Shapoid*)res)->_pos, dim, bound[0]);
+    VecSet(((Shapoid*)res)->_axis[dim], dim, bound[1] - bound[0]);
   }
   // Return the result
   return res;
@@ -394,7 +370,7 @@ Shapoid* ShapoidGetBoundingBoxThat(Shapoid *that) {
 // the axis of the standard coordinate system).
 // The bounding box is returned as a Facoid, which position is
 // at the minimum value along each axis.
-Shapoid* ShapoidGetBoundingBoxSet(GSet *set) {
+Facoid* ShapoidGetBoundingBoxSet(GSet *set) {
 #if BUILDMODE == 0
   if (set == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -414,7 +390,7 @@ Shapoid* ShapoidGetBoundingBoxSet(GSet *set) {
   }
 #endif
   // Declare a variable for the result
-  Shapoid *res = NULL;
+  Facoid *res = NULL;
   // Declare a pointer to the elements of the set
   GSetElem *elem = set->_head;
   // Loop on element of the set
@@ -428,25 +404,27 @@ Shapoid* ShapoidGetBoundingBoxSet(GSet *set) {
     // Else, this is not the first Shapoid in the set
     } else {
       // Get the bounding box of this shapoid
-      Shapoid *bound = ShapoidGetBoundingBox(shapoid);
+      Facoid *bound = ShapoidGetBoundingBox(shapoid);
       // For each dimension
-      for (int iDim = res->_dim; iDim--;) {
+      for (int iDim = ShapoidGetDim(res); iDim--;) {
         // Update the bounding box
-        if (VecGet(bound->_pos, iDim) < VecGet(res->_pos, iDim)) {
-          VecSet(res->_axis[iDim], iDim, 
-            VecGet(res->_axis[iDim], iDim) +
-            VecGet(res->_pos, iDim) -
-            VecGet(bound->_pos, iDim));
-          VecSet(res->_pos, iDim, VecGet(bound->_pos, iDim));
+        if (VecGet(((Shapoid*)bound)->_pos, iDim) < 
+          VecGet(((Shapoid*)res)->_pos, iDim)) {
+          VecSet(((Shapoid*)res)->_axis[iDim], iDim, 
+            VecGet(((Shapoid*)res)->_axis[iDim], iDim) +
+            VecGet(((Shapoid*)res)->_pos, iDim) -
+            VecGet(((Shapoid*)bound)->_pos, iDim));
+          VecSet(((Shapoid*)res)->_pos, iDim, 
+          VecGet(((Shapoid*)bound)->_pos, iDim));
         }
-        if (VecGet(bound->_pos, iDim) + 
-          VecGet(bound->_axis[iDim], iDim) >
-          VecGet(res->_pos, iDim) + 
-          VecGet(res->_axis[iDim], iDim))
-          VecSet(res->_axis[iDim], iDim, 
-          VecGet(bound->_pos, iDim) + 
-          VecGet(bound->_axis[iDim], iDim) -
-          VecGet(res->_pos, iDim));
+        if (VecGet(((Shapoid*)bound)->_pos, iDim) + 
+          VecGet(((Shapoid*)bound)->_axis[iDim], iDim) >
+          VecGet(((Shapoid*)res)->_pos, iDim) + 
+          VecGet(((Shapoid*)res)->_axis[iDim], iDim))
+          VecSet(((Shapoid*)res)->_axis[iDim], iDim, 
+          VecGet(((Shapoid*)bound)->_pos, iDim) + 
+          VecGet(((Shapoid*)bound)->_axis[iDim], iDim) -
+          VecGet(((Shapoid*)res)->_pos, iDim));
       }
       // Free memory used by the bounding box
       ShapoidFree(&bound);
@@ -458,90 +436,6 @@ Shapoid* ShapoidGetBoundingBoxSet(GSet *set) {
   return res;
 }
 
-// Get the depth value in the Shapoid of 'pos'
-// The depth is defined as follow: the point with depth equals 1.0 is 
-// the farthest point from the surface of the Shapoid (inside it),
-// points with depth equals to 0.0 are point on the surface of the
-// Shapoid. Depth is continuous and derivable over the volume of the
-// Shapoid
-float ShapoidGetPosDepth(Shapoid *that, VecFloat *pos) {
-#if BUILDMODE == 0
-  if (that == NULL) {
-    ShapoidErr->_type = PBErrTypeNullPointer;
-    sprintf(ShapoidErr->_msg, "'that' is null");
-    PBErrCatch(ShapoidErr);
-  }
-  if (pos == NULL) {
-    ShapoidErr->_type = PBErrTypeNullPointer;
-    sprintf(ShapoidErr->_msg, "'pos' is null");
-    PBErrCatch(ShapoidErr);
-  }
-  if (VecDim(pos) != that->_dim) {
-    ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
-      that->_dim, VecDim(pos));
-    PBErrCatch(ShapoidErr);
-  }
-  if (that->_type != ShapoidTypeFacoid &&
-    that->_type != ShapoidTypeSpheroid &&
-    that->_type != ShapoidTypePyramidoid) {
-    ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "No implementation for 'that' 's type");
-    PBErrCatch(ShapoidErr);
-  }
-#endif
-  // Get the coordinates of pos in the Shapoid coordinate system
-  VecFloat *coord = ShapoidImportCoord(that, pos);
-  // Declare a variable to memorize the result
-  float ret = 0.0;
-  // If the Shapoid is a Facoid
-  if (that->_type == ShapoidTypeFacoid) {
-    ret = 1.0;
-    for (int dim = that->_dim; dim-- && ret > PBMATH_EPSILON;) {
-      float v = VecGet(coord, dim);
-      if (v < 0.0 || VecGet(coord, dim) > 1.0)
-        ret = 0.0;
-      else
-        ret *= 1.0 - pow(0.5 - v, 2.0) * 4.0;
-    }
-  // Else, if the Shapoid is a Pyramidoid
-  } else if (that->_type == ShapoidTypePyramidoid) {
-    ret = 1.0;
-    float sum = 0.0;
-    bool flag = true;
-    for (int dim = that->_dim; dim-- && ret > PBMATH_EPSILON;) {
-      float v = VecGet(coord, dim);
-      sum += v;
-      if (v < 0.0 || v > 1.0)
-        flag = false;
-    }
-    if (flag == true && sum > 1.0)
-      flag = false;
-    if (flag == false)
-      ret = 0.0;
-    else {
-      ret = 1.0;
-      for (int dim = ShapoidGetDim(that); dim--;) {
-        float z = 0.0;
-        for (int d = ShapoidGetDim(that); d--;)
-          if (d != dim)
-            z += VecGet(coord, d);
-        ret *= 
-          (1.0 - 4.0 * pow(0.5 - VecGet(coord, dim) / (1.0 - z), 2.0));
-      }
-    }
-  // Else, if the Shapoid is a Spheroid
-  } else if (that->_type == ShapoidTypeSpheroid) {
-    float norm = VecNorm(coord);
-    if (norm <= 0.5)
-      ret = 1.0 - norm * 2.0;
-  }
-  // Free memory
-  VecFloatFree(&coord);
-  // Return the result
-  return ret;
-}
-
 // Get the percentage of 'tho' included 'that' (in [0.0, 1.0])
 // 0.0 -> 'tho' is completely outside of 'that'
 // 1.0 -> 'tho' is completely inside of 'that'
@@ -549,7 +443,8 @@ float ShapoidGetPosDepth(Shapoid *that, VecFloat *pos) {
 // delta is the step of the algorithm (in ]0.0, 1.0])
 // small -> slow but precise
 // big -> fast but rough
-float ShapoidGetCoverageDelta(Shapoid *that, Shapoid *tho, float delta) {
+float _ShapoidGetCoverageDelta(Shapoid *that, Shapoid *tho, 
+  float delta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -626,4 +521,5 @@ float ShapoidGetCoverageDelta(Shapoid *that, Shapoid *tho, float delta) {
   // Return the result
   return ratio;
 }
+
 
