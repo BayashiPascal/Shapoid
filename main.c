@@ -140,7 +140,7 @@ void UnitTestLoadSavePrint() {
   }
   fclose(file);
   file = fopen("./facoid.txt", "r");
-  Facoid *load = NULL;
+  Facoid *load = FacoidCreate(dim);
   if (ShapoidLoad(&load, file) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidLoad failed");
@@ -197,7 +197,7 @@ void UnitTestGetSetTypeDimPosAxis() {
   for (int i = dim; i--;)
     VecSet(v, i, (float)i);
   ShapoidSetPos(facoid, v);
-  if (VecIsEqual(v, ((Shapoid*)facoid)->_pos) == false) {
+  if (VecIsEqual(v, ShapoidPos(facoid)) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidSetPos failed");
     PBErrCatch(ShapoidErr);
@@ -206,7 +206,7 @@ void UnitTestGetSetTypeDimPosAxis() {
     VecSetNull(v);
     VecSet(v, i, 2.0);
     ShapoidSetAxis(facoid, i, v);
-    if (VecIsEqual(v, ((Shapoid*)facoid)->_axis[i]) == false) {
+    if (VecIsEqual(v, ShapoidAxis(facoid, i)) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidSetAxis failed");
       PBErrCatch(ShapoidErr);
