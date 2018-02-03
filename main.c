@@ -12,7 +12,7 @@
 
 void UnitTestCreateCloneIsEqualFree() {
   int dim = 3;
-  Shapoid *facoid = ShapoidCreate(dim, ShapoidTypeFacoid);
+  Shapoid* facoid = ShapoidCreate(dim, ShapoidTypeFacoid);
   if (facoid == NULL || facoid->_dim != dim ||
     facoid->_type != ShapoidTypeFacoid || facoid->_pos == NULL ||
     VecDim(facoid->_pos) != dim || facoid->_sysLinEqImport == NULL ||
@@ -65,7 +65,7 @@ void UnitTestCreateCloneIsEqualFree() {
       PBErrCatch(ShapoidErr);
     }
   } while (VecStep(&v, &u));
-  Shapoid *clone = ShapoidClone(facoid);
+  Shapoid* clone = ShapoidClone(facoid);
   if (facoid->_dim != clone->_dim ||
     facoid->_type != clone->_type ||
     VecIsEqual(facoid->_pos, clone->_pos) == false ||
@@ -131,8 +131,8 @@ void UnitTestCreateCloneIsEqualFree() {
 
 void UnitTestLoadSavePrint() {
   int dim = 3;
-  Facoid *facoid = FacoidCreate(dim);
-  FILE *file = fopen("./facoid.txt", "w");
+  Facoid* facoid = FacoidCreate(dim);
+  FILE* file = fopen("./facoid.txt", "w");
   if (ShapoidSave(facoid, file) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidSave failed");
@@ -140,7 +140,7 @@ void UnitTestLoadSavePrint() {
   }
   fclose(file);
   file = fopen("./facoid.txt", "r");
-  Facoid *load = FacoidCreate(dim);
+  Facoid* load = FacoidCreate(dim);
   if (ShapoidLoad(&load, file) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidLoad failed");
@@ -160,9 +160,9 @@ void UnitTestLoadSavePrint() {
 
 void UnitTestGetSetTypeDimPosAxis() {
   int dim = 3;
-  Facoid *facoid = FacoidCreate(dim);
-  Pyramidoid *pyramidoid = PyramidoidCreate(dim);
-  Spheroid *spheroid = SpheroidCreate(dim);
+  Facoid* facoid = FacoidCreate(dim);
+  Pyramidoid* pyramidoid = PyramidoidCreate(dim);
+  Spheroid* spheroid = SpheroidCreate(dim);
   if (ShapoidGetType(facoid) != ShapoidTypeFacoid ||
     ShapoidGetType(pyramidoid) != ShapoidTypePyramidoid ||
     ShapoidGetType(spheroid) != ShapoidTypeSpheroid) {
@@ -175,8 +175,8 @@ void UnitTestGetSetTypeDimPosAxis() {
     sprintf(ShapoidErr->_msg, "ShapoidGetDim failed");
     PBErrCatch(ShapoidErr);
   }
-  VecFloat *v = VecFloatCreate(dim);
-  VecFloat *u = ShapoidGetPos(facoid);
+  VecFloat* v = VecFloatCreate(dim);
+  VecFloat* u = ShapoidGetPos(facoid);
   if (VecIsEqual(v, u) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidGetPos failed");
@@ -221,8 +221,8 @@ void UnitTestGetSetTypeDimPosAxis() {
 
 void UnitTestTranslateScaleGrowRotate() {
   int dim = 2;
-  Facoid *facoid = FacoidCreate(dim);
-  VecFloat *v = VecFloatCreate(dim);
+  Facoid* facoid = FacoidCreate(dim);
+  VecFloat* v = VecFloatCreate(dim);
   for (int i = dim; i--;)
     VecSet(v, i, 1.0);
   ShapoidTranslate(facoid, v);
@@ -296,10 +296,10 @@ void UnitTestTranslateScaleGrowRotate() {
       PBErrCatch(ShapoidErr);
     }
   }
-  Pyramidoid *pyramidoid = PyramidoidCreate(dim);
-  VecFloat *centerA = ShapoidGetCenter(pyramidoid);
+  Pyramidoid* pyramidoid = PyramidoidCreate(dim);
+  VecFloat* centerA = ShapoidGetCenter(pyramidoid);
   ShapoidGrow(pyramidoid, scale);
-  VecFloat *centerB = ShapoidGetCenter(pyramidoid);
+  VecFloat* centerB = ShapoidGetCenter(pyramidoid);
   if (VecIsEqual(centerA, centerB) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidGrowScalar failed");
@@ -319,7 +319,7 @@ void UnitTestTranslateScaleGrowRotate() {
   }
   VecFree(&centerA);
   VecFree(&centerB);
-  Spheroid *spheroid = SpheroidCreate(dim);
+  Spheroid* spheroid = SpheroidCreate(dim);
   ShapoidGrow(spheroid, scale);
   VecSetNull(v);
   if (VecIsEqual(v, ((Shapoid*)spheroid)->_pos) == false) {
@@ -339,7 +339,7 @@ void UnitTestTranslateScaleGrowRotate() {
       PBErrCatch(ShapoidErr);
     }
   }
-  VecFloat *scalev = VecFloatCreate(dim);
+  VecFloat* scalev = VecFloatCreate(dim);
   for (int i = dim; i--;)
     VecSet(scalev, i, 1.0 + (float)i);
   ShapoidFree(&facoid);
@@ -474,10 +474,10 @@ void UnitTestTranslateScaleGrowRotate() {
 
 void UnitTestImportExportCoordIsPosInside() {
   int dim = 2;
-  Facoid *facoid = FacoidCreate(dim);
-  Pyramidoid *pyramidoid = PyramidoidCreate(dim);
-  Spheroid *spheroid = SpheroidCreate(dim);
-  VecFloat *v = VecFloatCreate(dim);
+  Facoid* facoid = FacoidCreate(dim);
+  Pyramidoid* pyramidoid = PyramidoidCreate(dim);
+  Spheroid* spheroid = SpheroidCreate(dim);
+  VecFloat* v = VecFloatCreate(dim);
   for (int i = dim; i--;)
     VecSet(v, i, 1.0 + (float)i);
   ShapoidTranslate(facoid, v);
@@ -490,10 +490,10 @@ void UnitTestImportExportCoordIsPosInside() {
   int nbTest = 100;
   srandom(RANDOMSEED);
   for (int iTest = nbTest; iTest--;) {
-    VecFloat *posReal = VecFloatCreate(dim);
+    VecFloat* posReal = VecFloatCreate(dim);
     for (int i = dim; i--;)
       VecSet(posReal, i, (rnd() - 0.5) * 10.0);
-    VecFloat *posShapoidA = ShapoidImportCoord(facoid, posReal);
+    VecFloat* posShapoidA = ShapoidImportCoord(facoid, posReal);
     bool isInside = ShapoidIsPosInside(facoid, posReal);
     if (VecGet(posShapoidA, 0) >= 0.0 && 
       VecGet(posShapoidA, 0) <= 1.0 &&
@@ -518,7 +518,7 @@ void UnitTestImportExportCoordIsPosInside() {
       PBErrCatch(ShapoidErr);
     }
     VecFree(&posShapoidA);
-    VecFloat *posShapoidB = ShapoidImportCoord(pyramidoid, posReal);
+    VecFloat* posShapoidB = ShapoidImportCoord(pyramidoid, posReal);
     isInside = ShapoidIsPosInside(pyramidoid, posReal);
     if (VecGet(posShapoidB, 0) >= 0.0 && 
       VecGet(posShapoidB, 0) <= 1.0 &&
@@ -544,7 +544,7 @@ void UnitTestImportExportCoordIsPosInside() {
       PBErrCatch(ShapoidErr);
     }
     VecFree(&posShapoidB);
-    VecFloat *posShapoidC = ShapoidImportCoord(spheroid, posReal);
+    VecFloat* posShapoidC = ShapoidImportCoord(spheroid, posReal);
     isInside = ShapoidIsPosInside(spheroid, posReal);
     if (VecGet(posShapoidC, 0) >= -0.5 && 
       VecGet(posShapoidC, 0) <= 0.5 &&
@@ -574,10 +574,10 @@ void UnitTestImportExportCoordIsPosInside() {
     VecFree(&posReal);
   }
   for (int iTest = nbTest; iTest--;) {
-    VecFloat *posShapoid = VecFloatCreate(dim);
+    VecFloat* posShapoid = VecFloatCreate(dim);
     for (int i = dim; i--;)
       VecSet(posShapoid, i, (rnd() - 0.5) * 10.0);
-    VecFloat *posRealA = ShapoidExportCoord(facoid, posShapoid);
+    VecFloat* posRealA = ShapoidExportCoord(facoid, posShapoid);
     VecOp(posRealA, 1.0, v, -1.0);
     VecScale(posRealA, 1.0 / scale);
     if (VecIsEqual(posRealA, posShapoid) == false) {
@@ -586,7 +586,7 @@ void UnitTestImportExportCoordIsPosInside() {
       PBErrCatch(ShapoidErr);
     }
     VecFree(&posRealA);
-    VecFloat *posRealB = ShapoidExportCoord(pyramidoid, posShapoid);
+    VecFloat* posRealB = ShapoidExportCoord(pyramidoid, posShapoid);
     VecOp(posRealB, 1.0, v, -1.0);
     VecScale(posRealB, 1.0 / scale);
     if (VecIsEqual(posRealB, posShapoid) == false) {
@@ -595,7 +595,7 @@ void UnitTestImportExportCoordIsPosInside() {
       PBErrCatch(ShapoidErr);
     }
     VecFree(&posRealB);
-    VecFloat *posRealC = ShapoidExportCoord(facoid, posShapoid);
+    VecFloat* posRealC = ShapoidExportCoord(facoid, posShapoid);
     VecOp(posRealC, 1.0, v, -1.0);
     VecScale(posRealC, 1.0 / scale);
     if (VecIsEqual(posRealC, posShapoid) == false) {
@@ -615,10 +615,10 @@ void UnitTestImportExportCoordIsPosInside() {
 
 void UnitTestGetBoundingBox() {
   int dim = 2;
-  Facoid *facoid = FacoidCreate(dim);
-  Pyramidoid *pyramidoid = PyramidoidCreate(dim);
-  Spheroid *spheroid = SpheroidCreate(dim);
-  VecFloat *v = VecFloatCreate(dim);
+  Facoid* facoid = FacoidCreate(dim);
+  Pyramidoid* pyramidoid = PyramidoidCreate(dim);
+  Spheroid* spheroid = SpheroidCreate(dim);
+  VecFloat* v = VecFloatCreate(dim);
   for (int i = dim; i--;)
     VecSet(v, i, 1.0 + (float)i);
   ShapoidTranslate(facoid, v);
@@ -632,7 +632,7 @@ void UnitTestGetBoundingBox() {
   ShapoidRotate2D(facoid, theta);
   ShapoidRotate2D(pyramidoid, theta);
   ShapoidRotate2D(spheroid, theta);
-  Facoid *boundA = ShapoidGetBoundingBox(facoid);
+  Facoid* boundA = ShapoidGetBoundingBox(facoid);
   float pa[2] = {-1.414214, -0.414213};
   float pb[2] = {2.828427, 0.0};
   float pc[2] = {0.0, 2.828427};
@@ -648,7 +648,7 @@ void UnitTestGetBoundingBox() {
       PBErrCatch(ShapoidErr);
     }
   }
-  Facoid *boundB = ShapoidGetBoundingBox(pyramidoid);
+  Facoid* boundB = ShapoidGetBoundingBox(pyramidoid);
   float pd[2] = {-1.414214, -1.4142143};
   float pe[2] = {2.828427, 0.0};
   float pf[2] = {0.0, 3.690356};
@@ -663,7 +663,7 @@ void UnitTestGetBoundingBox() {
       PBErrCatch(ShapoidErr);
     }
   }
-  Facoid *boundC = ShapoidGetBoundingBox(spheroid);
+  Facoid* boundC = ShapoidGetBoundingBox(spheroid);
   float pg[2] = {-0.414214, 0.585786};
   float ph[2] = {2.828427, 0.0};
   float pi[2] = {0.0, 2.828427};
@@ -682,7 +682,7 @@ void UnitTestGetBoundingBox() {
   GSetPush(&set, facoid);
   GSetPush(&set, pyramidoid);
   GSetPush(&set, spheroid);
-  Facoid *boundD = ShapoidGetBoundingBox(&set);
+  Facoid* boundD = ShapoidGetBoundingBox(&set);
   float pj[2] = {-1.414214, -1.4142143};
   float pk[2] = {3.828427, 0.0};
   float pl[2] = {0.0, 4.828427};
@@ -711,10 +711,10 @@ void UnitTestGetBoundingBox() {
 
 void UnitTestGetPosDepthCenterCoverage() {
   int dim = 2;
-  Facoid *facoid = FacoidCreate(dim);
-  Pyramidoid *pyramidoid = PyramidoidCreate(dim);
-  Spheroid *spheroid = SpheroidCreate(dim);
-  VecFloat *center = ShapoidGetCenter(facoid);
+  Facoid* facoid = FacoidCreate(dim);
+  Pyramidoid* pyramidoid = PyramidoidCreate(dim);
+  Spheroid* spheroid = SpheroidCreate(dim);
+  VecFloat* center = ShapoidGetCenter(facoid);
   if (ISEQUALF(VecGet(center, 0), 0.5) == false ||
     ISEQUALF(VecGet(center, 1), 0.5) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;

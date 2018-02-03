@@ -9,7 +9,7 @@
 
 // ================= Define ==================
 
-const char *ShapoidTypeString[3] = {
+const char* ShapoidTypeString[3] = {
   (const char*)"Facoid", (const char*)"Spheroid", 
   (const char*)"Pyramidoid"};
 
@@ -31,10 +31,10 @@ Shapoid* ShapoidCreate(int dim, ShapoidType type) {
   // Declare a identity matrix used for initialisation 
   VecSet(&d, 0, dim);
   VecSet(&d, 1, dim);
-  MatFloat *mat = MatFloatCreate(&d);
+  MatFloat* mat = MatFloatCreate(&d);
   MatFloatSetIdentity(mat);
   // Allocate memory
-  Shapoid *that = PBErrMalloc(ShapoidErr, sizeof(Shapoid));
+  Shapoid* that = PBErrMalloc(ShapoidErr, sizeof(Shapoid));
   // Init pointers
   that->_pos = NULL;
   that->_axis = NULL;
@@ -64,7 +64,7 @@ Shapoid* ShapoidCreate(int dim, ShapoidType type) {
 }
 
 // Clone a Shapoid
-Shapoid* _ShapoidClone(Shapoid *that) {
+Shapoid* _ShapoidClone(Shapoid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -73,7 +73,7 @@ Shapoid* _ShapoidClone(Shapoid *that) {
   }
 #endif
   // Create a clone
-  Shapoid *clone = ShapoidCreate(that->_dim, that->_type);
+  Shapoid* clone = ShapoidCreate(that->_dim, that->_type);
   // Set the position and axis of the clone
   ShapoidSetPos(clone, that->_pos);
   for (int iAxis = clone->_dim; iAxis--;)
@@ -86,7 +86,7 @@ Shapoid* _ShapoidClone(Shapoid *that) {
 }
 
 // Free memory used by a Shapoid
-void _ShapoidFree(Shapoid **that) {
+void _ShapoidFree(Shapoid** that) {
   // Check argument
   if (that == NULL || *that == NULL)
     return;
@@ -103,7 +103,7 @@ void _ShapoidFree(Shapoid **that) {
 // Load the Shapoid from the stream
 // If the Shapoid is already allocated, it is freed before loading
 // Return true upon success else false
-bool _ShapoidLoad(Shapoid **that, FILE *stream, ShapoidType type) {
+bool _ShapoidLoad(Shapoid** that, FILE* stream, ShapoidType type) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -155,7 +155,7 @@ bool _ShapoidLoad(Shapoid **that, FILE *stream, ShapoidType type) {
 
 // Save the Shapoid to the stream
 // Return true upon success else false
-bool _ShapoidSave(Shapoid *that, FILE *stream) {
+bool _ShapoidSave(Shapoid* that, FILE* stream) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -187,7 +187,7 @@ bool _ShapoidSave(Shapoid *that, FILE *stream) {
 }
 
 // Print the Shapoid on 'stream'
-void _ShapoidPrintln(Shapoid *that, FILE *stream) {
+void _ShapoidPrintln(Shapoid* that, FILE* stream) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -218,7 +218,7 @@ void _ShapoidPrintln(Shapoid *that, FILE *stream) {
 // the axis of the standard coordinate system).
 // The bounding box is returned as a Facoid, which position is
 // at the minimum value along each axis.
-Facoid* _ShapoidGetBoundingBox(Shapoid *that) {
+Facoid* _ShapoidGetBoundingBox(Shapoid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -247,7 +247,7 @@ Facoid* _ShapoidGetBoundingBox(Shapoid *that) {
   }
 }
 
-Facoid* FacoidGetBoundingBox(Facoid *that) {
+Facoid* FacoidGetBoundingBox(Facoid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -256,7 +256,7 @@ Facoid* FacoidGetBoundingBox(Facoid *that) {
   }
 #endif
   // Declare a variable to memorize the result
-  Facoid *res = FacoidCreate(ShapoidGetDim(that));
+  Facoid* res = FacoidCreate(ShapoidGetDim(that));
   // For each axis
   for (int dim = ShapoidGetDim(that); dim--;) {
     // Declare a variable to memorize the bound of the interval on 
@@ -282,7 +282,7 @@ Facoid* FacoidGetBoundingBox(Facoid *that) {
   return res;
 }
 
-Facoid* PyramidoidGetBoundingBox(Pyramidoid *that) {
+Facoid* PyramidoidGetBoundingBox(Pyramidoid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -291,7 +291,7 @@ Facoid* PyramidoidGetBoundingBox(Pyramidoid *that) {
   }
 #endif
   // Declare a variable to memorize the result
-  Facoid *res = FacoidCreate(ShapoidGetDim(that));
+  Facoid* res = FacoidCreate(ShapoidGetDim(that));
   // For each axis
   for (int dim = ShapoidGetDim(that); dim--;) {
     // Declare a variable to memorize the bound of the interval on 
@@ -316,7 +316,7 @@ Facoid* PyramidoidGetBoundingBox(Pyramidoid *that) {
   return res;
 }
 
-Facoid* SpheroidGetBoundingBox(Spheroid *that) {
+Facoid* SpheroidGetBoundingBox(Spheroid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -325,7 +325,7 @@ Facoid* SpheroidGetBoundingBox(Spheroid *that) {
   }
 #endif
   // Declare a variable to memorize the result
-  Facoid *res = FacoidCreate(ShapoidGetDim(that));
+  Facoid* res = FacoidCreate(ShapoidGetDim(that));
   // In case of a Spheroid, things get complicate
   // We'll approximate the bounding box of the Spheroid 
   // with the one of the same Spheroid viewed as a Facoid
@@ -370,14 +370,14 @@ Facoid* SpheroidGetBoundingBox(Spheroid *that) {
 // the axis of the standard coordinate system).
 // The bounding box is returned as a Facoid, which position is
 // at the minimum value along each axis.
-Facoid* ShapoidGetBoundingBoxSet(GSet *set) {
+Facoid* ShapoidGetBoundingBoxSet(GSet* set) {
 #if BUILDMODE == 0
   if (set == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
     sprintf(ShapoidErr->_msg, "'set' is null");
     PBErrCatch(ShapoidErr);
   }
-  GSetElem *elemCheck = set->_head;
+  GSetElem* elemCheck = set->_head;
   int dim = ((Shapoid*)(elemCheck->_data))->_dim;
   while (elemCheck != NULL) {
     if (((Shapoid*)(elemCheck->_data))->_dim != dim) {
@@ -390,13 +390,13 @@ Facoid* ShapoidGetBoundingBoxSet(GSet *set) {
   }
 #endif
   // Declare a variable for the result
-  Facoid *res = NULL;
+  Facoid* res = NULL;
   // Declare a pointer to the elements of the set
-  GSetElem *elem = set->_head;
+  GSetElem* elem = set->_head;
   // Loop on element of the set
   while (elem != NULL) {
     // Declare a pointer to the Facoid
-    Shapoid *shapoid = (Shapoid*)(elem->_data);
+    Shapoid* shapoid = (Shapoid*)(elem->_data);
     // If it's the first Facoid in the set
     if (res == NULL) {
       // Get the bounding box of this shapoid
@@ -404,7 +404,7 @@ Facoid* ShapoidGetBoundingBoxSet(GSet *set) {
     // Else, this is not the first Shapoid in the set
     } else {
       // Get the bounding box of this shapoid
-      Facoid *bound = ShapoidGetBoundingBox(shapoid);
+      Facoid* bound = ShapoidGetBoundingBox(shapoid);
       // For each dimension
       for (int iDim = ShapoidGetDim(res); iDim--;) {
         // Update the bounding box
@@ -443,7 +443,7 @@ Facoid* ShapoidGetBoundingBoxSet(GSet *set) {
 // delta is the step of the algorithm (in ]0.0, 1.0])
 // small -> slow but precise
 // big -> fast but rough
-float _ShapoidGetCoverageDelta(Shapoid *that, Shapoid *tho, 
+float _ShapoidGetCoverageDelta(Shapoid* that, Shapoid* tho, 
   float delta) {
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -475,8 +475,8 @@ float _ShapoidGetCoverageDelta(Shapoid *that, Shapoid *tho,
   float ratio = 0.0;
   float sum = 0.0;
   // Declare variables for the relative and absolute position in 'tho'
-  VecFloat *pRel = VecFloatCreate(ShapoidGetDim(that));
-  VecFloat *pStd = NULL;
+  VecFloat* pRel = VecFloatCreate(ShapoidGetDim(that));
+  VecFloat* pStd = NULL;
   // Declare a variable to memorize the last index in dimension
   int lastI = VecDim(pRel) - 1;
   // Declare a variable to memorize the max value of coordinates

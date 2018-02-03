@@ -6,7 +6,7 @@
 #if BUILDMODE != 0
 inline
 #endif 
-int _ShapoidGetDim(Shapoid *that) {
+int _ShapoidGetDim(Shapoid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -22,7 +22,7 @@ int _ShapoidGetDim(Shapoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-ShapoidType _ShapoidGetType(Shapoid *that) {
+ShapoidType _ShapoidGetType(Shapoid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -39,7 +39,7 @@ ShapoidType _ShapoidGetType(Shapoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-const char* _ShapoidGetTypeAsString(Shapoid *that) {
+const char* _ShapoidGetTypeAsString(Shapoid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -55,7 +55,7 @@ const char* _ShapoidGetTypeAsString(Shapoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidGetPos(Shapoid *that) {
+VecFloat* _ShapoidGetPos(Shapoid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -71,7 +71,7 @@ VecFloat* _ShapoidGetPos(Shapoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidGetAxis(Shapoid *that, int dim) {
+VecFloat* _ShapoidGetAxis(Shapoid* that, int dim) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -93,7 +93,7 @@ VecFloat* _ShapoidGetAxis(Shapoid *that, int dim) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidPos(Shapoid *that) {
+VecFloat* _ShapoidPos(Shapoid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -109,7 +109,7 @@ VecFloat* _ShapoidPos(Shapoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidAxis(Shapoid *that, int dim) {
+VecFloat* _ShapoidAxis(Shapoid* that, int dim) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -131,7 +131,7 @@ VecFloat* _ShapoidAxis(Shapoid *that, int dim) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidSetPos(Shapoid *that, VecFloat *pos) {
+void _ShapoidSetPos(Shapoid* that, VecFloat* pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -158,7 +158,7 @@ void _ShapoidSetPos(Shapoid *that, VecFloat *pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidSetAxis(Shapoid *that, int dim, VecFloat *v) {
+void _ShapoidSetAxis(Shapoid* that, int dim, VecFloat* v) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -193,7 +193,7 @@ void _ShapoidSetAxis(Shapoid *that, int dim, VecFloat *v) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidTranslate(Shapoid *that, VecFloat *v) {
+void _ShapoidTranslate(Shapoid* that, VecFloat* v) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -220,7 +220,7 @@ void _ShapoidTranslate(Shapoid *that, VecFloat *v) {
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidScaleVector(Shapoid *that, VecFloat *v) {
+void ShapoidScaleVector(Shapoid* that, VecFloat* v) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -250,7 +250,7 @@ void ShapoidScaleVector(Shapoid *that, VecFloat *v) {
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidScaleScalar(Shapoid *that, float c) {
+void ShapoidScaleScalar(Shapoid* that, float c) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -271,7 +271,7 @@ void ShapoidScaleScalar(Shapoid *that, float c) {
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidGrowVector(Shapoid *that, VecFloat *v) {
+void ShapoidGrowVector(Shapoid* that, VecFloat* v) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -304,11 +304,11 @@ void ShapoidGrowVector(Shapoid *that, VecFloat *v) {
   // Else, the shapoid is not a spheroid
   } else {
     // Memorize the center
-    VecFloat *centerA = ShapoidGetCenter(that);
+    VecFloat* centerA = ShapoidGetCenter(that);
     // Scale
     ShapoidScale(that, v);
     // Reposition to keep center at the same position
-    VecFloat *centerB = ShapoidGetCenter(that);
+    VecFloat* centerB = ShapoidGetCenter(that);
     VecOp(centerA, 1.0, centerB, -1.0);
     VecOp(that->_pos, 1.0, centerA, 1.0);
     VecFree(&centerA);
@@ -324,7 +324,7 @@ void ShapoidGrowVector(Shapoid *that, VecFloat *v) {
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidGrowScalar(Shapoid *that, float c) {
+void ShapoidGrowScalar(Shapoid* that, float c) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -346,11 +346,11 @@ void ShapoidGrowScalar(Shapoid *that, float c) {
   // Else, the shapoid is not a spheroid
   } else {
     // Memorize the center
-    VecFloat *centerA = ShapoidGetCenter(that);
+    VecFloat* centerA = ShapoidGetCenter(that);
     // Scale
     ShapoidScale(that, c);
     // Reposition to keep center at the same position
-    VecFloat *centerB = ShapoidGetCenter(that);
+    VecFloat* centerB = ShapoidGetCenter(that);
     VecOp(centerA, 1.0, centerB, -1.0);
     VecOp(that->_pos, 1.0, centerA, 1.0);
     VecFree(&centerA);
@@ -365,7 +365,7 @@ void ShapoidGrowScalar(Shapoid *that, float c) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotate2D(Shapoid *that, float theta) {
+void _ShapoidRotate2D(Shapoid* that, float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -393,12 +393,12 @@ void _ShapoidRotate2D(Shapoid *that, float theta) {
     VecRot(that->_axis[iAxis], theta);
   // Else, it's not a spheroid
   } else {
-    VecFloat *center = ShapoidGetCenter(that);
+    VecFloat* center = ShapoidGetCenter(that);
     // Rotate each axis
     for (int iAxis = that->_dim; iAxis--;)
       VecRot(that->_axis[iAxis], theta);
     // Reposition the origin
-    VecFloat *v = VecGetOp(that->_pos, 1.0, center, -1.0);
+    VecFloat* v = VecGetOp(that->_pos, 1.0, center, -1.0);
     VecRot(v, theta);
     VecOp(v, 1.0, center, 1.0);
     VecCopy(that->_pos, v);
@@ -414,7 +414,7 @@ void _ShapoidRotate2D(Shapoid *that, float theta) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidImportCoord(Shapoid *that, VecFloat *pos) {
+VecFloat* _ShapoidImportCoord(Shapoid* that, VecFloat* pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -434,10 +434,10 @@ VecFloat* _ShapoidImportCoord(Shapoid *that, VecFloat *pos) {
   }
 #endif
   // Update the system solver for the requested position
-  VecFloat *v = VecGetOp(pos, 1.0, that->_pos, -1.0);
+  VecFloat* v = VecGetOp(pos, 1.0, that->_pos, -1.0);
   SysLinEqSetV(that->_sysLinEqImport, v);
   // Solve the system
-  VecFloat *res = SysLinEqSolve(that->_sysLinEqImport);
+  VecFloat* res = SysLinEqSolve(that->_sysLinEqImport);
   // Free memory
   VecFree(&v);
   // return the result
@@ -452,7 +452,7 @@ inline
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidExportCoord(Shapoid *that, VecFloat *pos) {
+VecFloat* _ShapoidExportCoord(Shapoid* that, VecFloat* pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -472,7 +472,7 @@ VecFloat* _ShapoidExportCoord(Shapoid *that, VecFloat *pos) {
   }
 #endif
   // Allocate memory for the result
-  VecFloat *res = VecClone(that->_pos);
+  VecFloat* res = VecClone(that->_pos);
   for (int dim = that->_dim; dim--;)
     VecOp(res, 1.0, that->_axis[dim], VecGet(pos, dim));
   // Return the result
@@ -483,7 +483,7 @@ VecFloat* _ShapoidExportCoord(Shapoid *that, VecFloat *pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidGetCenter(Shapoid *that) {
+VecFloat* _ShapoidGetCenter(Shapoid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -511,7 +511,7 @@ VecFloat* _ShapoidGetCenter(Shapoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* FacoidGetCenter(Facoid *that) {
+VecFloat* FacoidGetCenter(Facoid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -521,12 +521,12 @@ VecFloat* FacoidGetCenter(Facoid *that) {
 #endif
   // Declare a variable to memorize the result in Shapoid 
   // coordinate system
-  VecFloat *coord = VecFloatCreate(ShapoidGetDim(that));
+  VecFloat* coord = VecFloatCreate(ShapoidGetDim(that));
   // For each dimension
   for (int dim = ShapoidGetDim(that); dim--;)
     VecSet(coord, dim, 0.5);
   // Convert the coordinates in standard coordinate system
-  VecFloat *res = ShapoidExportCoord(that, coord);
+  VecFloat* res = ShapoidExportCoord(that, coord);
   // Free memory
   VecFree(&coord);
   // Return the result
@@ -536,7 +536,7 @@ VecFloat* FacoidGetCenter(Facoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* PyramidoidGetCenter(Pyramidoid *that) {
+VecFloat* PyramidoidGetCenter(Pyramidoid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -546,12 +546,12 @@ VecFloat* PyramidoidGetCenter(Pyramidoid *that) {
 #endif
   // Declare a variable to memorize the result in Shapoid 
   // coordinate system
-  VecFloat *coord = VecFloatCreate(ShapoidGetDim(that));
+  VecFloat* coord = VecFloatCreate(ShapoidGetDim(that));
   // For each dimension
   for (int dim = ShapoidGetDim(that); dim--;)
     VecSet(coord, dim, 1.0 / (1.0 + ShapoidGetDim(that)));
   // Convert the coordinates in standard coordinate system
-  VecFloat *res = ShapoidExportCoord(that, coord);
+  VecFloat* res = ShapoidExportCoord(that, coord);
   // Free memory
   VecFree(&coord);
   // Return the result
@@ -561,7 +561,7 @@ VecFloat* PyramidoidGetCenter(Pyramidoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* SpheroidGetCenter(Spheroid *that) {
+VecFloat* SpheroidGetCenter(Spheroid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -571,9 +571,9 @@ VecFloat* SpheroidGetCenter(Spheroid *that) {
 #endif
   // Declare a variable to memorize the result in Shapoid 
   // coordinate system
-  VecFloat *coord = VecFloatCreate(ShapoidGetDim(that));
+  VecFloat* coord = VecFloatCreate(ShapoidGetDim(that));
   // Convert the coordinates in standard coordinate system
-  VecFloat *res = ShapoidExportCoord(that, coord);
+  VecFloat* res = ShapoidExportCoord(that, coord);
   // Free memory
   VecFree(&coord);
   // Return the result
@@ -584,7 +584,7 @@ VecFloat* SpheroidGetCenter(Spheroid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool _ShapoidIsEqual(Shapoid *that, Shapoid *tho) {
+bool _ShapoidIsEqual(Shapoid* that, Shapoid* tho) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -614,7 +614,7 @@ bool _ShapoidIsEqual(Shapoid *that, Shapoid *tho) {
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidUpdateSysLinEqImport(Shapoid *that) {
+void ShapoidUpdateSysLinEqImport(Shapoid* that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -624,7 +624,7 @@ void ShapoidUpdateSysLinEqImport(Shapoid *that) {
 #endif
   VecShort2D dim = VecShortCreateStatic2D();
   // Set a pointer to the matrix in the SysLinEq
-  MatFloat *mat = MatClone(that->_sysLinEqImport->_M);
+  MatFloat* mat = MatClone(that->_sysLinEqImport->_M);
   // Set the values of the matrix
   for (VecSet(&dim, 0, 0); VecGet(&dim, 0) < that->_dim; 
     VecSet(&dim, 0, VecGet(&dim, 0) + 1)) {
@@ -646,7 +646,7 @@ void ShapoidUpdateSysLinEqImport(Shapoid *that) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool _ShapoidIsPosInside(Shapoid *that, VecFloat *pos) {
+bool _ShapoidIsPosInside(Shapoid* that, VecFloat* pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -688,7 +688,7 @@ bool _ShapoidIsPosInside(Shapoid *that, VecFloat *pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool FacoidIsPosInside(Facoid *that, VecFloat *pos) {
+bool FacoidIsPosInside(Facoid* that, VecFloat* pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -708,7 +708,7 @@ bool FacoidIsPosInside(Facoid *that, VecFloat *pos) {
   }
 #endif
   // Get the coordinates of pos in the Shapoid coordinate system
-  VecFloat *coord = ShapoidImportCoord(that, pos);
+  VecFloat* coord = ShapoidImportCoord(that, pos);
   // Declare a variable to memorize the result
   bool ret = false;
   // pos is in the Shapoid if all the coord in Shapoid coord 
@@ -728,7 +728,7 @@ bool FacoidIsPosInside(Facoid *that, VecFloat *pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool PyramidoidIsPosInside(Pyramidoid *that, VecFloat *pos) {
+bool PyramidoidIsPosInside(Pyramidoid* that, VecFloat* pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -748,7 +748,7 @@ bool PyramidoidIsPosInside(Pyramidoid *that, VecFloat *pos) {
   }
 #endif
   // Get the coordinates of pos in the Shapoid coordinate system
-  VecFloat *coord = ShapoidImportCoord(that, pos);
+  VecFloat* coord = ShapoidImportCoord(that, pos);
   // Declare a variable to memorize the result
   bool ret = false;
   // pos is in the Shapoid if all the coord in Shapoid coord 
@@ -772,7 +772,7 @@ bool PyramidoidIsPosInside(Pyramidoid *that, VecFloat *pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool SpheroidIsPosInside(Spheroid *that, VecFloat *pos) {
+bool SpheroidIsPosInside(Spheroid* that, VecFloat* pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -792,7 +792,7 @@ bool SpheroidIsPosInside(Spheroid *that, VecFloat *pos) {
   }
 #endif
   // Get the coordinates of pos in the Shapoid coordinate system
-  VecFloat *coord = ShapoidImportCoord(that, pos);
+  VecFloat* coord = ShapoidImportCoord(that, pos);
   // Declare a variable to memorize the result
   bool ret = false;
   // pos is in the Shapoid if its norm is in [0.0, 0.5]
@@ -814,7 +814,7 @@ bool SpheroidIsPosInside(Spheroid *that, VecFloat *pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-float _ShapoidGetPosDepth(Shapoid *that, VecFloat *pos) {
+float _ShapoidGetPosDepth(Shapoid* that, VecFloat* pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -857,7 +857,7 @@ float _ShapoidGetPosDepth(Shapoid *that, VecFloat *pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-float FacoidGetPosDepth(Facoid *that, VecFloat *pos) {
+float FacoidGetPosDepth(Facoid* that, VecFloat* pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -877,7 +877,7 @@ float FacoidGetPosDepth(Facoid *that, VecFloat *pos) {
   }
 #endif
   // Get the coordinates of pos in the Shapoid coordinate system
-  VecFloat *coord = ShapoidImportCoord(that, pos);
+  VecFloat* coord = ShapoidImportCoord(that, pos);
   // Declare a variable to memorize the result
   float ret = 1.0;
   for (int dim = ShapoidGetDim(that); dim-- && ret > PBMATH_EPSILON;) {
@@ -896,7 +896,7 @@ float FacoidGetPosDepth(Facoid *that, VecFloat *pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-float PyramidoidGetPosDepth(Pyramidoid *that, VecFloat *pos) {
+float PyramidoidGetPosDepth(Pyramidoid* that, VecFloat* pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -916,7 +916,7 @@ float PyramidoidGetPosDepth(Pyramidoid *that, VecFloat *pos) {
   }
 #endif
   // Get the coordinates of pos in the Shapoid coordinate system
-  VecFloat *coord = ShapoidImportCoord(that, pos);
+  VecFloat* coord = ShapoidImportCoord(that, pos);
   // Declare a variable to memorize the result
   float ret = 1.0;
   float sum = 0.0;
@@ -951,7 +951,7 @@ float PyramidoidGetPosDepth(Pyramidoid *that, VecFloat *pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-float SpheroidGetPosDepth(Spheroid *that, VecFloat *pos) {
+float SpheroidGetPosDepth(Spheroid* that, VecFloat* pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -971,7 +971,7 @@ float SpheroidGetPosDepth(Spheroid *that, VecFloat *pos) {
   }
 #endif
   // Get the coordinates of pos in the Shapoid coordinate system
-  VecFloat *coord = ShapoidImportCoord(that, pos);
+  VecFloat* coord = ShapoidImportCoord(that, pos);
   // Declare a variable to memorize the result
   float ret = 0.0;
   float norm = VecNorm(coord);
