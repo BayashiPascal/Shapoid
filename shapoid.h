@@ -18,207 +18,208 @@
 
 #define CloneShapoidType typedef struct {Shapoid _s;}
 
-#define SpheroidCreate(D) \
-  (Spheroid*)ShapoidCreate(D, ShapoidTypeSpheroid)
-#define FacoidCreate(D) \
-  (Facoid*)ShapoidCreate(D, ShapoidTypeFacoid)
-#define PyramidoidCreate(D) \
-  (Pyramidoid*)ShapoidCreate(D, ShapoidTypePyramidoid)
+#define SpheroidCreate(Dim) \
+  (Spheroid*)ShapoidCreate(Dim, ShapoidTypeSpheroid)
+#define FacoidCreate(Dim) \
+  (Facoid*)ShapoidCreate(Dim, ShapoidTypeFacoid)
+#define PyramidoidCreate(Dim) \
+  (Pyramidoid*)ShapoidCreate(Dim, ShapoidTypePyramidoid)
 
-#define ShapoidGetCoverage(A, B) \
-  _ShapoidGetCoverageDelta((Shapoid*)A, (Shapoid*)B, 0.1)
-#define ShapoidGetCoverageDelta(A, B, D) \
-  _ShapoidGetCoverageDelta((Shapoid*)A, (Shapoid*)B, D)
+#define ShapoidGetCoverage(ShapoidA, ShapoidB) \
+  _ShapoidGetCoverageDelta((Shapoid*)ShapoidA, (Shapoid*)ShapoidB, 0.1)
+#define ShapoidGetCoverageDelta(ShapoidA, ShapoidB, Prec) \
+  _ShapoidGetCoverageDelta((Shapoid*)ShapoidA, (Shapoid*)ShapoidB, Prec)
 
 extern const char *ShapoidTypeString[3];
 
 // ================= Polymorphism ==================
 
-#define ShapoidClone(T) _Generic((T), \
+#define ShapoidClone(Shap) _Generic(Shap, \
   Shapoid*: _ShapoidClone, \
   Facoid*: FacoidClone, \
   Pyramidoid*: PyramidoidClone, \
   Spheroid*: SpheroidClone, \
-  default: PBErrInvalidPolymorphism)(T)
+  default: PBErrInvalidPolymorphism)(Shap)
 
-#define ShapoidFree(T) _Generic((T), \
+#define ShapoidFree(ShapRef) _Generic(ShapRef, \
   Shapoid**: _ShapoidFree, \
   Facoid**: _ShapoidFree, \
   Pyramidoid**: _ShapoidFree, \
   Spheroid**: _ShapoidFree, \
-  default: PBErrInvalidPolymorphism)((Shapoid**)(T))
+  default: PBErrInvalidPolymorphism)((Shapoid**)(ShapRef))
 
-#define ShapoidLoad(T, S) _Generic((T), \
+#define ShapoidLoad(ShapRef, Stream) _Generic(ShapRef, \
   Shapoid**: _ShapoidLoad, \
   Facoid**: FacoidLoad, \
   Pyramidoid**: PyramidoidLoad, \
   Spheroid**: SpheroidLoad, \
-  default: PBErrInvalidPolymorphism)(T, S)
+  default: PBErrInvalidPolymorphism)(ShapRef, Stream)
 
-#define ShapoidSave(T, S) _Generic((T), \
+#define ShapoidSave(Shap, Stream) _Generic(Shap, \
   Shapoid*: _ShapoidSave, \
   Facoid*: _ShapoidSave, \
   Pyramidoid*: _ShapoidSave, \
   Spheroid*: _ShapoidSave, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T), S)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Stream)
 
-#define ShapoidPrintln(T, S) _Generic((T), \
+#define ShapoidPrintln(Shap, Stream) _Generic(Shap, \
   Shapoid*: _ShapoidPrintln, \
   Facoid*: _ShapoidPrintln, \
   Pyramidoid*: _ShapoidPrintln, \
   Spheroid*: _ShapoidPrintln, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T), S)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Stream)
 
-#define ShapoidGetType(T) _Generic((T), \
+#define ShapoidGetType(Shap) _Generic(Shap, \
   Shapoid*: _ShapoidGetType, \
   Facoid*: _ShapoidGetType, \
   Pyramidoid*: _ShapoidGetType, \
   Spheroid*: _ShapoidGetType, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T))
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap))
 
-#define ShapoidGetTypeAsString(T) _Generic((T), \
+#define ShapoidGetTypeAsString(Shap) _Generic(Shap, \
   Shapoid*: _ShapoidGetTypeAsString, \
   Facoid*: _ShapoidGetTypeAsString, \
   Pyramidoid*: _ShapoidGetTypeAsString, \
   Spheroid*: _ShapoidGetTypeAsString, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T))
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap))
 
-#define ShapoidGetDim(T) _Generic((T), \
+#define ShapoidGetDim(Shap) _Generic(Shap, \
   Shapoid*: _ShapoidGetDim, \
   Facoid*: _ShapoidGetDim, \
   Pyramidoid*: _ShapoidGetDim, \
   Spheroid*: _ShapoidGetDim, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T))
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap))
 
-#define ShapoidGetPos(T) _Generic((T), \
+#define ShapoidGetPos(Shap) _Generic(Shap, \
   Shapoid*: _ShapoidGetPos, \
   Facoid*: _ShapoidGetPos, \
   Pyramidoid*: _ShapoidGetPos, \
   Spheroid*: _ShapoidGetPos, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T))
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap))
 
-#define ShapoidPos(T) _Generic((T), \
+#define ShapoidPos(Shap) _Generic(Shap, \
   Shapoid*: _ShapoidPos, \
   Facoid*: _ShapoidPos, \
   Pyramidoid*: _ShapoidPos, \
   Spheroid*: _ShapoidPos, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T))
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap))
 
-#define ShapoidSetAxis(T, I, V) _Generic((T), \
+#define ShapoidSetAxis(Shap, Index, Vec) _Generic(Shap, \
   Shapoid*: _ShapoidSetAxis, \
   Facoid*: _ShapoidSetAxis, \
   Pyramidoid*: _ShapoidSetAxis, \
   Spheroid*: _ShapoidSetAxis, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T), I, V)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Index, Vec)
 
-#define ShapoidSetPos(T, V) _Generic((T), \
+#define ShapoidSetPos(Shap, Vec) _Generic(Shap, \
   Shapoid*: _ShapoidSetPos, \
   Facoid*: _ShapoidSetPos, \
   Pyramidoid*: _ShapoidSetPos, \
   Spheroid*: _ShapoidSetPos, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T), V)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Vec)
 
-#define ShapoidGetAxis(T, I) _Generic((T), \
+#define ShapoidGetAxis(Shap, Index) _Generic(Shap, \
   Shapoid*: _ShapoidGetAxis, \
   Facoid*: _ShapoidGetAxis, \
   Pyramidoid*: _ShapoidGetAxis, \
   Spheroid*: _ShapoidGetAxis, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T), I)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Index)
 
-#define ShapoidAxis(T, I) _Generic((T), \
+#define ShapoidAxis(Shap, Index) _Generic(Shap, \
   Shapoid*: _ShapoidAxis, \
   Facoid*: _ShapoidAxis, \
   Pyramidoid*: _ShapoidAxis, \
   Spheroid*: _ShapoidAxis, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T), I)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Index)
 
-#define ShapoidTranslate(T, V) _Generic((T), \
+#define ShapoidTranslate(Shap, Vec) _Generic(Shap, \
   Shapoid*: _ShapoidTranslate, \
   Facoid*: _ShapoidTranslate, \
   Pyramidoid*: _ShapoidTranslate, \
   Spheroid*: _ShapoidTranslate, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T), V)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Vec)
 
-#define ShapoidIsEqual(T, O) _Generic((T), \
+#define ShapoidIsEqual(ShapA, ShapB) _Generic(ShapA, \
   Shapoid*: _ShapoidIsEqual, \
   Facoid*: _ShapoidIsEqual, \
   Pyramidoid*: _ShapoidIsEqual, \
   Spheroid*: _ShapoidIsEqual, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T), (Shapoid*)(O))
+  default: PBErrInvalidPolymorphism)((Shapoid*)(ShapA), \
+    (Shapoid*)(ShapB))
 
-#define ShapoidGetBoundingBox(T) _Generic((T), \
+#define ShapoidGetBoundingBox(Shap) _Generic(Shap, \
   Shapoid*: _ShapoidGetBoundingBox, \
   Facoid*: FacoidGetBoundingBox, \
   Pyramidoid*: PyramidoidGetBoundingBox, \
   Spheroid*: SpheroidGetBoundingBox, \
   GSet*: ShapoidGetBoundingBoxSet, \
-  default: PBErrInvalidPolymorphism)(T)
+  default: PBErrInvalidPolymorphism)(Shap)
 
-#define ShapoidScale(T, C) _Generic((C), \
+#define ShapoidScale(Shap, Scale) _Generic(Scale, \
   VecFloat*: ShapoidScaleVector, \
   float: ShapoidScaleScalar, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)T, C)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Scale)
 
-#define ShapoidGrow(T, C) _Generic((T), \
-  Shapoid*: _Generic((C), \
+#define ShapoidGrow(Shap, Scale) _Generic(Shap, \
+  Shapoid*: _Generic(Scale, \
     VecFloat*: ShapoidGrowVector, \
     float: ShapoidGrowScalar, \
     default: PBErrInvalidPolymorphism), \
-  Facoid*: _Generic((C), \
+  Facoid*: _Generic(Scale, \
     VecFloat*: ShapoidGrowVector, \
     float: ShapoidGrowScalar, \
     default: PBErrInvalidPolymorphism), \
-  Pyramidoid*: _Generic((C), \
+  Pyramidoid*: _Generic(Scale, \
     VecFloat*: ShapoidGrowVector, \
     float: ShapoidGrowScalar, \
     default: PBErrInvalidPolymorphism), \
-  Spheroid*: _Generic((C), \
+  Spheroid*: _Generic(Scale, \
     VecFloat*: ShapoidGrowVector, \
     float: ShapoidGrowScalar, \
     default: PBErrInvalidPolymorphism), \
-  default: PBErrInvalidPolymorphism)((Shapoid*)T, C)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Scale)
 
-#define ShapoidGetCenter(T) _Generic((T), \
+#define ShapoidGetCenter(Shap) _Generic(Shap, \
   Shapoid*: _ShapoidGetCenter, \
   Facoid*: FacoidGetCenter, \
   Pyramidoid*: PyramidoidGetCenter, \
   Spheroid*: SpheroidGetCenter, \
-  default: PBErrInvalidPolymorphism)(T)
+  default: PBErrInvalidPolymorphism)(Shap)
 
-#define ShapoidRotate2D(T, A) _Generic((T), \
+#define ShapoidRotate2D(Shap, Theta) _Generic(Shap, \
   Shapoid*: _ShapoidRotate2D, \
   Facoid*: _ShapoidRotate2D, \
   Pyramidoid*: _ShapoidRotate2D, \
   Spheroid*: _ShapoidRotate2D, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T), A)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Theta)
 
-#define ShapoidImportCoord(T, P) _Generic((T), \
+#define ShapoidImportCoord(Shap, VecPos) _Generic(Shap, \
   Shapoid*: _ShapoidImportCoord, \
   Facoid*: _ShapoidImportCoord, \
   Pyramidoid*: _ShapoidImportCoord, \
   Spheroid*: _ShapoidImportCoord, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T), P)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), VecPos)
 
-#define ShapoidExportCoord(T, P) _Generic((T), \
+#define ShapoidExportCoord(Shap, VecPos) _Generic(Shap, \
   Shapoid*: _ShapoidExportCoord, \
   Facoid*: _ShapoidExportCoord, \
   Pyramidoid*: _ShapoidExportCoord, \
   Spheroid*: _ShapoidExportCoord, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(T), P)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), VecPos)
 
-#define ShapoidIsPosInside(T, P) _Generic((T), \
+#define ShapoidIsPosInside(Shap, VecPos) _Generic(Shap, \
   Shapoid*: _ShapoidIsPosInside, \
   Facoid*: FacoidIsPosInside, \
   Pyramidoid*: PyramidoidIsPosInside, \
   Spheroid*: SpheroidIsPosInside, \
-  default: PBErrInvalidPolymorphism)(T, P)
+  default: PBErrInvalidPolymorphism)(Shap, VecPos)
 
-#define ShapoidGetPosDepth(T, P) _Generic((T), \
+#define ShapoidGetPosDepth(Shap, VecPos) _Generic(Shap, \
   Shapoid*: _ShapoidGetPosDepth, \
   Facoid*: FacoidGetPosDepth, \
   Pyramidoid*: PyramidoidGetPosDepth, \
   Spheroid*: SpheroidGetPosDepth, \
-  default: PBErrInvalidPolymorphism)(T, P)
+  default: PBErrInvalidPolymorphism)(Shap, VecPos)
 
 // ================= Data structure ===================
 
