@@ -720,7 +720,7 @@ bool FacoidIsPosInside(Facoid* that, VecFloat* pos) {
       ret = false;
   }
   // Free memory
-  VecFloatFree(&coord);
+  VecFree(&coord);
   // Return the result
   return ret;
 }
@@ -764,7 +764,7 @@ bool PyramidoidIsPosInside(Pyramidoid* that, VecFloat* pos) {
   if (ret == true && sum > 1.0)
     ret = false;
   // Free memory
-  VecFloatFree(&coord);
+  VecFree(&coord);
   // Return the result
   return ret;
 }
@@ -800,7 +800,7 @@ bool SpheroidIsPosInside(Spheroid* that, VecFloat* pos) {
   if (norm <= 0.5)
     ret = true;
   // Free memory
-  VecFloatFree(&coord);
+  VecFree(&coord);
   // Return the result
   return ret;
 }
@@ -888,7 +888,7 @@ float FacoidGetPosDepth(Facoid* that, VecFloat* pos) {
       ret *= 1.0 - pow(0.5 - v, 2.0) * 4.0;
   }
   // Free memory
-  VecFloatFree(&coord);
+  VecFree(&coord);
   // Return the result
   return ret;
 }
@@ -943,7 +943,7 @@ float PyramidoidGetPosDepth(Pyramidoid* that, VecFloat* pos) {
     }
   }
   // Free memory
-  VecFloatFree(&coord);
+  VecFree(&coord);
   // Return the result
   return ret;
 }
@@ -978,7 +978,7 @@ float SpheroidGetPosDepth(Spheroid* that, VecFloat* pos) {
   if (norm <= 0.5)
     ret = 1.0 - norm * 2.0;
   // Free memory
-  VecFloatFree(&coord);
+  VecFree(&coord);
   // Return the result
   return ret;
 }

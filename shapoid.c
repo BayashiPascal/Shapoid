@@ -32,7 +32,7 @@ Shapoid* ShapoidCreate(int dim, ShapoidType type) {
   VecSet(&d, 0, dim);
   VecSet(&d, 1, dim);
   MatFloat* mat = MatFloatCreate(&d);
-  MatFloatSetIdentity(mat);
+  MatSetIdentity(mat);
   // Allocate memory
   Shapoid* that = PBErrMalloc(ShapoidErr, sizeof(Shapoid));
   // Init pointers
@@ -139,11 +139,11 @@ bool _ShapoidLoad(Shapoid** that, FILE* stream, ShapoidType type) {
   // Allocate memory
   *that = ShapoidCreate(dim, type);
   // Read the values
-  bool ok = VecFloatLoad(&((*that)->_pos), stream);
+  bool ok = VecLoad(&((*that)->_pos), stream);
   if (ok == false)
     return false;
   for (int iAxis = 0; iAxis < dim; ++iAxis) {
-    ok = VecFloatLoad((*that)->_axis + iAxis, stream);
+    ok = VecLoad((*that)->_axis + iAxis, stream);
     if (ok == false)
       return false;
   }
@@ -174,11 +174,11 @@ bool _ShapoidSave(Shapoid* that, FILE* stream) {
   if (ret < 0)
     return false;
   // Save the position and axis
-  bool ok = VecFloatSave(that->_pos, stream);
+  bool ok = VecSave(that->_pos, stream);
   if (ok == false)
     return false;
   for (int iAxis = 0; iAxis < that->_dim; ++iAxis) {
-    ok = VecFloatSave(that->_axis[iAxis], stream);
+    ok = VecSave(that->_axis[iAxis], stream);
     if (ok == false)
       return false;
   }
