@@ -143,10 +143,10 @@ void _ShapoidSetPos(Shapoid* that, VecFloat* pos) {
     sprintf(ShapoidErr->_msg, "'pos' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(pos) != that->_dim) {
+  if (VecGetDim(pos) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
-      VecDim(pos), that->_dim);
+      VecGetDim(pos), that->_dim);
     PBErrCatch(ShapoidErr);
   }
 #endif
@@ -176,10 +176,10 @@ void _ShapoidSetAxis(Shapoid* that, int dim, VecFloat* v) {
       dim, that->_dim);
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(v) != that->_dim) {
+  if (VecGetDim(v) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'v' 's dimension is invalid (%d==%d)", 
-      dim, VecDim(v));
+      dim, VecGetDim(v));
     PBErrCatch(ShapoidErr);
   }
 #endif
@@ -205,10 +205,10 @@ void _ShapoidTranslate(Shapoid* that, VecFloat* v) {
     sprintf(ShapoidErr->_msg, "'v' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(v) != that->_dim) {
+  if (VecGetDim(v) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'v' 's dimension is invalid (%d==%d)", 
-      that->_dim, VecDim(v));
+      that->_dim, VecGetDim(v));
     PBErrCatch(ShapoidErr);
   }
 #endif
@@ -220,7 +220,7 @@ void _ShapoidTranslate(Shapoid* that, VecFloat* v) {
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidScaleVector(Shapoid* that, VecFloat* v) {
+void _ShapoidScaleVector(Shapoid* that, VecFloat* v) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -232,10 +232,10 @@ void ShapoidScaleVector(Shapoid* that, VecFloat* v) {
     sprintf(ShapoidErr->_msg, "'v' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(v) != that->_dim) {
+  if (VecGetDim(v) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'v' 's dimension is invalid (%d==%d)", 
-      that->_dim, VecDim(v));
+      that->_dim, VecGetDim(v));
     PBErrCatch(ShapoidErr);
   }
 #endif
@@ -250,7 +250,7 @@ void ShapoidScaleVector(Shapoid* that, VecFloat* v) {
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidScaleScalar(Shapoid* that, float c) {
+void _ShapoidScaleScalar(Shapoid* that, float c) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -271,7 +271,7 @@ void ShapoidScaleScalar(Shapoid* that, float c) {
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidGrowVector(Shapoid* that, VecFloat* v) {
+void _ShapoidGrowVector(Shapoid* that, VecFloat* v) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -283,10 +283,10 @@ void ShapoidGrowVector(Shapoid* that, VecFloat* v) {
     sprintf(ShapoidErr->_msg, "'v' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(v) != that->_dim) {
+  if (VecGetDim(v) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'v' 's dimension is invalid (%d==%d)", 
-      that->_dim, VecDim(v));
+      that->_dim, VecGetDim(v));
     PBErrCatch(ShapoidErr);
   }
   if (that->_type != ShapoidTypeFacoid &&
@@ -324,7 +324,7 @@ void ShapoidGrowVector(Shapoid* that, VecFloat* v) {
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidGrowScalar(Shapoid* that, float c) {
+void _ShapoidGrowScalar(Shapoid* that, float c) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -365,7 +365,7 @@ void ShapoidGrowScalar(Shapoid* that, float c) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotate2D(Shapoid* that, float theta) {
+void _ShapoidRotCenter(Shapoid* that, float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -374,8 +374,8 @@ void _ShapoidRotate2D(Shapoid* that, float theta) {
   }
   if (that->_dim != 2) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'that' 's dimension is invalid (%d==2)", 
-      that->_dim);
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==2)", that->_dim);
     PBErrCatch(ShapoidErr);
   }
   if (that->_type != ShapoidTypeFacoid &&
@@ -409,6 +409,520 @@ void _ShapoidRotate2D(Shapoid* that, float theta) {
   ShapoidUpdateSysLinEqImport(that);
 }
 
+// Rotate the Shapoid of dimension 2 by 'theta' (in radians, CCW)
+// relatively to its position
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotStart(Shapoid* that, float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 2) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==2)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRot(that->_axis[iAxis], theta);
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
+// Rotate the Shapoid of dimension 2 by 'theta' (in radians, CCW)
+// relatively to the origin of the global coordinates system
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotOrigin(Shapoid* that, float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 2) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==2)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRot(that->_axis[iAxis], theta);
+  // Reposition the origin
+  VecRot(that->_pos, theta);
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its center around 'axis'
+// 'axis' must be normalized
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotAxisCenter(Shapoid* that, VecFloat3D* axis, float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (axis == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'axis' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecGetDim(axis) != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'axis' 's dimension is invalid (%d==3)", VecGetDim(axis));
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==3)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_type != ShapoidTypeFacoid &&
+    that->_type != ShapoidTypeSpheroid &&
+    that->_type != ShapoidTypePyramidoid) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "No implementation for 'that' 's type");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // If it's a spheroid
+  if (that->_type == ShapoidTypeSpheroid) {
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRotAxis(that->_axis[iAxis], axis, theta);
+  // Else, it's not a spheroid
+  } else {
+    VecFloat* center = ShapoidGetCenter(that);
+    // Rotate each axis
+    for (int iAxis = that->_dim; iAxis--;)
+      VecRotAxis(that->_axis[iAxis], axis, theta);
+    // Reposition the origin
+    VecFloat* v = VecGetOp(that->_pos, 1.0, center, -1.0);
+    VecRotAxis(v, axis, theta);
+    VecOp(v, 1.0, center, 1.0);
+    VecCopy(that->_pos, v);
+    VecFree(&center);
+    VecFree(&v);
+  }
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its position around 'axis'
+// 'axis' must be normalized
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotAxisStart(Shapoid* that, VecFloat3D* axis, 
+  float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (axis == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'axis' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==3)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecGetDim(axis) != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'axis' 's dimension is invalid (%d==3)", VecGetDim(axis));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRotAxis(that->_axis[iAxis], axis, theta);
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to the origin of the global coordinates system
+// around 'axis'
+// 'axis' must be normalized
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotAxisOrigin(Shapoid* that, VecFloat3D* axis, 
+  float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (axis == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'axis' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==3)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecGetDim(axis) != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'axis' 's dimension is invalid (%d==3)", VecGetDim(axis));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRotAxis(that->_axis[iAxis], axis, theta);
+  // Reposition the origin
+  VecRotAxis(that->_pos, axis, theta);
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its center around X
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotXCenter(Shapoid* that, float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==3)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_type != ShapoidTypeFacoid &&
+    that->_type != ShapoidTypeSpheroid &&
+    that->_type != ShapoidTypePyramidoid) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "No implementation for 'that' 's type");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // If it's a spheroid
+  if (that->_type == ShapoidTypeSpheroid) {
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRotX(that->_axis[iAxis], theta);
+  // Else, it's not a spheroid
+  } else {
+    VecFloat* center = ShapoidGetCenter(that);
+    // Rotate each axis
+    for (int iAxis = that->_dim; iAxis--;)
+      VecRotX(that->_axis[iAxis], theta);
+    // Reposition the origin
+    VecFloat* v = VecGetOp(that->_pos, 1.0, center, -1.0);
+    VecRotX(v, theta);
+    VecOp(v, 1.0, center, 1.0);
+    VecCopy(that->_pos, v);
+    VecFree(&center);
+    VecFree(&v);
+  }
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its position around X
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotXStart(Shapoid* that, 
+  float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==3)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRotX(that->_axis[iAxis], theta);
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to the origin of the global coordinates system
+// around X
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotXOrigin(Shapoid* that, 
+  float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==3)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRotX(that->_axis[iAxis], theta);
+  // Reposition the origin
+  VecRotX(that->_pos, theta);
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its center around Y
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotYCenter(Shapoid* that, float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==3)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_type != ShapoidTypeFacoid &&
+    that->_type != ShapoidTypeSpheroid &&
+    that->_type != ShapoidTypePyramidoid) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "No implementation for 'that' 's type");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // If it's a spheroid
+  if (that->_type == ShapoidTypeSpheroid) {
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRotY(that->_axis[iAxis], theta);
+  // Else, it's not a spheroid
+  } else {
+    VecFloat* center = ShapoidGetCenter(that);
+    // Rotate each axis
+    for (int iAxis = that->_dim; iAxis--;)
+      VecRotY(that->_axis[iAxis], theta);
+    // Reposition the origin
+    VecFloat* v = VecGetOp(that->_pos, 1.0, center, -1.0);
+    VecRotY(v, theta);
+    VecOp(v, 1.0, center, 1.0);
+    VecCopy(that->_pos, v);
+    VecFree(&center);
+    VecFree(&v);
+  }
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its position around Y
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotYStart(Shapoid* that, 
+  float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==3)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRotY(that->_axis[iAxis], theta);
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to the origin of the global coordinates system
+// around Y
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotYOrigin(Shapoid* that, 
+  float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==3)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRotY(that->_axis[iAxis], theta);
+  // Reposition the origin
+  VecRotY(that->_pos, theta);
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its center around Z
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotZCenter(Shapoid* that, float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==3)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_type != ShapoidTypeFacoid &&
+    that->_type != ShapoidTypeSpheroid &&
+    that->_type != ShapoidTypePyramidoid) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "No implementation for 'that' 's type");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // If it's a spheroid
+  if (that->_type == ShapoidTypeSpheroid) {
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRotZ(that->_axis[iAxis], theta);
+  // Else, it's not a spheroid
+  } else {
+    VecFloat* center = ShapoidGetCenter(that);
+    // Rotate each axis
+    for (int iAxis = that->_dim; iAxis--;)
+      VecRotZ(that->_axis[iAxis], theta);
+    // Reposition the origin
+    VecFloat* v = VecGetOp(that->_pos, 1.0, center, -1.0);
+    VecRotZ(v, theta);
+    VecOp(v, 1.0, center, 1.0);
+    VecCopy(that->_pos, v);
+    VecFree(&center);
+    VecFree(&v);
+  }
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its position around Z
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotZStart(Shapoid* that, 
+  float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==3)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRotZ(that->_axis[iAxis], theta);
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to the origin of the global coordinates system
+// around Z
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotZOrigin(Shapoid* that, 
+  float theta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (that->_dim != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' 's dimension is invalid (%d==3)", that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Rotate each axis
+  for (int iAxis = that->_dim; iAxis--;)
+    VecRotZ(that->_axis[iAxis], theta);
+  // Reposition the origin
+  VecRotZ(that->_pos, theta);
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+}
+
 // Convert the coordinates of 'pos' from standard coordinate system 
 // toward the Shapoid coordinates system
 #if BUILDMODE != 0
@@ -426,10 +940,10 @@ VecFloat* _ShapoidImportCoord(Shapoid* that, VecFloat* pos) {
     sprintf(ShapoidErr->_msg, "'pos' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(pos) != that->_dim) {
+  if (VecGetDim(pos) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
-      that->_dim, VecDim(pos));
+      that->_dim, VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
 #endif
@@ -464,10 +978,10 @@ VecFloat* _ShapoidExportCoord(Shapoid* that, VecFloat* pos) {
     sprintf(ShapoidErr->_msg, "'pos' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(pos) != that->_dim) {
+  if (VecGetDim(pos) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
-      that->_dim, VecDim(pos));
+      that->_dim, VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
 #endif
@@ -658,10 +1172,10 @@ bool _ShapoidIsPosInside(Shapoid* that, VecFloat* pos) {
     sprintf(ShapoidErr->_msg, "'pos' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(pos) != that->_dim) {
+  if (VecGetDim(pos) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
-      that->_dim, VecDim(pos));
+      that->_dim, VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
   if (that->_type != ShapoidTypeFacoid &&
@@ -700,10 +1214,10 @@ bool FacoidIsPosInside(Facoid* that, VecFloat* pos) {
     sprintf(ShapoidErr->_msg, "'pos' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(pos) != ShapoidGetDim(that)) {
+  if (VecGetDim(pos) != ShapoidGetDim(that)) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
-      ShapoidGetDim(that), VecDim(pos));
+      ShapoidGetDim(that), VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
 #endif
@@ -740,10 +1254,10 @@ bool PyramidoidIsPosInside(Pyramidoid* that, VecFloat* pos) {
     sprintf(ShapoidErr->_msg, "'pos' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(pos) != ShapoidGetDim(that)) {
+  if (VecGetDim(pos) != ShapoidGetDim(that)) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
-      ShapoidGetDim(that), VecDim(pos));
+      ShapoidGetDim(that), VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
 #endif
@@ -784,10 +1298,10 @@ bool SpheroidIsPosInside(Spheroid* that, VecFloat* pos) {
     sprintf(ShapoidErr->_msg, "'pos' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(pos) != ShapoidGetDim(that)) {
+  if (VecGetDim(pos) != ShapoidGetDim(that)) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
-      ShapoidGetDim(that), VecDim(pos));
+      ShapoidGetDim(that), VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
 #endif
@@ -826,10 +1340,10 @@ float _ShapoidGetPosDepth(Shapoid* that, VecFloat* pos) {
     sprintf(ShapoidErr->_msg, "'pos' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(pos) != that->_dim) {
+  if (VecGetDim(pos) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
-      that->_dim, VecDim(pos));
+      that->_dim, VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
   if (that->_type != ShapoidTypeFacoid &&
@@ -869,10 +1383,10 @@ float FacoidGetPosDepth(Facoid* that, VecFloat* pos) {
     sprintf(ShapoidErr->_msg, "'pos' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(pos) != ShapoidGetDim(that)) {
+  if (VecGetDim(pos) != ShapoidGetDim(that)) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
-      ShapoidGetDim(that), VecDim(pos));
+      ShapoidGetDim(that), VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
 #endif
@@ -908,10 +1422,10 @@ float PyramidoidGetPosDepth(Pyramidoid* that, VecFloat* pos) {
     sprintf(ShapoidErr->_msg, "'pos' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(pos) != ShapoidGetDim(that)) {
+  if (VecGetDim(pos) != ShapoidGetDim(that)) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
-      ShapoidGetDim(that), VecDim(pos));
+      ShapoidGetDim(that), VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
 #endif
@@ -963,10 +1477,10 @@ float SpheroidGetPosDepth(Spheroid* that, VecFloat* pos) {
     sprintf(ShapoidErr->_msg, "'pos' is null");
     PBErrCatch(ShapoidErr);
   }
-  if (VecDim(pos) != ShapoidGetDim(that)) {
+  if (VecGetDim(pos) != ShapoidGetDim(that)) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
-      ShapoidGetDim(that), VecDim(pos));
+      ShapoidGetDim(that), VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
 #endif

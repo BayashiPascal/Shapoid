@@ -7,7 +7,12 @@ Axis(1): <0.000,1.000,0.000>
 Axis(2): <0.000,0.000,1.000>
 UnitTestLoadSavePrint OK
 UnitTestGetSetTypeDimPosAxis OK
-UnitTestTranslateScaleGrowRotate OK
+UnitTestTranslateScaleGrow OK
+UnitTestRotate OK
+UnitTestRotateAxis OK
+UnitTestRotateX OK
+UnitTestRotateY OK
+UnitTestRotateZ OK
 UnitTestImportExportCoordIsPosInside OK
 UnitTestGetBoundingBox OK
 UnitTestGetPosDepthCenterCoverage OK

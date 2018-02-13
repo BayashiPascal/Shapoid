@@ -478,7 +478,7 @@ float _ShapoidGetCoverageDelta(Shapoid* that, Shapoid* tho,
   VecFloat* pRel = VecFloatCreate(ShapoidGetDim(that));
   VecFloat* pStd = NULL;
   // Declare a variable to memorize the last index in dimension
-  int lastI = VecDim(pRel) - 1;
+  int lastI = VecGetDim(pRel) - 1;
   // Declare a variable to memorize the max value of coordinates
   float max = 1.0;
   // If 'tho' is a spheroid, correct the start coordinates and range

@@ -15,7 +15,7 @@ void UnitTestCreateCloneIsEqualFree() {
   Shapoid* facoid = ShapoidCreate(dim, ShapoidTypeFacoid);
   if (facoid == NULL || facoid->_dim != dim ||
     facoid->_type != ShapoidTypeFacoid || facoid->_pos == NULL ||
-    VecDim(facoid->_pos) != dim || facoid->_sysLinEqImport == NULL ||
+    VecGetDim(facoid->_pos) != dim || facoid->_sysLinEqImport == NULL ||
     facoid->_axis == NULL) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidCreate failed");
@@ -24,7 +24,7 @@ void UnitTestCreateCloneIsEqualFree() {
   for (int iDim = dim; iDim--;) {
     if (ISEQUALF(VecGet(facoid->_pos, iDim), 0.0) == false ||
       facoid->_axis[iDim] == NULL || 
-      VecDim(facoid->_axis[iDim]) != dim) {
+      VecGetDim(facoid->_axis[iDim]) != dim) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidCreate failed");
       PBErrCatch(ShapoidErr);
@@ -219,7 +219,7 @@ void UnitTestGetSetTypeDimPosAxis() {
   printf("UnitTestGetSetTypeDimPosAxis OK\n");
 }
 
-void UnitTestTranslateScaleGrowRotate() {
+void UnitTestTranslateScaleGrow() {
   int dim = 2;
   Facoid* facoid = FacoidCreate(dim);
   VecFloat* v = VecFloatCreate(dim);
@@ -237,7 +237,7 @@ void UnitTestTranslateScaleGrowRotate() {
   VecSetNull(((Shapoid*)facoid)->_pos);
   if (VecIsEqual(v, ((Shapoid*)facoid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
-    sprintf(ShapoidErr->_msg, "ShapoidScaleScalar failed");
+    sprintf(ShapoidErr->_msg, "_ShapoidScaleScalar failed");
     PBErrCatch(ShapoidErr);
   }
   for (int i = dim; i--;) {
@@ -248,7 +248,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, 0.0);
     if (VecIsEqual(v, ((Shapoid*)facoid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
-      sprintf(ShapoidErr->_msg, "ShapoidScaleScalar failed");
+      sprintf(ShapoidErr->_msg, "_ShapoidScaleScalar failed");
       PBErrCatch(ShapoidErr);
     }
   }
@@ -258,7 +258,7 @@ void UnitTestTranslateScaleGrowRotate() {
   VecSetNull(v);
   if (VecIsEqual(v, ((Shapoid*)facoid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
-    sprintf(ShapoidErr->_msg, "ShapoidScaleVector failed");
+    sprintf(ShapoidErr->_msg, "_ShapoidScaleVector failed");
     PBErrCatch(ShapoidErr);
   }
   for (int i = dim; i--;) {
@@ -269,7 +269,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, 0.0);
     if (VecIsEqual(v, ((Shapoid*)facoid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
-      sprintf(ShapoidErr->_msg, "ShapoidScaleVector failed");
+      sprintf(ShapoidErr->_msg, "_ShapoidScaleVector failed");
       PBErrCatch(ShapoidErr);
     }
   }
@@ -281,7 +281,7 @@ void UnitTestTranslateScaleGrowRotate() {
     VecSet(v, i, -0.5);
   if (VecIsEqual(v, ((Shapoid*)facoid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
-    sprintf(ShapoidErr->_msg, "ShapoidGrowScalar failed");
+    sprintf(ShapoidErr->_msg, "_ShapoidGrowScalar failed");
     PBErrCatch(ShapoidErr);
   }
   for (int i = dim; i--;) {
@@ -292,7 +292,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, 0.0);
     if (VecIsEqual(v, ((Shapoid*)facoid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
-      sprintf(ShapoidErr->_msg, "ShapoidGrowScalar failed");
+      sprintf(ShapoidErr->_msg, "_ShapoidGrowScalar failed");
       PBErrCatch(ShapoidErr);
     }
   }
@@ -302,7 +302,7 @@ void UnitTestTranslateScaleGrowRotate() {
   VecFloat* centerB = ShapoidGetCenter(pyramidoid);
   if (VecIsEqual(centerA, centerB) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
-    sprintf(ShapoidErr->_msg, "ShapoidGrowScalar failed");
+    sprintf(ShapoidErr->_msg, "_ShapoidGrowScalar failed");
     PBErrCatch(ShapoidErr);
   }
   for (int i = dim; i--;) {
@@ -313,7 +313,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, 0.0);
     if (VecIsEqual(v, ((Shapoid*)pyramidoid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
-      sprintf(ShapoidErr->_msg, "ShapoidGrowScalar failed");
+      sprintf(ShapoidErr->_msg, "_ShapoidGrowScalar failed");
       PBErrCatch(ShapoidErr);
     }
   }
@@ -324,7 +324,7 @@ void UnitTestTranslateScaleGrowRotate() {
   VecSetNull(v);
   if (VecIsEqual(v, ((Shapoid*)spheroid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
-    sprintf(ShapoidErr->_msg, "ShapoidGrowScalar failed");
+    sprintf(ShapoidErr->_msg, "_ShapoidGrowScalar failed");
     PBErrCatch(ShapoidErr);
   }
   for (int i = dim; i--;) {
@@ -335,7 +335,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, 0.0);
     if (VecIsEqual(v, ((Shapoid*)spheroid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
-      sprintf(ShapoidErr->_msg, "ShapoidGrowScalar failed");
+      sprintf(ShapoidErr->_msg, "_ShapoidGrowScalar failed");
       PBErrCatch(ShapoidErr);
     }
   }
@@ -352,7 +352,7 @@ void UnitTestTranslateScaleGrowRotate() {
     VecSet(v, i, pa[i]);
   if (VecIsEqual(v, ((Shapoid*)facoid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
-    sprintf(ShapoidErr->_msg, "ShapoidGrowVector failed");
+    sprintf(ShapoidErr->_msg, "_ShapoidGrowVector failed");
     PBErrCatch(ShapoidErr);
   }
   for (int i = dim; i--;) {
@@ -363,7 +363,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, 0.0);
     if (VecIsEqual(v, ((Shapoid*)facoid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
-      sprintf(ShapoidErr->_msg, "ShapoidGrowVector failed");
+      sprintf(ShapoidErr->_msg, "_ShapoidGrowVector failed");
       PBErrCatch(ShapoidErr);
     }
   }
@@ -373,7 +373,7 @@ void UnitTestTranslateScaleGrowRotate() {
   centerB = ShapoidGetCenter(pyramidoid);
   if (VecIsEqual(centerA, centerB) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
-    sprintf(ShapoidErr->_msg, "ShapoidGrowVector failed");
+    sprintf(ShapoidErr->_msg, "_ShapoidGrowVector failed");
     PBErrCatch(ShapoidErr);
   }
   for (int i = dim; i--;) {
@@ -384,7 +384,7 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, 0.0);
     if (VecIsEqual(v, ((Shapoid*)pyramidoid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
-      sprintf(ShapoidErr->_msg, "ShapoidGrowVector failed");
+      sprintf(ShapoidErr->_msg, "_ShapoidGrowVector failed");
       PBErrCatch(ShapoidErr);
     }
   }
@@ -395,7 +395,7 @@ void UnitTestTranslateScaleGrowRotate() {
   VecSetNull(v);
   if (VecIsEqual(v, ((Shapoid*)spheroid)->_pos) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
-    sprintf(ShapoidErr->_msg, "ShapoidGrowVector failed");
+    sprintf(ShapoidErr->_msg, "_ShapoidGrowVector failed");
     PBErrCatch(ShapoidErr);
   }
   for (int i = dim; i--;) {
@@ -406,19 +406,25 @@ void UnitTestTranslateScaleGrowRotate() {
         VecSet(v, j, 0.0);
     if (VecIsEqual(v, ((Shapoid*)spheroid)->_axis[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
-      sprintf(ShapoidErr->_msg, "ShapoidGrowVector failed");
+      sprintf(ShapoidErr->_msg, "_ShapoidGrowVector failed");
       PBErrCatch(ShapoidErr);
     }
   }
   VecFree(&scalev);
+  VecFree(&v);
   ShapoidFree(&facoid);
   ShapoidFree(&pyramidoid);
   ShapoidFree(&spheroid);
-  facoid = FacoidCreate(dim);
-  pyramidoid = PyramidoidCreate(dim);
-  spheroid = SpheroidCreate(dim);
+  printf("UnitTestTranslateScaleGrow OK\n");
+}
+
+void UnitTestRotate() {
+  int dim = 2;
+  Facoid* facoid = FacoidCreate(dim);
+  Pyramidoid* pyramidoid = PyramidoidCreate(dim);
+  Spheroid* spheroid = SpheroidCreate(dim);
   float theta = PBMATH_HALFPI;
-  ShapoidRotate2D(facoid, theta);
+  ShapoidRotCenter(facoid, theta);
   float pb[2] = {1.0, 0.0};
   float pc[2] = {0.0, 1.0};
   float pd[2] = {-1.0, 0.0};
@@ -429,11 +435,11 @@ void UnitTestTranslateScaleGrowRotate() {
       ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
       pd[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
-      sprintf(ShapoidErr->_msg, "ShapoidRotate2D failed");
+      sprintf(ShapoidErr->_msg, "ShapoidRotCenter failed");
       PBErrCatch(ShapoidErr);
     }
   }
-  ShapoidRotate2D(pyramidoid, theta);
+  ShapoidRotCenter(pyramidoid, theta);
   float pe[2] = {0.6666667, 0.0};
   float pf[2] = {0.0, 1.0};
   float pg[2] = {-1.0, 0.0};
@@ -445,11 +451,11 @@ void UnitTestTranslateScaleGrowRotate() {
       ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
       pg[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
-      sprintf(ShapoidErr->_msg, "ShapoidRotate2D failed");
+      sprintf(ShapoidErr->_msg, "ShapoidRotCenter failed");
       PBErrCatch(ShapoidErr);
     }
   }
-  ShapoidRotate2D(spheroid, theta);
+  ShapoidRotCenter(spheroid, theta);
   float ph[2] = {0.0, 0.0};
   float pi[2] = {0.0, 1.0};
   float pj[2] = {-1.0, 0.0};
@@ -461,15 +467,723 @@ void UnitTestTranslateScaleGrowRotate() {
       ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
       pj[i]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
-      sprintf(ShapoidErr->_msg, "ShapoidRotate2D failed");
+      sprintf(ShapoidErr->_msg, "ShapoidRotCenter failed");
       PBErrCatch(ShapoidErr);
     }
   }
-  VecFree(&v);
+  ShapoidRotOrigin(facoid, theta);
+  float pk[2] = {0.0, 1.0};
+  float pl[2] = {-1.0, 0.0};
+  float pm[2] = {0.0, -1.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pk[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pl[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pm[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotOrigin(pyramidoid, theta);
+  float pn[2] = {0.0, 0.6666667};
+  float po[2] = {-1.0, 0.0};
+  float pp[2] = {0.0, -1.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pn[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      po[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      pp[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotOrigin(spheroid, theta);
+  float pq[2] = {0.0, 0.0};
+  float pr[2] = {-1.0, 0.0};
+  float ps[2] = {0.0, -1.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      pq[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      pr[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      ps[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotStart(facoid, theta);
+  float pt[2] = {0.0, 1.0};
+  float pu[2] = {0.0, -1.0};
+  float pv[2] = {1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pt[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pu[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pv[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotStart(pyramidoid, theta);
+  float pw[2] = {0.0, 0.6666667};
+  float px[2] = {0.0, -1.0};
+  float py[2] = {1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pw[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      px[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      py[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotStart(spheroid, theta);
+  float pz[2] = {0.0, 0.0};
+  float paa[2] = {0.0, -1.0};
+  float pab[2] = {1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      pz[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      paa[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      pab[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
   ShapoidFree(&facoid);
   ShapoidFree(&pyramidoid);
   ShapoidFree(&spheroid);
-  printf("UnitTestTranslateScaleGrowRotate OK\n");
+  printf("UnitTestRotate OK\n");
+}
+
+void UnitTestRotateAxis() {
+  int dim = 3;
+  Facoid* facoid = FacoidCreate(dim);
+  Pyramidoid* pyramidoid = PyramidoidCreate(dim);
+  Spheroid* spheroid = SpheroidCreate(dim);
+  float theta = PBMATH_HALFPI;
+  VecFloat3D axis = VecFloatCreateStatic3D();
+  VecSet(&axis, 0, 1.0); VecSet(&axis, 1, 1.0); VecSet(&axis, 2, 1.0); 
+  VecNormalise(&axis);
+  ShapoidRotAxisCenter(facoid, &axis, theta);
+  float pb[3] = {0.0, 0.0, 0.0};
+  float pc[3] = {0.333333, 0.910684, -0.244017};
+  float pd[3] = {-0.244017, 0.333333, 0.910684};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pb[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pc[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pd[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotAxisCenter failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotAxisCenter(pyramidoid, &axis, theta);
+  float pe[3] = {0.000000, 0.000000, 0.000000};
+  float pf[3] = {0.333333, 0.910684, -0.244017};
+  float pg[3] = {-0.244017, 0.333333, 0.910684};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pe[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      pf[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      pg[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotAxisCenter failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotAxisCenter(spheroid, &axis, theta);
+  float ph[3] = {0.0, 0.0, 0.0};
+  float pi[3] = {0.333333, 0.910684, -0.244017};
+  float pj[3] = {-0.244017, 0.333333, 0.910684};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      ph[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      pi[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      pj[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotAxisCenter failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotAxisOrigin(facoid, &axis, theta);
+  float pk[3] = {0.0, 0.0, 0.0};
+  float pl[3] = {-0.333333, 0.666667, 0.666667};
+  float pm[3] = {0.666667, -0.333333, 0.666667};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pk[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pl[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pm[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotAxisOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotAxisOrigin(pyramidoid, &axis, theta);
+  float pn[3] = {0.0, 0.0, 0.0};
+  float po[3] = {-0.333333, 0.666667, 0.666667};
+  float pp[3] = {0.666667, -0.333333, 0.666667};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pn[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      po[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      pp[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotAxisOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotAxisOrigin(spheroid, &axis, theta);
+  float pq[3] = {0.0, 0.0, 0.0};
+  float pr[3] = {-0.333333, 0.666667, 0.666667};
+  float ps[3] = {0.666667, -0.333333, 0.666667};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      pq[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      pr[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      ps[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotAxisOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotAxisStart(facoid, &axis, theta);
+  float pt[3] = {0.0, 0.0, 0.0};
+  float pu[3] = {0.333333, -0.244017, 0.910683};
+  float pv[3] = {0.910683, 0.333333, -0.244017};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pt[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pu[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pv[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotAxisStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotAxisStart(pyramidoid, &axis, theta);
+  float pw[3] = {0.0, 0.0, 0.0};
+  float px[3] = {0.333333, -0.244017, 0.910683};
+  float py[3] = {0.910683, 0.333333, -0.244017};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pw[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      px[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      py[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotAxisStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotAxisStart(spheroid, &axis, theta);
+  float pz[3] = {0.0, 0.0, 0.0};
+  float paa[3] = {0.333333, -0.244017, 0.910683};
+  float pab[3] = {0.910683, 0.333333, -0.244017};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      pz[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      paa[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      pab[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotAxisStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidFree(&facoid);
+  ShapoidFree(&pyramidoid);
+  ShapoidFree(&spheroid);
+  printf("UnitTestRotateAxis OK\n");
+}
+
+void UnitTestRotateX() {
+  int dim = 3;
+  Facoid* facoid = FacoidCreate(dim);
+  Pyramidoid* pyramidoid = PyramidoidCreate(dim);
+  Spheroid* spheroid = SpheroidCreate(dim);
+  float theta = PBMATH_HALFPI;
+  ShapoidRotXCenter(facoid, theta);
+  float pb[3] = {0.0, 1.0, 0.0};
+  float pc[3] = {1.0, 0.0, 0.0};
+  float pd[3] = {0.0, 0.0, 1.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pb[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pc[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pd[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotXCenter failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotXCenter(pyramidoid, theta);
+  float pe[3] = {0.0, 0.5, 0.0};
+  float pf[3] = {1.0, 0.0, 0.0};
+  float pg[3] = {0.0, 0.0, 1.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pe[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      pf[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      pg[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotXCenter failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotXCenter(spheroid, theta);
+  float ph[3] = {0.0, 0.0, 0.0};
+  float pi[3] = {1.0, 0.0, 0.0};
+  float pj[3] = {0.0, 0.0, 1.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      ph[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      pi[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      pj[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotXCenter failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotXOrigin(facoid, theta);
+  float pk[3] = {0.0, 0.0, 1.0};
+  float pl[3] = {1.0, 0.0, 0.0};
+  float pm[3] = {0.0, -1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pk[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pl[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pm[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotXOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotXOrigin(pyramidoid, theta);
+  float pn[3] = {0.0, 0.0, 0.5};
+  float po[3] = {1.0, 0.0, 0.0};
+  float pp[3] = {0.0, -1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pn[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      po[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      pp[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotXOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotXOrigin(spheroid, theta);
+  float pq[3] = {0.0, 0.0, 0.0};
+  float pr[3] = {1.0, 0.0, 0.0};
+  float ps[3] = {0.0, -1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      pq[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      pr[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      ps[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotXOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotXStart(facoid, theta);
+  float pt[3] = {0.0, 0.0, 1.0};
+  float pu[3] = {1.0, 0.0, 0.0};
+  float pv[3] = {0.0, 0.0, -1.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pt[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pu[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pv[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotXStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotXStart(pyramidoid, theta);
+  float pw[3] = {0.0, 0.0, 0.5};
+  float px[3] = {1.0, 0.0, 0.0};
+  float py[3] = {0.0, 0.0, -1.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pw[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      px[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      py[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotXStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotXStart(spheroid, theta);
+  float pz[3] = {0.0, 0.0, 0.0};
+  float paa[3] = {1.0, 0.0, 0.0};
+  float pab[3] = {0.0, 0.0, -1.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      pz[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      paa[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      pab[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotXStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidFree(&facoid);
+  ShapoidFree(&pyramidoid);
+  ShapoidFree(&spheroid);
+  printf("UnitTestRotateX OK\n");
+}
+
+void UnitTestRotateY() {
+  int dim = 3;
+  Facoid* facoid = FacoidCreate(dim);
+  Pyramidoid* pyramidoid = PyramidoidCreate(dim);
+  Spheroid* spheroid = SpheroidCreate(dim);
+  float theta = PBMATH_HALFPI;
+  ShapoidRotYCenter(facoid, theta);
+  float pb[3] = {0.0, 0.0, 1.0};
+  float pc[3] = {0.0, 0.0, -1.0};
+  float pd[3] = {0.0, 1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pb[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pc[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pd[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotYCenter failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotYCenter(pyramidoid, theta);
+  float pe[3] = {0.0, 0.0, 0.5};
+  float pf[3] = {0.0, 0.0, -1.0};
+  float pg[3] = {0.0, 1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pe[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      pf[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      pg[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotYCenter failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotYCenter(spheroid, theta);
+  float ph[3] = {0.0, 0.0, 0.0};
+  float pi[3] = {0.0, 0.0, -1.0};
+  float pj[3] = {0.0, 1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      ph[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      pi[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      pj[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotYCenter failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotYOrigin(facoid, theta);
+  float pk[3] = {1.0, 0.0, 0.0};
+  float pl[3] = {-1.0, 0.0, 0.0};
+  float pm[3] = {0.0, 1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pk[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pl[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pm[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotYOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotYOrigin(pyramidoid, theta);
+  float pn[3] = {0.5, 0.0, 0.0};
+  float po[3] = {-1.0, 0.0, 0.0};
+  float pp[3] = {0.0, 1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pn[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      po[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      pp[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotYOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotYOrigin(spheroid, theta);
+  float pq[3] = {0.0, 0.0, 0.0};
+  float pr[3] = {-1.0, 0.0, 0.0};
+  float ps[3] = {0.0, 1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      pq[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      pr[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      ps[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotYOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotYStart(facoid, theta);
+  float pt[3] = {1.0, 0.0, 0.0};
+  float pu[3] = {0.0, 0.0, 1.0};
+  float pv[3] = {0.0, 1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pt[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pu[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pv[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotYStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotYStart(pyramidoid, theta);
+  float pw[3] = {0.5, 0.0, 0.0};
+  float px[3] = {0.0, 0.0, 1.0};
+  float py[3] = {0.0, 1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pw[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      px[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      py[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotYStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotYStart(spheroid, theta);
+  float pz[3] = {0.0, 0.0, 0.0};
+  float paa[3] = {0.0, 0.0, 1.0};
+  float pab[3] = {0.0, 1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      pz[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      paa[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      pab[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotYStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidFree(&facoid);
+  ShapoidFree(&pyramidoid);
+  ShapoidFree(&spheroid);
+  printf("UnitTestRotateY OK\n");
+}
+
+void UnitTestRotateZ() {
+  int dim = 3;
+  Facoid* facoid = FacoidCreate(dim);
+  Pyramidoid* pyramidoid = PyramidoidCreate(dim);
+  Spheroid* spheroid = SpheroidCreate(dim);
+  float theta = PBMATH_HALFPI;
+  ShapoidRotZCenter(facoid, theta);
+  float pb[3] = {1.0, 0.0, 0.0};
+  float pc[3] = {0.0, 1.0, 0.0};
+  float pd[3] = {-1.0, 0.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pb[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pc[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pd[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotZCenter failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotZCenter(pyramidoid, theta);
+  float pe[3] = {0.5, 0.0, 0.0};
+  float pf[3] = {0.0, 1.0, 0.0};
+  float pg[3] = {-1.0, 0.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pe[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      pf[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      pg[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotZCenter failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotZCenter(spheroid, theta);
+  float ph[3] = {0.0, 0.0, 0.0};
+  float pi[3] = {0.0, 1.0, 0.0};
+  float pj[3] = {-1.0, 0.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      ph[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      pi[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      pj[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotZCenter failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotZOrigin(facoid, theta);
+  float pk[3] = {0.0, 1.0, 0.0};
+  float pl[3] = {-1.0, 0.0, 0.0};
+  float pm[3] = {0.0, -1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pk[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pl[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pm[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotZOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotZOrigin(pyramidoid, theta);
+  float pn[3] = {0.0, 0.5, 0.0};
+  float po[3] = {-1.0, 0.0, 0.0};
+  float pp[3] = {0.0, -1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pn[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      po[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      pp[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotZOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotZOrigin(spheroid, theta);
+  float pq[3] = {0.0, 0.0, 0.0};
+  float pr[3] = {-1.0, 0.0, 0.0};
+  float ps[3] = {0.0, -1.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      pq[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      pr[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      ps[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotZOrigin failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotZStart(facoid, theta);
+  float pt[3] = {0.0, 1.0, 0.0};
+  float pu[3] = {0.0, -1.0, 0.0};
+  float pv[3] = {1.0, 0.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)facoid)->_pos, i), pt[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[0], i), 
+      pu[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)facoid)->_axis[1], i), 
+      pv[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotZStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotZStart(pyramidoid, theta);
+  float pw[3] = {0.0, 0.5, 0.0};
+  float px[3] = {0.0, -1.0, 0.0};
+  float py[3] = {1.0, 0.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_pos, i), 
+      pw[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[0], i), 
+      px[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)pyramidoid)->_axis[1], i), 
+      py[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotZStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidRotZStart(spheroid, theta);
+  float pz[3] = {0.0, 0.0, 0.0};
+  float paa[3] = {0.0, -1.0, 0.0};
+  float pab[3] = {1.0, 0.0, 0.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)spheroid)->_pos, i), 
+      pz[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[0], i), 
+      paa[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)spheroid)->_axis[1], i), 
+      pab[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidRotZStart failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  ShapoidFree(&facoid);
+  ShapoidFree(&pyramidoid);
+  ShapoidFree(&spheroid);
+  printf("UnitTestRotateZ OK\n");
 }
 
 void UnitTestImportExportCoordIsPosInside() {
@@ -629,9 +1343,9 @@ void UnitTestGetBoundingBox() {
   ShapoidScale(pyramidoid, scale);
   ShapoidScale(spheroid, scale);
   float theta = PBMATH_QUARTERPI;
-  ShapoidRotate2D(facoid, theta);
-  ShapoidRotate2D(pyramidoid, theta);
-  ShapoidRotate2D(spheroid, theta);
+  ShapoidRotCenter(facoid, theta);
+  ShapoidRotCenter(pyramidoid, theta);
+  ShapoidRotCenter(spheroid, theta);
   Facoid* boundA = ShapoidGetBoundingBox(facoid);
   float pa[2] = {-1.414214, -0.414213};
   float pb[2] = {2.828427, 0.0};
@@ -804,7 +1518,12 @@ void UnitTestAll() {
   UnitTestCreateCloneIsEqualFree();
   UnitTestLoadSavePrint();
   UnitTestGetSetTypeDimPosAxis();
-  UnitTestTranslateScaleGrowRotate();
+  UnitTestTranslateScaleGrow();
+  UnitTestRotate();
+  UnitTestRotateAxis();
+  UnitTestRotateX();
+  UnitTestRotateY();
+  UnitTestRotateZ();
   UnitTestImportExportCoordIsPosInside();
   UnitTestGetBoundingBox();
   UnitTestGetPosDepthCenterCoverage();

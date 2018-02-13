@@ -156,26 +156,26 @@ extern const char* ShapoidTypeString[3];
   default: PBErrInvalidPolymorphism)(Shap)
 
 #define ShapoidScale(Shap, Scale) _Generic(Scale, \
-  VecFloat*: ShapoidScaleVector, \
-  float: ShapoidScaleScalar, \
+  VecFloat*: _ShapoidScaleVector, \
+  float: _ShapoidScaleScalar, \
   default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Scale)
 
 #define ShapoidGrow(Shap, Scale) _Generic(Shap, \
   Shapoid*: _Generic(Scale, \
-    VecFloat*: ShapoidGrowVector, \
-    float: ShapoidGrowScalar, \
+    VecFloat*: _ShapoidGrowVector, \
+    float: _ShapoidGrowScalar, \
     default: PBErrInvalidPolymorphism), \
   Facoid*: _Generic(Scale, \
-    VecFloat*: ShapoidGrowVector, \
-    float: ShapoidGrowScalar, \
+    VecFloat*: _ShapoidGrowVector, \
+    float: _ShapoidGrowScalar, \
     default: PBErrInvalidPolymorphism), \
   Pyramidoid*: _Generic(Scale, \
-    VecFloat*: ShapoidGrowVector, \
-    float: ShapoidGrowScalar, \
+    VecFloat*: _ShapoidGrowVector, \
+    float: _ShapoidGrowScalar, \
     default: PBErrInvalidPolymorphism), \
   Spheroid*: _Generic(Scale, \
-    VecFloat*: ShapoidGrowVector, \
-    float: ShapoidGrowScalar, \
+    VecFloat*: _ShapoidGrowVector, \
+    float: _ShapoidGrowScalar, \
     default: PBErrInvalidPolymorphism), \
   default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Scale)
 
@@ -186,11 +186,109 @@ extern const char* ShapoidTypeString[3];
   Spheroid*: SpheroidGetCenter, \
   default: PBErrInvalidPolymorphism)(Shap)
 
-#define ShapoidRotate2D(Shap, Theta) _Generic(Shap, \
-  Shapoid*: _ShapoidRotate2D, \
-  Facoid*: _ShapoidRotate2D, \
-  Pyramidoid*: _ShapoidRotate2D, \
-  Spheroid*: _ShapoidRotate2D, \
+#define ShapoidRotCenter(Shap, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotCenter, \
+  Facoid*: _ShapoidRotCenter, \
+  Pyramidoid*: _ShapoidRotCenter, \
+  Spheroid*: _ShapoidRotCenter, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Theta)
+
+#define ShapoidRotOrigin(Shap, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotOrigin, \
+  Facoid*: _ShapoidRotOrigin, \
+  Pyramidoid*: _ShapoidRotOrigin, \
+  Spheroid*: _ShapoidRotOrigin, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Theta)
+
+#define ShapoidRotStart(Shap, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotStart, \
+  Facoid*: _ShapoidRotStart, \
+  Pyramidoid*: _ShapoidRotStart, \
+  Spheroid*: _ShapoidRotStart, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Theta)
+
+#define ShapoidRotAxisCenter(Shap, Axis, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotAxisCenter, \
+  Facoid*: _ShapoidRotAxisCenter, \
+  Pyramidoid*: _ShapoidRotAxisCenter, \
+  Spheroid*: _ShapoidRotAxisCenter, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Axis, Theta)
+
+#define ShapoidRotAxisOrigin(Shap, Axis, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotAxisOrigin, \
+  Facoid*: _ShapoidRotAxisOrigin, \
+  Pyramidoid*: _ShapoidRotAxisOrigin, \
+  Spheroid*: _ShapoidRotAxisOrigin, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Axis, Theta)
+
+#define ShapoidRotAxisStart(Shap, Axis, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotAxisStart, \
+  Facoid*: _ShapoidRotAxisStart, \
+  Pyramidoid*: _ShapoidRotAxisStart, \
+  Spheroid*: _ShapoidRotAxisStart, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Axis, Theta)
+
+#define ShapoidRotXCenter(Shap, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotXCenter, \
+  Facoid*: _ShapoidRotXCenter, \
+  Pyramidoid*: _ShapoidRotXCenter, \
+  Spheroid*: _ShapoidRotXCenter, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Theta)
+
+#define ShapoidRotXOrigin(Shap, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotXOrigin, \
+  Facoid*: _ShapoidRotXOrigin, \
+  Pyramidoid*: _ShapoidRotXOrigin, \
+  Spheroid*: _ShapoidRotXOrigin, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Theta)
+
+#define ShapoidRotXStart(Shap, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotXStart, \
+  Facoid*: _ShapoidRotXStart, \
+  Pyramidoid*: _ShapoidRotXStart, \
+  Spheroid*: _ShapoidRotXStart, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Theta)
+
+#define ShapoidRotYCenter(Shap, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotYCenter, \
+  Facoid*: _ShapoidRotYCenter, \
+  Pyramidoid*: _ShapoidRotYCenter, \
+  Spheroid*: _ShapoidRotYCenter, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Theta)
+
+#define ShapoidRotYOrigin(Shap, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotYOrigin, \
+  Facoid*: _ShapoidRotYOrigin, \
+  Pyramidoid*: _ShapoidRotYOrigin, \
+  Spheroid*: _ShapoidRotYOrigin, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Theta)
+
+#define ShapoidRotYStart(Shap, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotYStart, \
+  Facoid*: _ShapoidRotYStart, \
+  Pyramidoid*: _ShapoidRotYStart, \
+  Spheroid*: _ShapoidRotYStart, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Theta)
+
+#define ShapoidRotZCenter(Shap, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotZCenter, \
+  Facoid*: _ShapoidRotZCenter, \
+  Pyramidoid*: _ShapoidRotZCenter, \
+  Spheroid*: _ShapoidRotZCenter, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Theta)
+
+#define ShapoidRotZOrigin(Shap, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotZOrigin, \
+  Facoid*: _ShapoidRotZOrigin, \
+  Pyramidoid*: _ShapoidRotZOrigin, \
+  Spheroid*: _ShapoidRotZOrigin, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Theta)
+
+#define ShapoidRotZStart(Shap, Theta) _Generic(Shap, \
+  Shapoid*: _ShapoidRotZStart, \
+  Facoid*: _ShapoidRotZStart, \
+  Pyramidoid*: _ShapoidRotZStart, \
+  Spheroid*: _ShapoidRotZStart, \
   default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Theta)
 
 #define ShapoidImportCoord(Shap, VecPos) _Generic(Shap, \
@@ -357,13 +455,13 @@ void _ShapoidTranslate(Shapoid* that, VecFloat* v);
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidScaleVector(Shapoid* that, VecFloat* v);
+void _ShapoidScaleVector(Shapoid* that, VecFloat* v);
 
 // Scale the Shapoid by 'c'
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidScaleScalar(Shapoid* that, float c);
+void _ShapoidScaleScalar(Shapoid* that, float c);
 
 // Scale the Shapoid by 'v' (each axis is multiplied by v[iAxis])
 // and translate the Shapoid such as its center after scaling
@@ -371,7 +469,7 @@ void ShapoidScaleScalar(Shapoid* that, float c);
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidGrowVector(Shapoid* that, VecFloat* v);
+void _ShapoidGrowVector(Shapoid* that, VecFloat* v);
 
 // Scale the Shapoid by 'c'
 // and translate the Shapoid such as its center after scaling
@@ -379,14 +477,121 @@ void ShapoidGrowVector(Shapoid* that, VecFloat* v);
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidGrowScalar(Shapoid* that, float c);
+void _ShapoidGrowScalar(Shapoid* that, float c);
 
 // Rotate the Shapoid of dimension 2 by 'theta' (in radians, CCW)
 // relatively to its center
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotate2D(Shapoid* that, float theta);
+void _ShapoidRotCenter(Shapoid* that, float theta);
+
+// Rotate the Shapoid of dimension 2 by 'theta' (in radians, CCW)
+// relatively to its position
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotStart(Shapoid* that, float theta);
+
+// Rotate the Shapoid of dimension 2 by 'theta' (in radians, CCW)
+// relatively to the origin of the global coordinates system
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotOrigin(Shapoid* that, float theta);
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its center around 'axis'
+// 'axis' must be normalized
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotAxisCenter(Shapoid* that, VecFloat3D* axis, 
+  float theta);
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its position around 'axis'
+// 'axis' must be normalized
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotAxisStart(Shapoid* that, VecFloat3D* axis, float theta);
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to the origin of the global coordinates system
+// around 'axis'
+// 'axis' must be normalized
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotAxisOrigin(Shapoid* that, VecFloat3D* axis, 
+  float theta);
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its center around X
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotXCenter(Shapoid* that, float theta);
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its position around X
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotXStart(Shapoid* that, float theta);
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to the origin of the global coordinates system
+// around X
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotXOrigin(Shapoid* that, float theta);
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its center around Y
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotYCenter(Shapoid* that, float theta);
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its position around Y
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotYStart(Shapoid* that, float theta);
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to the origin of the global coordinates system
+// around Y
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotYOrigin(Shapoid* that, float theta);
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its center around Z
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotZCenter(Shapoid* that, float theta);
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to its position around Z
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotZStart(Shapoid* that, float theta);
+
+// Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
+// relatively to the origin of the global coordinates system
+// around Z
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidRotZOrigin(Shapoid* that, float theta);
 
 // Convert the coordinates of 'pos' from standard coordinate system 
 // toward the Shapoid coordinates system
