@@ -1514,6 +1514,203 @@ void UnitTestGetPosDepthCenterCoverage() {
   printf("UnitTestGetPosDepthCenterCoverage OK\n");
 }
 
+void UnitTestFacoidAlignedIsInsideFacoidAligned() {
+  Facoid* facA = FacoidCreate(2);
+  Facoid* facB = FacoidCreate(2);
+  VecFloat2D p = VecFloatCreateStatic2D();
+  VecFloat2D u = VecFloatCreateStatic2D();
+  VecFloat2D v = VecFloatCreateStatic2D();
+  VecSet(&p, 0, 0.0); VecSet(&p, 1, 0.0); 
+  VecSet(&u, 0, 1.0); VecSet(&v, 1, 1.0); 
+  ShapoidSetPos(facA, &p);
+  ShapoidSetAxis(facA, 0, &u);
+  ShapoidSetAxis(facA, 1, &v);
+  VecSet(&p, 0, 2.0); VecSet(&p, 1, 2.0); 
+  VecSet(&u, 0, 0.5); VecSet(&v, 1, 0.5); 
+  ShapoidSetPos(facB, &p);
+  ShapoidSetAxis(facB, 0, &u);
+  ShapoidSetAxis(facB, 1, &v);
+  if (FacoidAlignedIsInsideFacoidAligned(facA, facB) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, 
+      "FacoidAlignedIsInsideFacoidAligned failed");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&p, 0, 0.1); VecSet(&p, 1, 0.1); 
+  ShapoidSetPos(facB, &p);
+  if (FacoidAlignedIsInsideFacoidAligned(facB, facA) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, 
+      "FacoidAlignedIsInsideFacoidAligned failed");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&u, 0, 1.0); VecSet(&v, 1, 1.0); 
+  ShapoidSetAxis(facB, 0, &u);
+  ShapoidSetAxis(facB, 1, &v);
+  if (FacoidAlignedIsInsideFacoidAligned(facB, facA) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, 
+      "FacoidAlignedIsInsideFacoidAligned failed");
+    PBErrCatch(ShapoidErr);
+  }
+  ShapoidFree(&facA);
+  ShapoidFree(&facB);
+  printf("UnitTestFacoidAlignedIsInsideFacoidAligned OK\n");
+}
+
+void UnitTestFacoidAlignedIsOutsideFacoidAligned() {
+  Facoid* facA = FacoidCreate(2);
+  Facoid* facB = FacoidCreate(2);
+  VecFloat2D p = VecFloatCreateStatic2D();
+  VecFloat2D u = VecFloatCreateStatic2D();
+  VecFloat2D v = VecFloatCreateStatic2D();
+  VecSet(&p, 0, 0.0); VecSet(&p, 1, 0.0); 
+  VecSet(&u, 0, 1.0); VecSet(&v, 1, 1.0); 
+  ShapoidSetPos(facA, &p);
+  ShapoidSetAxis(facA, 0, &u);
+  ShapoidSetAxis(facA, 1, &v);
+  VecSet(&p, 0, 2.0); VecSet(&p, 1, 2.0); 
+  VecSet(&u, 0, 0.5); VecSet(&v, 1, 0.5); 
+  ShapoidSetPos(facB, &p);
+  ShapoidSetAxis(facB, 0, &u);
+  ShapoidSetAxis(facB, 1, &v);
+  if (FacoidAlignedIsOutsideFacoidAligned(facA, facB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, 
+      "FacoidAlignedIsOutsideFacoidAligned failed");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&p, 0, 0.1); VecSet(&p, 1, 0.1); 
+  ShapoidSetPos(facB, &p);
+  if (FacoidAlignedIsOutsideFacoidAligned(facB, facA) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, 
+      "FacoidAlignedIsOutsideFacoidAligned failed");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&u, 0, 1.0); VecSet(&v, 1, 1.0); 
+  ShapoidSetAxis(facB, 0, &u);
+  ShapoidSetAxis(facB, 1, &v);
+  if (FacoidAlignedIsOutsideFacoidAligned(facB, facA) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, 
+      "FacoidAlignedIsOutsideFacoidAligned failed");
+    PBErrCatch(ShapoidErr);
+  }
+  ShapoidFree(&facA);
+  ShapoidFree(&facB);
+  printf("UnitTestFacoidAlignedIsOutsideFacoidAligned OK\n");
+}
+
+void UnitTestFacoidAlignedSplitExcludingFacoidAligned() {
+  Facoid* facA = FacoidCreate(2);
+  Facoid* facB = FacoidCreate(2);
+  VecFloat2D p = VecFloatCreateStatic2D();
+  VecFloat2D u = VecFloatCreateStatic2D();
+  VecFloat2D v = VecFloatCreateStatic2D();
+  VecSet(&p, 0, 0.0); VecSet(&p, 1, 0.0); 
+  VecSet(&u, 0, 1.0); VecSet(&v, 1, 1.0); 
+  ShapoidSetPos(facA, &p);
+  ShapoidSetAxis(facA, 0, &u);
+  ShapoidSetAxis(facA, 1, &v);
+  VecSet(&p, 0, 0.5); VecSet(&p, 1, 0.5); 
+  VecSet(&u, 0, 1.0); VecSet(&v, 1, 1.0); 
+  ShapoidSetPos(facB, &p);
+  ShapoidSetAxis(facB, 0, &u);
+  ShapoidSetAxis(facB, 1, &v);
+  GSet* split = FacoidAlignedSplitExcludingFacoidAligned(facA, facB);
+  Facoid* facC = GSetPop(split);
+  VecSet(&p, 0, 0.0); VecSet(&p, 1, 0.0); 
+  VecSet(&u, 0, 1.0); VecSet(&v, 1, 0.5); 
+  if (VecIsEqual(ShapoidPos(facC), &p) == false ||
+    VecIsEqual(ShapoidAxis(facC, 0), &u) == false ||
+    VecIsEqual(ShapoidAxis(facC, 1), &v) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, 
+      "FacoidAlignedSplitExcludingFacoidAligned failed");
+    PBErrCatch(ShapoidErr);
+  }
+  Facoid* facD = GSetPop(split);
+  VecSet(&p, 0, 0.0); VecSet(&p, 1, 0.5); 
+  VecSet(&u, 0, 0.5); VecSet(&v, 1, 0.5); 
+  if (VecIsEqual(ShapoidPos(facD), &p) == false ||
+    VecIsEqual(ShapoidAxis(facD, 0), &u) == false ||
+    VecIsEqual(ShapoidAxis(facD, 1), &v) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, 
+      "FacoidAlignedSplitExcludingFacoidAligned failed");
+    PBErrCatch(ShapoidErr);
+  }
+  GSetFree(&split);
+  ShapoidFree(&facA);
+  ShapoidFree(&facB);
+  ShapoidFree(&facC);
+  ShapoidFree(&facD);
+  printf("UnitTestFacoidAlignedSplitExcludingFacoidAligned OK\n");
+}
+
+void UnitTestFacoidAlignedAddClippedToSet() {
+  Facoid* facA = FacoidCreate(2);
+  VecFloat2D p = VecFloatCreateStatic2D();
+  VecFloat2D u = VecFloatCreateStatic2D();
+  VecFloat2D v = VecFloatCreateStatic2D();
+  VecSet(&p, 0, 0.0); VecSet(&p, 1, 0.0); 
+  VecSet(&u, 0, 10.0); VecSet(&v, 1, 10.0); 
+  ShapoidSetPos(facA, &p);
+  ShapoidSetAxis(facA, 0, &u);
+  ShapoidSetAxis(facA, 1, &v);
+  GSet set = GSetCreateStatic();
+  FacoidAlignedAddClippedToSet(facA, &set);
+  VecSet(&p, 0, 15.0); VecSet(&p, 1, 15.0); 
+  ShapoidSetPos(facA, &p);
+  FacoidAlignedAddClippedToSet(facA, &set);
+  VecSet(&p, 0, 8.0); VecSet(&p, 1, 8.0); 
+  ShapoidSetPos(facA, &p);
+  FacoidAlignedAddClippedToSet(facA, &set);
+  VecSet(&p, 0, 12.0); VecSet(&p, 1, 9.0); 
+  ShapoidSetPos(facA, &p);
+  VecSet(&u, 0, 1.0); VecSet(&v, 1, 10.0); 
+  ShapoidSetAxis(facA, 0, &u);
+  ShapoidSetAxis(facA, 1, &v);
+  FacoidAlignedAddClippedToSet(facA, &set);
+  VecSet(&p, 0, 5.0); VecSet(&p, 1, 5.0); 
+  ShapoidSetPos(facA, &p);
+  VecSet(&u, 0, 1.0); VecSet(&v, 1, 1.0); 
+  ShapoidSetAxis(facA, 0, &u);
+  ShapoidSetAxis(facA, 1, &v);
+  FacoidAlignedAddClippedToSet(facA, &set);
+  if (GSetNbElem(&set) != 6) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, 
+      "FacoidAlignedAddClippedToSet failed");
+    PBErrCatch(ShapoidErr);
+  }
+  int iCheck = 0;
+  float checkp[12] = {
+      0.0, 0.0, 15.0, 15.0, 10.0, 8.0, 8.0, 
+      10.0, 8.0, 15.0, 12.0, 18.0};
+  float checku[6] = {10.0, 10.0, 8.0, 10.0, 7.0, 1.0};
+  float checkv[6] = {10.0, 10.0, 2.0, 5.0, 3.0, 1.0};
+  do {
+    Facoid* fac = GSetPop(&set);
+    VecSet(&p, 0, checkp[2 * iCheck]); 
+    VecSet(&p, 1, checkp[2 * iCheck + 1]); 
+    VecSet(&u, 0, checku[iCheck]); VecSet(&v, 1, checkv[iCheck]); 
+    if (VecIsEqual(ShapoidPos(fac), &p) == false ||
+      VecIsEqual(ShapoidAxis(fac, 0), &u) == false ||
+      VecIsEqual(ShapoidAxis(fac, 1), &v) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, 
+        "FacoidAlignedAddClippedToSet failed");
+      PBErrCatch(ShapoidErr);
+    }
+    ShapoidFree(&fac);
+    ++iCheck;
+  } while(GSetNbElem(&set) > 0);
+  ShapoidFree(&facA);
+  printf("UnitTestFacoidAlignedAddClippedToSet OK\n");
+}
+
 void UnitTestAll() {
   UnitTestCreateCloneIsEqualFree();
   UnitTestLoadSavePrint();
@@ -1527,6 +1724,10 @@ void UnitTestAll() {
   UnitTestImportExportCoordIsPosInside();
   UnitTestGetBoundingBox();
   UnitTestGetPosDepthCenterCoverage();
+  UnitTestFacoidAlignedIsInsideFacoidAligned();
+  UnitTestFacoidAlignedIsOutsideFacoidAligned();
+  UnitTestFacoidAlignedSplitExcludingFacoidAligned();
+  UnitTestFacoidAlignedAddClippedToSet();
   printf("UnitTestAll OK\n");
 }
 

@@ -109,14 +109,15 @@ extern const char* ShapoidTypeString[3];
   Facoid*: _ShapoidSetAxis, \
   Pyramidoid*: _ShapoidSetAxis, \
   Spheroid*: _ShapoidSetAxis, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Index, Vec)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Index, \
+    (VecFloat*)Vec)
 
 #define ShapoidSetPos(Shap, Vec) _Generic(Shap, \
   Shapoid*: _ShapoidSetPos, \
   Facoid*: _ShapoidSetPos, \
   Pyramidoid*: _ShapoidSetPos, \
   Spheroid*: _ShapoidSetPos, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Vec)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), (VecFloat*)Vec)
 
 #define ShapoidGetAxis(Shap, Index) _Generic(Shap, \
   Shapoid*: _ShapoidGetAxis, \
@@ -137,7 +138,7 @@ extern const char* ShapoidTypeString[3];
   Facoid*: _ShapoidTranslate, \
   Pyramidoid*: _ShapoidTranslate, \
   Spheroid*: _ShapoidTranslate, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Vec)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), (VecFloat*)Vec)
 
 #define ShapoidIsEqual(ShapA, ShapB) _Generic(ShapA, \
   Shapoid*: _ShapoidIsEqual, \
@@ -296,14 +297,16 @@ extern const char* ShapoidTypeString[3];
   Facoid*: _ShapoidImportCoord, \
   Pyramidoid*: _ShapoidImportCoord, \
   Spheroid*: _ShapoidImportCoord, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), VecPos)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), \
+    (VecFloat*)VecPos)
 
 #define ShapoidExportCoord(Shap, VecPos) _Generic(Shap, \
   Shapoid*: _ShapoidExportCoord, \
   Facoid*: _ShapoidExportCoord, \
   Pyramidoid*: _ShapoidExportCoord, \
   Spheroid*: _ShapoidExportCoord, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), VecPos)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), \
+    (VecFloat*)VecPos)
 
 #define ShapoidIsPosInside(Shap, VecPos) _Generic(Shap, \
   Shapoid*: _ShapoidIsPosInside, \
@@ -317,7 +320,7 @@ extern const char* ShapoidTypeString[3];
   Facoid*: FacoidGetPosDepth, \
   Pyramidoid*: PyramidoidGetPosDepth, \
   Spheroid*: SpheroidGetPosDepth, \
-  default: PBErrInvalidPolymorphism)(Shap, VecPos)
+  default: PBErrInvalidPolymorphism)(Shap, (VecFloat*)VecPos)
 
 // ================= Data structure ===================
 
@@ -707,6 +710,35 @@ void ShapoidUpdateSysLinEqImport(Shapoid* that);
 inline
 #endif 
 bool _ShapoidIsEqual(Shapoid* that, Shapoid* tho);
+
+// Add a copy of the Facoid 'that' to the GSet 'set' (containing 
+// other Facoid), taking care to avoid overlaping Facoid
+// The copy of 'that' made be resized or divided
+// The Facoid in the set and 'that' must be aligned with the 
+// coordinates system axis and have 
+// same dimensions
+void FacoidAlignedAddClippedToSet(Facoid* that, GSet* set);
+
+// Check if the Facoid 'that' is completely included into the Facoid 
+// 'facoid'
+// Both Facoid must be aligned with the coordinates system and have 
+// same dimensions
+// Return true if it is included, false else
+bool FacoidAlignedIsInsideFacoidAligned(Facoid* that, Facoid* facoid);
+
+// Check if the Facoid 'that' is completely excluded from the Facoid 
+// 'facoid'
+// Both Facoid must be aligned with the coordinates system and have 
+// same dimensions
+// Return true if it is excluded, false else
+bool FacoidAlignedIsOutsideFacoidAligned(Facoid* that, Facoid* facoid);
+
+// Get a GSet of Facoid aligned with coordinates system covering the 
+// Facoid 'that' except for area in the Facoid 'facoid'
+// Both Facoid must be aligned with the coordinates system and have 
+// same dimensions
+GSet* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that, 
+  Facoid* facoid);
 
 // ================ Inliner ====================
 

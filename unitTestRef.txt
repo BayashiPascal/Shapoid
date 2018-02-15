@@ -16,4 +16,8 @@ UnitTestRotateZ OK
 UnitTestImportExportCoordIsPosInside OK
 UnitTestGetBoundingBox OK
 UnitTestGetPosDepthCenterCoverage OK
+UnitTestFacoidAlignedIsInsideFacoidAligned OK
+UnitTestFacoidAlignedIsOutsideFacoidAligned OK
+UnitTestFacoidAlignedSplitExcludingFacoidAligned OK
+UnitTestFacoidAlignedAddClippedToSet OK
 UnitTestAll OK

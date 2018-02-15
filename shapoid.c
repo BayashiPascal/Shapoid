@@ -522,4 +522,253 @@ float _ShapoidGetCoverageDelta(Shapoid* that, Shapoid* tho,
   return ratio;
 }
 
+// Add a copy of the Facoid 'that' to the GSet 'set' (containing 
+// other Facoid), taking care to avoid overlaping Facoid
+// The copy of 'that' made be resized or divided
+// The Facoid in the set and 'that' must be aligned with the 
+// coordinates system axis and have 
+// same dimensions
+void FacoidAlignedAddClippedToSet(Facoid* that, GSet* set) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (set == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'set' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif  
+  // If the set is empty 
+  if (GSetNbElem(set) == 0) {
+    // Add a clone of the facoid
+    GSetAppend(set, FacoidClone(that));
+  // Else, the set is not empty
+  } else {
+    // Create a set of sub facoid to be added and initialize it with a
+    // clone of 'that'
+    GSet setToAdd = GSetCreateStatic();
+    GSetAppend(&setToAdd, FacoidClone(that));
+    // For each sub facoid to add
+    GSetIterForward iterToAdd = GSetIterForwardCreateStatic(&setToAdd);
+    do {
+      // Get the current facoid to add
+      Facoid* facoidToAdd = GSetIterGet(&iterToAdd);
+      // Declare a flag to skip the loop when possible
+      bool flagSkip = false;
+      // For each facoid in the set
+      GSetIterForward iter = GSetIterForwardCreateStatic(set);
+      do {
+        // Get the current facoid
+        Facoid* facoid = GSetIterGet(&iter);
+        // If the facoid to be added is completely included into this 
+        // facoid
+        if (FacoidAlignedIsInsideFacoidAligned(facoidToAdd, facoid)) {
+          // This facoid doesn't need to be added, delete it
+          ShapoidFree(&facoidToAdd);
+          GSetIterGetElem(&iterToAdd)->_data = NULL;
+          // And skip the other facoids in the set
+          flagSkip = true;
+        // Else, if this facoid is completely include in the facoid to 
+        // be added
+        } else if (FacoidAlignedIsInsideFacoidAligned(facoid, 
+          facoidToAdd)) {
+          // Remove the facoid in the set
+          ShapoidFree(&facoid);
+          GSetIterGetElem(&iter)->_data = NULL;
+        // Else, if both facoid are in intersection
+        } else if (!FacoidAlignedIsOutsideFacoidAligned(facoidToAdd, 
+          facoid)) {
+          // Split the facoid to be added into new facoids
+          // which cover the non intersecting area
+          GSet* split = 
+            FacoidAlignedSplitExcludingFacoidAligned(facoidToAdd, 
+              facoid);
+          GSetAppendSet(&setToAdd, split);
+          GSetFree(&split);
+          // Delete the splitted facoid
+          ShapoidFree(&facoidToAdd);
+          GSetIterGetElem(&iterToAdd)->_data = NULL;
+          // And skip the other facoids in the set
+          flagSkip = true;          
+        }
+        // Else the facoid to add is completely outside, leave it as 
+        // it is
+      } while (!flagSkip && GSetIterStep(&iter));
+    } while (GSetIterStep(&iterToAdd));
+    // When we arrive here the set 'setToAdd' contains the facoids
+    // to be added to 'set'
+    GSetAppendSet(set, &setToAdd);
+    // There may have been deleted facoid, ensure the resulting set
+    // is clean by removeing null pointer
+    GSetRemoveAll(set, NULL);
+    // Free memory used by the set of sub facoid to add
+    GSetFlush(&setToAdd);
+  }
+}
 
+// Check if the Facoid 'that' is completely included into the Facoid 
+// 'facoid'
+// Both Facoid must be aligned with the coordinates system
+// 'that' and 'facoid' must have same dimensions and have 
+// same dimensions
+// Return true if it is included, false else
+bool FacoidAlignedIsInsideFacoidAligned(Facoid* that, Facoid* facoid) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (facoid == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'facoid' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidGetDim(that) != ShapoidGetDim(facoid)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' and 'facoid' have different dimensions (%d==%d)",
+      ShapoidGetDim(that), ShapoidGetDim(facoid));
+    PBErrCatch(ShapoidErr);
+  }
+#endif  
+  // Check inclusion for each axis
+  for (int iAxis = ShapoidGetDim(that); iAxis--;)
+    // If 'that' is outside 'facoid' for this axis
+    if (VecGet(ShapoidPos(that), iAxis) < 
+      VecGet(ShapoidPos(facoid), iAxis) ||
+      VecGet(ShapoidPos(that), iAxis) + 
+      VecGet(ShapoidAxis(that, iAxis), iAxis) > 
+      VecGet(ShapoidPos(facoid), iAxis) +
+      VecGet(ShapoidAxis(facoid, iAxis), iAxis))
+      // Return false
+      return false;
+  // If we reach here it means 'that' is inside 'facoid', return true
+  return true;
+}
+
+// Check if the Facoid 'that' is completely excluded from the Facoid 
+// 'facoid'
+// Both Facoid must be aligned with the coordinates system and have 
+// same dimensions
+// Return true if it is excluded, false else
+bool FacoidAlignedIsOutsideFacoidAligned(Facoid* that, 
+  Facoid* facoid) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (facoid == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'facoid' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidGetDim(that) != ShapoidGetDim(facoid)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' and 'facoid' have different dimensions (%d==%d)",
+      ShapoidGetDim(that), ShapoidGetDim(facoid));
+    PBErrCatch(ShapoidErr);
+  }
+#endif  
+  // Check exclusion for each axis
+  for (int iAxis = ShapoidGetDim(that); iAxis--;)
+    // If 'that' is outside 'facoid' for this axis
+    if (VecGet(ShapoidPos(that), iAxis) > 
+      VecGet(ShapoidPos(facoid), iAxis) +
+      VecGet(ShapoidAxis(facoid, iAxis), iAxis) - PBMATH_EPSILON ||
+      VecGet(ShapoidPos(that), iAxis) + 
+      VecGet(ShapoidAxis(that, iAxis), iAxis) < 
+      VecGet(ShapoidPos(facoid), iAxis) + PBMATH_EPSILON)
+      // Return true
+      return true;
+  // If we reach here it means 'that' intersects 'facoid', return false
+  return false;
+}
+
+// Get a GSet of Facoid aligned with coordinates system covering the 
+// Facoid 'that' except for area in the Facoid 'facoid'
+// Both Facoid must be aligned with the coordinates system and have 
+// same dimensions
+GSet* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that, 
+  Facoid* facoid) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (facoid == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'facoid' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidGetDim(that) != ShapoidGetDim(facoid)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' and 'facoid' have different dimensions (%d==%d)",
+      ShapoidGetDim(that), ShapoidGetDim(facoid));
+    PBErrCatch(ShapoidErr);
+  }
+#endif  
+  // Ladies and Gentleman, here comes the infamous "Gruyere Algorithm"
+  // Declare the result GSet
+  GSet* set = GSetCreate();
+  // Declare a clone of the original facoid
+  Facoid* src = FacoidClone(that);
+  // For each axis
+  for (int iAxis = ShapoidGetDim(that); iAxis--;) {
+    // If 'src' has area on the left of 'facoid' along this axis
+    if (VecGet(ShapoidPos(src), iAxis) < 
+      VecGet(ShapoidPos(facoid), iAxis)) {
+      // Create the facoid made of this area
+      Facoid* sub = FacoidClone(src);
+      VecSet(ShapoidAxis(sub, iAxis), iAxis, 
+        VecGet(ShapoidPos(facoid), iAxis) - 
+        VecGet(ShapoidPos(src), iAxis));
+      // Add it to the result set
+      GSetAppend(set, sub);
+      // Chop the added area from 'src'
+      VecSet(ShapoidAxis(src, iAxis), iAxis,
+        VecGet(ShapoidAxis(src, iAxis), iAxis) -
+        VecGet(ShapoidAxis(sub, iAxis), iAxis));
+      VecSet(ShapoidPos(src), iAxis, 
+        VecGet(ShapoidPos(facoid), iAxis));
+    }
+    // If 'src' has area on the right of 'facoid' along this axis
+    if (VecGet(ShapoidPos(src), iAxis) + 
+      VecGet(ShapoidAxis(src, iAxis), iAxis) > 
+      VecGet(ShapoidPos(facoid), iAxis) +
+      VecGet(ShapoidAxis(facoid, iAxis), iAxis)) {
+      // Create the facoid made of this area
+      Facoid* sub = FacoidClone(src);
+      VecSet(ShapoidAxis(sub, iAxis), iAxis, 
+        (VecGet(ShapoidPos(src), iAxis) + 
+        VecGet(ShapoidAxis(src, iAxis), iAxis)) - 
+        (VecGet(ShapoidPos(facoid), iAxis) +
+        VecGet(ShapoidAxis(facoid, iAxis), iAxis)));
+      VecSet(ShapoidPos(sub), iAxis, 
+        VecGet(ShapoidPos(facoid), iAxis) +
+        VecGet(ShapoidAxis(facoid, iAxis), iAxis));
+      // Add it to the result set
+      GSetAppend(set, sub);
+      // Chop the added area from 'src'
+      VecSet(ShapoidAxis(src, iAxis), iAxis,
+        VecGet(ShapoidAxis(src, iAxis), iAxis) -
+        VecGet(ShapoidAxis(sub, iAxis), iAxis));
+    }
+    // If 'src' is empty
+    if (ISEQUALF(VecGet(ShapoidAxis(src, iAxis), iAxis), 0.0))
+      // End the loop
+      iAxis = 0;
+  }
+  // Free memory
+  ShapoidFree(&src);
+  // Return the result set
+  return set;
+}
