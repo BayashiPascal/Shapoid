@@ -79,7 +79,8 @@ Shapoid* _ShapoidClone(Shapoid* that) {
   // Set the position and axis of the clone
   ShapoidSetPos(clone, that->_pos);
   for (int iAxis = clone->_dim; iAxis--;)
-    ShapoidSetAxis(clone, iAxis, that->_axis[iAxis]);
+    VecCopy(clone->_axis[iAxis], that->_axis[iAxis]);
+  ShapoidUpdateSysLinEqImport(clone);
   // Clone the SysLinEq
   SysLinEqFree(&(clone->_sysLinEqImport));
   clone->_sysLinEqImport = SysLinEqClone(that->_sysLinEqImport);
