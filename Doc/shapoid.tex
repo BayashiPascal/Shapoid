@@ -2,6 +2,8 @@
 
 Shapoid is a C library providing the \begin{ttfamily}Shapoid\end{ttfamily} structure and its functions which can be used to manipulate Shapoid objects (see next section for details).\\
 
+It also provides the \begin{ttfamily}ShapoidIter\end{ttfamily} structure and its functions which can be used to sequantially loop through the surface/volume/... of a \begin{ttfamily}Shapoid\end{ttfamily}.
+
 It uses the \begin{ttfamily}PBErr\end{ttfamily}, \begin{ttfamily}PBMath\end{ttfamily} and \begin{ttfamily}GSet\end{ttfamily} libraries.\\
 
 \section{Definitions}
@@ -144,6 +146,61 @@ for a Spheroid:\\
 \end{equation}
 $\overrightarrow{C}$ is called the center of the Shapoid.
 
+\subsection{Iterator on Spheroid}
+
+While a sequential path through a Facoid and a Pyramidoid is obvious, path through a Spheroid is more complex. The solution implemented is described below.\\
+
+Given a Spheroid of dimension $N$ we start from an arbitrary position: $<0,0,...,-0.5>$. From there we step the axis starting from the first one. If we could step an axis the step algorithm stops and return the new position as it could successfully step. However, if we could step on an axis other than the first one, it means we have modified the constraint for previous axis, the constraint being "is inside the spheroid". Then we reposition the axis before the stepped one to its lower possible value. It will allow it to step again at the next iteration on a new boundary defined by other axis values, and this scale up naturally to any dimension. Care must be care to the case when an axis reaches its upper value: the delta given by the user and the influence of other axis value make it jumps "over" the boundary in most cases. To keep things neat and clean we recalculate the exact value of the axis for its last step instead of using the delta given by the user.\\
+
+The calculation of the lower and upper values of an axis given the values of other axis can be performed as follow:\\
+
+Lets note $\overrightarrow{P}=<p_0,p_1,...,p_{N-1}>$ the position in a Spheroid of dimension $N$. A position will be on the boundary of the Spheroid if and only if $||\overrightarrow{P}||=0.5$. We want to calculate $\alpha$ which bring a position $\overrightarrow{P'}$ inside the Spheroid to a position $\overrightarrow{P}$ on the boundary of the Spheroid by modifying the axis $i$ (i.e. $p_i=p'_i+\alpha$ and $p_j=p'_j,j\neq i$). Lets note $n=||\overrightarrow{P'}||$. We have:\\
+
+\begin{equation}
+\label{eqWormyA}
+p'^2_0+p'^2_1+...+p'^2_i+...+p'^2_{N-1}=n^2
+\end{equation}
+and \\
+\begin{equation}
+p^2_0+p^2_1+...+p^2_i+...+p^2_{N-1}=0.25
+\end{equation}
+equivalent to \\
+\begin{equation}
+\label{eqWormyB}
+p'^2_0+p'^2_1+...+(p'_i+\alpha)^2+...+p'^2_{N-1}=0.25
+\end{equation}
+by substracting \eqref{eqWormyA} and \eqref{eqWormyB} we have\\
+\begin{equation}
+p'^2_i-(p'_i+\alpha)^2=n^2-0.25
+\end{equation}
+equivalent to\\
+\begin{equation}
+p'^2_i-(p'^2_i+\alpha^2+2p'_i\alpha)=n^2-0.25
+\end{equation}
+equivalent to\\
+\begin{equation}
+-\alpha^2-2p'_i\alpha-(n^2-0.25)=0
+\end{equation}
+simplified to\\
+\begin{equation}
+\alpha^2+2p'_i\alpha+(n^2-0.25)=0
+\end{equation}
+This quadratic equation can be solved directly to obtain $\alpha$:\\
+\begin{equation}
+\alpha=\frac{-2p'_i\pm\sqrt{4p'^2_i-4(n^2-0.25)}}{2}
+\end{equation}
+Which gives the two solutions defining the lower and upper boundaries of the Spheroid on the axis $i$.\\
+
+This result can then be used to solve our problem with what I'll call the "Wormy Algorithm":\\
+
+\begin{scriptsize}
+\begin{ttfamily}
+\verbatiminput{/home/bayashi/Coding/Shapoid/wormy.txt}
+\end{ttfamily}
+\end{scriptsize}
+
+This algorithm step $P$ to the next position in the path by $delta$ and returns true if we haven't reached the end of the path, or false if we have reached the end of the path (i.e. if we have iterated through all the surface/volume/... of the Spheroid). Remember that $P$ must be initialised to $<0,0,...,-0.5>$ as the beginning of the path, and that \begin{ttfamily}ShapoidIter\end{ttfamily} iterates coordinates in the Shapoid's coordinate system.\\
+
 \section{Interface}
 
 \begin{scriptsize}
@@ -202,3 +259,11 @@ facoid.txt
 \end{ttfamily}
 \end{scriptsize}
 
+Example of path on a 2D Spheroid using the ShapoidIterator:\\
+
+\begin{center}
+\begin{figure}[H]
+\centering
+\includegraphics[width=12cm]{./spheroid2dpath.png}
+\end{figure}
+\end{center}
