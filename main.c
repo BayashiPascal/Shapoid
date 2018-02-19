@@ -1711,6 +1711,191 @@ void UnitTestFacoidAlignedAddClippedToSet() {
   printf("UnitTestFacoidAlignedAddClippedToSet OK\n");
 }
 
+void UnitTestShapoidIterCreateFree() {
+  Facoid* facoid = FacoidCreate(2);
+  VecFloat2D delta = VecFloatCreateStatic2D();
+  ShapoidIter iter = ShapoidIterCreateStatic(facoid, &delta);
+  if (iter._shap != (Shapoid*)facoid ||
+    iter._pos == NULL ||
+    iter._delta == NULL ||
+    VecGetDim(iter._pos) != 2 ||
+    VecGetDim(iter._delta) != 2) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIterFreeStatic failed");
+    PBErrCatch(ShapoidErr);
+  }
+  ShapoidFree(&facoid);
+  ShapoidIterFreeStatic(&iter);
+  if (iter._pos != NULL ||
+    iter._delta != NULL) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIterFreeStatic failed");
+    PBErrCatch(ShapoidErr);
+  }
+  printf("UnitTestShapoidIterCreateFree OK\n");
+}
+
+void UnitTestShapoidIterGetSet() {
+  Facoid* facoidA = FacoidCreate(2);
+  Facoid* facoidB = FacoidCreate(2);
+  VecFloat2D deltaA = VecFloatCreateStatic2D();
+  VecFloat2D deltaB = VecFloatCreateStatic2D();
+  for (int i = 2; i--;) {
+    VecSet(&deltaA, i, 0.1);
+    VecSet(&deltaB, i, 0.2);
+  }
+  ShapoidIter iter = ShapoidIterCreateStatic(facoidA, &deltaA);
+  if (ShapoidIterShapoid(&iter) != (Shapoid*)facoidA) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIterShapoid failed");
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecIsEqual(ShapoidIterDelta(&iter), &deltaA) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIterDelta failed");
+    PBErrCatch(ShapoidErr);
+  }
+  ShapoidIterSetShapoid(&iter, facoidB);
+  ShapoidIterSetDelta(&iter, &deltaB);
+  if (ShapoidIterShapoid(&iter) != (Shapoid*)facoidB) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIterSetShapoid failed");
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecIsEqual(ShapoidIterDelta(&iter), &deltaB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIterSetDelta failed");
+    PBErrCatch(ShapoidErr);
+  }
+  
+  ShapoidFree(&facoidA);
+  ShapoidFree(&facoidB);
+  ShapoidIterFreeStatic(&iter);
+  printf("UnitTestShapoidIterGetSet OK\n");
+}
+
+void UnitTestShapoidIterStepFacoid() {
+  Facoid* facoid = FacoidCreate(2);
+  VecFloat2D delta = VecFloatCreateStatic2D();
+  for (int i = 2; i--;)
+    VecSet(&delta, i, 0.25);
+  ShapoidIter iter = ShapoidIterCreateStatic(facoid, &delta);
+  int iCheck = 0;
+  float check[50] = {0.000,0.000,0.000,0.250,0.000,0.500,0.000,0.750,
+    0.000,1.000,0.250,0.000,0.250,0.250,0.250,0.500,0.250,0.750,0.250,
+    1.000,0.500,0.000,0.500,0.250,0.500,0.500,0.500,0.750,0.500,1.000,
+    0.750,0.000,0.750,0.250,0.750,0.500,0.750,0.750,0.750,1.000,1.000,
+    0.000,1.000,0.250,1.000,0.500,1.000,0.750,1.000,1.000
+    };
+  do {
+    VecFloat* v = ShapoidIterGetInternal(&iter);
+    if (ISEQUALF(VecGet(v, 0), check[2 * iCheck]) == false ||
+      ISEQUALF(VecGet(v, 1), check[2 * iCheck + 1]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidIterStep failed");
+      PBErrCatch(ShapoidErr);
+    }
+    VecFree(&v);
+    ++iCheck;
+  } while (ShapoidIterStep(&iter));
+  ShapoidFree(&facoid);
+  ShapoidIterFreeStatic(&iter);
+  printf("UnitTestShapoidIterStepFacoid OK\n");
+}
+
+void UnitTestShapoidIterStepPyramidoid() {
+  Pyramidoid* pyramidoid = PyramidoidCreate(3);
+  VecFloat3D delta = VecFloatCreateStatic3D();
+  for (int i = 3; i--;)
+    VecSet(&delta, i, 0.25);
+  ShapoidIter iter = ShapoidIterCreateStatic(pyramidoid, &delta);
+  int iCheck = 0;
+  float check[105] = {0.000,0.000,0.000,0.000,0.000,0.250,0.000,0.000,
+    0.500,0.000,0.000,0.750,0.000,0.000,1.000,0.000,0.250,0.000,0.000,
+    0.250,0.250,0.000,0.250,0.500,0.000,0.250,0.750,0.000,0.500,0.000,
+    0.000,0.500,0.250,0.000,0.500,0.500,0.000,0.750,0.000,0.000,0.750,
+    0.250,0.000,1.000,0.000,0.250,0.000,0.000,0.250,0.000,0.250,0.250,
+    0.000,0.500,0.250,0.000,0.750,0.250,0.250,0.000,0.250,0.250,0.250,
+    0.250,0.250,0.500,0.250,0.500,0.000,0.250,0.500,0.250,0.250,0.750,
+    0.000,0.500,0.000,0.000,0.500,0.000,0.250,0.500,0.000,0.500,0.500,
+    0.250,0.000,0.500,0.250,0.250,0.500,0.500,0.000,0.750,0.000,0.000,
+    0.750,0.000,0.250,0.750,0.250,0.000,1.000,0.000,0.000
+    };
+  do {
+    VecFloat* v = ShapoidIterGetInternal(&iter);
+    if (ISEQUALF(VecGet(v, 0), check[3 * iCheck]) == false ||
+      ISEQUALF(VecGet(v, 1), check[3 * iCheck + 1]) == false ||
+      ISEQUALF(VecGet(v, 2), check[3 * iCheck + 2]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidIterStep failed");
+      PBErrCatch(ShapoidErr);
+    }
+    VecFree(&v);
+    ++iCheck;
+  } while (ShapoidIterStep(&iter));
+  ShapoidFree(&pyramidoid);
+  ShapoidIterFreeStatic(&iter);
+  printf("UnitTestShapoidIterStepPyramidoid OK\n");
+}
+
+void UnitTestShapoidIterStepSpheroid() {
+  int dim = 3;
+  Spheroid* spheroid = SpheroidCreate(dim);
+  VecFloat* delta = VecFloatCreate(dim);
+  for (int i = dim; i--;)
+    VecSet(delta, i, 0.25);
+  ShapoidIter iter = ShapoidIterCreateStatic(spheroid, delta);
+  int iCheck = 0;
+  float check[147] = {
+    0.00000,0.00000,-0.50000,0.00000,-0.43301,-0.25000,-0.39244,
+    -0.18301,-0.25000,-0.14244,-0.18301,-0.25000,0.10756,-0.18301,
+    -0.25000,0.35756,-0.18301,-0.25000,0.39244,-0.18301,-0.25000,
+    -0.42780,0.06699,-0.25000,-0.17780,0.06699,-0.25000,0.07220,
+    0.06699,-0.25000,0.32220,0.06699,-0.25000,0.42780,0.06699,
+    -0.25000,-0.29499,0.31699,-0.25000,-0.04499,0.31699,-0.25000,
+    0.20501,0.31699,-0.25000,0.29499,0.31699,-0.25000,0.00000,
+    -0.50000,0.00000,-0.43301,-0.25000,0.00000,-0.18301,-0.25000,
+    0.00000,0.06699,-0.25000,0.00000,0.31699,-0.25000,0.00000,0.43301,
+    -0.25000,0.00000,-0.50000,0.00000,0.00000,-0.25000,0.00000,0.00000,
+    0.00000,0.00000,0.00000,0.25000,0.00000,0.00000,0.50000,0.00000,
+    0.00000,-0.43301,0.25000,0.00000,-0.18301,0.25000,0.00000,0.06699,
+    0.25000,0.00000,0.31699,0.25000,0.00000,0.43301,0.25000,0.00000,
+    0.00000,0.50000,0.00000,0.00000,-0.43301,0.25000,-0.39244,-0.18301,
+    0.25000,-0.14244,-0.18301,0.25000,0.10756,-0.18301,0.25000,0.35756,
+    -0.18301,0.25000,0.39244,-0.18301,0.25000,-0.42780,0.06699,0.25000,
+    -0.17780,0.06699,0.25000,0.07220,0.06699,0.25000,0.32220,0.06699,
+    0.25000,0.42780,0.06699,0.25000,-0.29499,0.31699,0.25000,-0.04499,
+    0.31699,0.25000,0.20501,0.31699,0.25000,0.29499,0.31699,0.25000,
+    0.00000,0.00000,0.50000
+    };
+  do {
+    VecFloat* v = ShapoidIterGetInternal(&iter);
+    if (ISEQUALF(VecGet(v, 0), check[3 * iCheck]) == false ||
+      ISEQUALF(VecGet(v, 1), check[3 * iCheck + 1]) == false ||
+      ISEQUALF(VecGet(v, 2), check[3 * iCheck + 2]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidIterStep failed");
+      PBErrCatch(ShapoidErr);
+    }
+    VecFree(&v);
+    ++iCheck;
+  } while (ShapoidIterStep(&iter));
+  ShapoidFree(&spheroid);
+  ShapoidIterFreeStatic(&iter);
+  VecFree(&delta);
+  printf("UnitTestShapoidIterStepSpheroid OK\n");
+}
+
+void UnitTestShapoidIter() {
+  UnitTestShapoidIterCreateFree();
+  UnitTestShapoidIterGetSet();
+  UnitTestShapoidIterStepFacoid();
+  UnitTestShapoidIterStepPyramidoid();
+  UnitTestShapoidIterStepSpheroid();
+  
+  printf("UnitTestShapoidIter OK\n");
+}
+
 void UnitTestAll() {
   UnitTestCreateCloneIsEqualFree();
   UnitTestLoadSavePrint();
@@ -1728,6 +1913,7 @@ void UnitTestAll() {
   UnitTestFacoidAlignedIsOutsideFacoidAligned();
   UnitTestFacoidAlignedSplitExcludingFacoidAligned();
   UnitTestFacoidAlignedAddClippedToSet();
+  UnitTestShapoidIter();
   printf("UnitTestAll OK\n");
 }
 

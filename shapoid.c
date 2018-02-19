@@ -7,6 +7,8 @@
 #include "shapoid-inline.c"
 #endif
 
+// -------------- Shapoid
+
 // ================= Define ==================
 
 const char* ShapoidTypeString[3] = {
@@ -771,4 +773,247 @@ GSet* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that,
   ShapoidFree(&src);
   // Return the result set
   return set;
+}
+
+// -------------- ShapoidIter
+
+// ================ Functions declaration ====================
+
+// Step the ShapoidIter 'that' for a Facoid
+// Return false if the iterator is at its end and couldn't be stepped
+bool _ShapoidIterStepFacoid(ShapoidIter* that);
+
+// Step the ShapoidIter 'that' for a Pyramidoid
+// Return false if the iterator is at its end and couldn't be stepped
+bool _ShapoidIterStepPyramidoid(ShapoidIter* that);
+
+// Step the ShapoidIter 'that' for a Spheroid
+// Return false if the iterator is at its end and couldn't be stepped
+bool _ShapoidIterStepSpheroid(ShapoidIter* that);
+
+// ================ Functions implementation ====================
+
+// Create a new iterator on the Shapoid 'shap' with a step of 'delta'
+// (step on the internal coordinates of the Shapoid)
+// The iterator is initialized and ready to be stepped
+ShapoidIter _ShapoidIterCreateStatic(Shapoid* shap, VecFloat* delta) {
+#if BUILDMODE == 0
+  if (shap == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'shap' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (delta == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'delta' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecGetDim(delta) != ShapoidGetDim(shap)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'delta' dimensions and 'shap' dimensions don't match (%d==%d)",
+      VecGetDim(delta), ShapoidGetDim(shap));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Declare the new iterator
+  ShapoidIter iter;
+  // Set properties
+  iter._shap = shap;
+  iter._delta = VecClone(delta);
+  iter._pos = VecFloatCreate(VecGetDim(delta));
+  // Init the position
+  ShapoidIterInit(&iter);
+  // Return the new iterator
+  return iter;
+}
+
+// Free the memory used by the ShapoidIter 'that'
+void ShapoidIterFreeStatic(ShapoidIter* that) {
+  // Check argument
+  if (that == NULL)
+    // Nothing to do
+    return;
+  // Free memory
+  VecFree(&(that->_delta));
+  VecFree(&(that->_pos));
+}
+
+// Reinitialise the ShapoidIter 'that' to its starting position
+void ShapoidIterInit(ShapoidIter* that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Initialise according to the type of Shapoid
+  switch(ShapoidGetType(that->_shap)) {
+    case ShapoidTypeFacoid:
+    case ShapoidTypePyramidoid:
+      VecSetNull(that->_pos);
+      break;
+    case ShapoidTypeSpheroid:
+      VecSetNull(that->_pos);
+      VecSet(that->_pos, VecGetDim(that->_pos) - 1, -0.5);
+      break;
+    default:
+      break;
+  }
+}
+
+// Step the ShapoidIter 'that'
+// Return false if the iterator is at its end and couldn't be stepped
+bool ShapoidIterStep(ShapoidIter* that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Declare a flag for the return value
+  bool flag = true;
+  // Step according to the type of Shapoid
+  switch(ShapoidGetType(that->_shap)) {
+    case ShapoidTypeFacoid:
+      flag = _ShapoidIterStepFacoid(that);
+      break;
+    case ShapoidTypePyramidoid:
+      flag = _ShapoidIterStepPyramidoid(that);
+      break;
+    case ShapoidTypeSpheroid:
+      flag = _ShapoidIterStepSpheroid(that);
+      break;
+    default:
+      break;
+  }
+  return flag;
+}
+
+// Step the ShapoidIter 'that' for a Facoid
+// Return false if the iterator is at its end and couldn't be stepped
+bool _ShapoidIterStepFacoid(ShapoidIter* that) {
+  // Declare a variable for the returned flag
+  bool ret = true;
+  // Declare a variable to memorise the dimension currently increasing
+  int iDim = VecGetDim(that->_pos) - 1;
+  // Declare a flag for the loop condition 
+  bool flag = true;
+  // Increment
+  do {
+    VecSet(that->_pos, iDim, 
+      VecGet(that->_pos, iDim) + VecGet(that->_delta, iDim));
+    if (VecGet(that->_pos, iDim) > 1.0 + PBMATH_EPSILON) {
+      VecSet(that->_pos, iDim, 0.0);
+      --iDim;
+    } else {
+      flag = false;
+    }
+  } while (iDim >= 0 && flag == true);
+  if (iDim == -1)
+    ret = false;
+  // Return the flag
+  return ret;
+}
+
+// Step the ShapoidIter 'that' for a Pyramidoid
+// Return false if the iterator is at its end and couldn't be stepped
+bool _ShapoidIterStepPyramidoid(ShapoidIter* that) {
+  // Declare a variable for the returned flag
+  bool ret = true;
+  // Declare a variable to memorise the dimension currently increasing
+  int iDim = VecGetDim(that->_pos) - 1;
+  // Declare a flag for the loop condition 
+  bool flag = true;
+  // Increment
+  do {
+    VecSet(that->_pos, iDim, 
+      VecGet(that->_pos, iDim) + VecGet(that->_delta, iDim));
+    float sum = 0.0;
+    for (int iAxis = VecGetDim(that->_pos); iAxis--;)
+      sum += VecGet(that->_pos, iAxis);
+    if (sum > 1.0 + PBMATH_EPSILON) {
+      VecSet(that->_pos, iDim, 0.0);
+      --iDim;
+    } else {
+      flag = false;
+    }
+  } while (iDim >= 0 && flag == true);
+  if (iDim == -1)
+    ret = false;
+  // Return the flag
+  return ret;
+}
+
+// Step the ShapoidIter 'that' for a Spheroid
+// Return false if the iterator is at its end and couldn't be stepped
+bool _ShapoidIterStepSpheroid(ShapoidIter* that) {
+  // Declare a variable to memorise the dimension currently increasing
+  int iDim = 0;
+  // Declare a flag for the loop condition 
+  bool flag = true;
+  // Declare a variable to memorize the norm of the current position
+  float norm = VecNorm(that->_pos);
+  // Ladies and Gentleman, here comes the infamous "Worm Algorithm"
+  // Increment from the first axis
+  for (iDim = 0; iDim < VecGetDim(that->_pos) && flag == true; ++iDim) {
+    float prevNorm = norm;
+    // Try to step in this axis
+    VecSet(that->_pos, iDim, 
+      VecGet(that->_pos, iDim) + VecGet(that->_delta, iDim));
+    // Get the norm of the new position
+    norm = VecNorm(that->_pos);
+    // If we have just jumped over the boundary
+    if (prevNorm < 0.5 - PBMATH_EPSILON && 
+      norm >= 0.5 + PBMATH_EPSILON) {
+      // Correct the step to reach exactly the boundary
+      // Set the current axis to relax the constraint
+      VecSet(that->_pos, iDim, 0.0);
+      // Calculate the value for this axis which put back the position
+      // at the boundary of the Spheroid (on positive side as we want
+      // the end of the boundary)
+      norm = VecNorm(that->_pos);
+      float val =  0.5 * sqrt(-4.0 * (fastpow(norm, 2) - 0.25));
+      VecSet(that->_pos, iDim, val);
+      // Correct the norm
+      norm = 0.5;
+      // We could step on this axis, stop here
+      flag = false;
+      // To cancel the increment in the loop
+      --iDim;
+    } else {
+      // If the new position is out of bound it means we reach the 
+      // boundary
+      if (norm >= 0.5 + PBMATH_EPSILON) {
+        // Set the current axis to 0.0 to relax the constraint on
+        // other axis
+        VecSet(that->_pos, iDim, 0.0);
+      } else {
+        // We could step on this axis, stop here
+        flag = false;
+        // To cancel the increment in the loop
+        --iDim;
+      }
+    }
+  }
+  // If we could step, it has modified the constraint on the previous
+  // axis which must then be updated
+  if (flag == false) {
+    --iDim;
+    // If there is actually a previous axis
+    if (iDim >= 0) {
+      // Calculate the value for this axis which put back the position
+      // at the boundary of the Spheroid (on negative side as we will
+      // increment from there)
+      float val = VecGet(that->_pos, iDim) + 
+        0.5 * (-2.0 * VecGet(that->_pos, iDim) - 
+        sqrt(4.0 * (fastpow(VecGet(that->_pos, iDim), 2) - 
+        fastpow(norm, 2) + 0.25)));
+      VecSet(that->_pos, iDim, val);
+    }
+  }
+  // Return the negative of the flag
+  return !flag;
 }

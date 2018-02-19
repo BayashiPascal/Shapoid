@@ -20,4 +20,10 @@ UnitTestFacoidAlignedIsInsideFacoidAligned OK
 UnitTestFacoidAlignedIsOutsideFacoidAligned OK
 UnitTestFacoidAlignedSplitExcludingFacoidAligned OK
 UnitTestFacoidAlignedAddClippedToSet OK
+UnitTestShapoidIterCreateFree OK
+UnitTestShapoidIterGetSet OK
+UnitTestShapoidIterStepFacoid OK
+UnitTestShapoidIterStepPyramidoid OK
+UnitTestShapoidIterStepSpheroid OK
+UnitTestShapoidIter OK
 UnitTestAll OK

@@ -1,5 +1,7 @@
 // ============ SHAPOID-INLINE.C ================
 
+// -------------- Shapoid
+
 // ================ Functions implementation ====================
 
 // Get the dimension of the Shapoid
@@ -1497,3 +1499,100 @@ float SpheroidGetPosDepth(Spheroid* that, VecFloat* pos) {
   return ret;
 }
 
+// -------------- ShapoidIter
+
+// ================ Functions implementation ====================
+
+// Return the current position in Shapoid coordinates of the 
+// ShapoidIter 'that'
+#if BUILDMODE != 0
+inline
+#endif 
+VecFloat* ShapoidIterGetInternal(ShapoidIter* that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  return VecClone(that->_pos);
+}
+
+// Return the current position in standard coordinates of the 
+// ShapoidIter 'that'
+#if BUILDMODE != 0
+inline
+#endif 
+VecFloat* ShapoidIterGetExternal(ShapoidIter* that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  return ShapoidExportCoord(that->_shap, that->_pos);
+}
+
+// Set the attached Shapoid of the ShapoidIter 'that' to 'shap'
+// The iterator is reset to its initial position
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidIterSetShapoid(ShapoidIter* that, Shapoid* shap) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  that->_shap = shap;
+}
+
+// Get the Shapoid of the ShapoidIter 'that'
+#if BUILDMODE != 0
+inline
+#endif 
+Shapoid* ShapoidIterShapoid(ShapoidIter* that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  return that->_shap;
+}
+
+// Set the delta of the ShapoidIter 'that' to a copy of 'delta'
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidIterSetDelta(ShapoidIter* that, VecFloat* delta) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  VecFree(&(that->_delta));
+  that->_delta = VecClone(delta);
+}
+
+// Get the delta of the ShapoidIter 'that'
+#if BUILDMODE != 0
+inline
+#endif 
+VecFloat* ShapoidIterDelta(ShapoidIter* that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  return that->_delta;
+}

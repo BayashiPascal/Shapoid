@@ -30,6 +30,15 @@
 #define ShapoidGetCoverageDelta(ShapoidA, ShapoidB, Prec) \
   _ShapoidGetCoverageDelta((Shapoid*)ShapoidA, (Shapoid*)ShapoidB, Prec)
 
+#define ShapoidIterCreateStatic(Shap, Delta) \
+  _ShapoidIterCreateStatic((Shapoid*)(Shap), (VecFloat*)(Delta))
+
+#define ShapoidIterSetShapoid(Iter, Shap) \
+  _ShapoidIterSetShapoid(Iter, (Shapoid*)(Shap))
+
+#define ShapoidIterSetDelta(Iter, Delta) \
+  _ShapoidIterSetDelta(Iter, (VecFloat*)(Delta))
+
 extern const char* ShapoidTypeString[3];
 
 // ================= Polymorphism ==================
@@ -322,6 +331,8 @@ extern const char* ShapoidTypeString[3];
   Spheroid*: SpheroidGetPosDepth, \
   default: PBErrInvalidPolymorphism)(Shap, (VecFloat*)VecPos)
 
+// -------------- ShapoidIter
+
 // ================= Data structure ===================
 
 typedef enum ShapoidType {
@@ -610,7 +621,7 @@ inline
 #endif 
 VecFloat* _ShapoidExportCoord(Shapoid* that, VecFloat* pos);
 
-// Return true if 'pos' (in stand coordinate system) is inside the 
+// Return true if 'pos' (in standard coordinates system) is inside the 
 // Shapoid
 // Else return false
 #if BUILDMODE != 0
@@ -739,6 +750,75 @@ bool FacoidAlignedIsOutsideFacoidAligned(Facoid* that, Facoid* facoid);
 // same dimensions
 GSet* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that, 
   Facoid* facoid);
+
+// -------------- ShapoidIter
+
+// ================= Data structure ===================
+
+typedef struct ShapoidIter {
+  // Attached shapoid
+  Shapoid* _shap;
+  // Delta step
+  VecFloat* _delta;
+  // Current position (in internal coordinates of the shapoid)
+  VecFloat* _pos;
+} ShapoidIter;
+
+// ================ Functions declaration ====================
+
+// Create a new iterator on the Shapoid 'shap' with a step of 'delta'
+// (step on the internal coordinates of the Shapoid)
+// The iterator is initialized and ready to be stepped
+ShapoidIter _ShapoidIterCreateStatic(Shapoid* shap, VecFloat* delta);
+
+// Free the memory used by the ShapoidIter 'that'
+void ShapoidIterFreeStatic(ShapoidIter* that);
+
+// Reinitialise the ShapoidIter 'that' to its starting position
+void ShapoidIterInit(ShapoidIter* that);
+
+// Step the ShapoidIter 'that'
+// Return false if the iterator is at its end and couldn't be stepped
+bool ShapoidIterStep(ShapoidIter* that);
+
+// Return the current position in Shapoid coordinates of the 
+// ShapoidIter 'that'
+#if BUILDMODE != 0
+inline
+#endif 
+VecFloat* ShapoidIterGetInternal(ShapoidIter* that);
+
+// Return the current position in standard coordinates of the 
+// ShapoidIter 'that'
+#if BUILDMODE != 0
+inline
+#endif 
+VecFloat* ShapoidIterGetExternal(ShapoidIter* that);
+
+// Set the attached Shapoid of the ShapoidIter 'that' to 'shap'
+// The iterator is reset to its initial position
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidIterSetShapoid(ShapoidIter* that, Shapoid* shap);
+
+// Get the Shapoid of the ShapoidIter 'that'
+#if BUILDMODE != 0
+inline
+#endif 
+Shapoid* ShapoidIterShapoid(ShapoidIter* that);
+
+// Set the delta of the ShapoidIter 'that' to a copy of 'delta'
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidIterSetDelta(ShapoidIter* that, VecFloat* delta);
+
+// Get the delta of the ShapoidIter 'that'
+#if BUILDMODE != 0
+inline
+#endif 
+VecFloat* ShapoidIterDelta(ShapoidIter* that);
 
 // ================ Inliner ====================
 
