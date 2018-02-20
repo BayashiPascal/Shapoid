@@ -300,7 +300,7 @@ Facoid* PyramidoidGetBoundingBox(Pyramidoid* that) {
     // Declare a variable to memorize the bound of the interval on 
     // this axis
     float bound[2];
-    bound[0] = bound[1] = VecGet(((Shapoid*)that)->_pos, dim);
+    bound[0] = bound[1] = 0.0;
     // For each parameter
     for (int param = ShapoidGetDim(that); param--;) {
       // Get the value of the axis influencing the current dimension
@@ -311,8 +311,13 @@ Facoid* PyramidoidGetBoundingBox(Pyramidoid* that) {
       if (v > bound[1])
         bound[1] = v;
     }
+    if (bound[0] > 0.0)
+      bound[0] = 0.0;
+    if (bound[1] < 0.0)
+      bound[1] = 0.0;
     // Memorize the result
-    VecSet(((Shapoid*)res)->_pos, dim, bound[0]);
+    VecSet(((Shapoid*)res)->_pos, dim, 
+      VecGet(ShapoidPos(that), dim) + bound[0]);
     VecSet(((Shapoid*)res)->_axis[dim], dim, bound[1] - bound[0]);
   }
   // Return the result

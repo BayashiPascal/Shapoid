@@ -1363,9 +1363,9 @@ void UnitTestGetBoundingBox() {
     }
   }
   Facoid* boundB = ShapoidGetBoundingBox(pyramidoid);
-  float pd[2] = {-1.414214, -1.4142143};
-  float pe[2] = {2.828427, 0.0};
-  float pf[2] = {0.0, 3.690356};
+  float pd[2] = {-1.08088, 0.86193};
+  float pe[2] = {2.82843, 0.0};
+  float pf[2] = {0.0, 1.41421};
   for (int i = dim; i--;) {
     if (ISEQUALF(VecGet(((Shapoid*)boundB)->_pos, i), pd[i]) == false ||
       ISEQUALF(VecGet(((Shapoid*)boundB)->_axis[0], i), 
@@ -1397,9 +1397,9 @@ void UnitTestGetBoundingBox() {
   GSetPush(&set, pyramidoid);
   GSetPush(&set, spheroid);
   Facoid* boundD = ShapoidGetBoundingBox(&set);
-  float pj[2] = {-1.414214, -1.4142143};
+  float pj[2] = {-1.41421,-0.41421};
   float pk[2] = {3.828427, 0.0};
-  float pl[2] = {0.0, 4.828427};
+  float pl[2] = {0.0, 3.828427};
   for (int i = dim; i--;) {
     if (ISEQUALF(VecGet(((Shapoid*)boundD)->_pos, i), pj[i]) == false ||
       ISEQUALF(VecGet(((Shapoid*)boundD)->_axis[0], i), 
@@ -1412,10 +1412,51 @@ void UnitTestGetBoundingBox() {
     }
   }
   GSetFlush(&set);
+  VecSet(v, 0, 2.0); VecSet(v, 1, 4.0);
+  ShapoidSetPos(facoid, v);
+  ShapoidSetPos(pyramidoid, v);
+  VecSet(v, 0, 7.0); VecSet(v, 1, 0.0);
+  ShapoidSetAxis(facoid, 0, v);
+  ShapoidSetAxis(pyramidoid, 0, v);
+  VecSet(v, 0, 0.0); VecSet(v, 1, 4.0);
+  ShapoidSetAxis(facoid, 1, v);
+  ShapoidSetAxis(pyramidoid, 1, v);
+  Facoid* boundE = ShapoidGetBoundingBox(facoid);
+  float pm[2] = {2.0, 4.0};
+  float pn[2] = {7.0, 0.0};
+  float po[2] = {0.0, 4.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)boundE)->_pos, i), pm[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)boundE)->_axis[0], i), 
+      pn[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)boundE)->_axis[1], i), 
+      po[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidGetBoundingBox failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
+  Facoid* boundF = ShapoidGetBoundingBox(pyramidoid);
+  float pp[2] = {2.0, 4.0};
+  float pq[2] = {7.0, 0.0};
+  float pr[2] = {0.0, 4.0};
+  for (int i = dim; i--;) {
+    if (ISEQUALF(VecGet(((Shapoid*)boundF)->_pos, i), pp[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)boundF)->_axis[0], i), 
+      pq[i]) == false ||
+      ISEQUALF(VecGet(((Shapoid*)boundF)->_axis[1], i), 
+      pr[i]) == false) {
+      ShapoidErr->_type = PBErrTypeUnitTestFailed;
+      sprintf(ShapoidErr->_msg, "ShapoidGetBoundingBox failed");
+      PBErrCatch(ShapoidErr);
+    }
+  }
   ShapoidFree(&boundA);
   ShapoidFree(&boundB);
   ShapoidFree(&boundC);
   ShapoidFree(&boundD);
+  ShapoidFree(&boundE);
+  ShapoidFree(&boundF);
   VecFree(&v);
   ShapoidFree(&facoid);
   ShapoidFree(&pyramidoid);
