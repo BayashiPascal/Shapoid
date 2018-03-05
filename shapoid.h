@@ -16,7 +16,7 @@
 
 // ================= Define ==================
 
-#define CloneShapoidType typedef struct {Shapoid _s;}
+#define CloneShapoidType(T) typedef struct T {Shapoid _s;} T
 
 #define SpheroidCreate(Dim) \
   (Spheroid*)ShapoidCreate(Dim, ShapoidTypeSpheroid)
@@ -162,11 +162,13 @@ extern const char* ShapoidTypeString[3];
   Facoid*: FacoidGetBoundingBox, \
   Pyramidoid*: PyramidoidGetBoundingBox, \
   Spheroid*: SpheroidGetBoundingBox, \
-  GSet*: ShapoidGetBoundingBoxSet, \
+  GSetShapoid*: ShapoidGetBoundingBoxSet, \
   default: PBErrInvalidPolymorphism)(Shap)
 
 #define ShapoidScale(Shap, Scale) _Generic(Scale, \
   VecFloat*: _ShapoidScaleVector, \
+  VecFloat2D*: _ShapoidScaleVector, \
+  VecFloat3D*: _ShapoidScaleVector, \
   float: _ShapoidScaleScalar, \
   default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Scale)
 
@@ -355,9 +357,9 @@ typedef struct Shapoid {
   SysLinEq* _sysLinEqImport;
 } Shapoid;
 
-CloneShapoidType Facoid;
-CloneShapoidType Pyramidoid;
-CloneShapoidType Spheroid;
+CloneShapoidType(Facoid);
+CloneShapoidType(Pyramidoid);
+CloneShapoidType(Spheroid);
 
 // ================ Functions declaration ====================
 
@@ -656,7 +658,7 @@ Facoid* SpheroidGetBoundingBox(Spheroid* that);
 // the axis of the standard coordinate system).
 // The bounding box is returned as a Facoid, which position is
 // at the minimum value along each axis.
-Facoid* ShapoidGetBoundingBoxSet(GSet* set);
+Facoid* ShapoidGetBoundingBoxSet(GSetShapoid* set);
 
 // Get the depth value in the Shapoid of 'pos' in standard coordinate
 // system
@@ -728,7 +730,7 @@ bool _ShapoidIsEqual(Shapoid* that, Shapoid* tho);
 // The Facoid in the set and 'that' must be aligned with the 
 // coordinates system axis and have 
 // same dimensions
-void FacoidAlignedAddClippedToSet(Facoid* that, GSet* set);
+void FacoidAlignedAddClippedToSet(Facoid* that, GSetShapoid* set);
 
 // Check if the Facoid 'that' is completely included into the Facoid 
 // 'facoid'
@@ -748,7 +750,7 @@ bool FacoidAlignedIsOutsideFacoidAligned(Facoid* that, Facoid* facoid);
 // Facoid 'that' except for area in the Facoid 'facoid'
 // Both Facoid must be aligned with the coordinates system and have 
 // same dimensions
-GSet* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that, 
+GSetShapoid* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that, 
   Facoid* facoid);
 
 // -------------- ShapoidIter

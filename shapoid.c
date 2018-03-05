@@ -378,14 +378,14 @@ Facoid* SpheroidGetBoundingBox(Spheroid* that) {
 // the axis of the standard coordinate system).
 // The bounding box is returned as a Facoid, which position is
 // at the minimum value along each axis.
-Facoid* ShapoidGetBoundingBoxSet(GSet* set) {
+Facoid* ShapoidGetBoundingBoxSet(GSetShapoid* set) {
 #if BUILDMODE == 0
   if (set == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
     sprintf(ShapoidErr->_msg, "'set' is null");
     PBErrCatch(ShapoidErr);
   }
-  GSetElem* elemCheck = set->_head;
+  GSetElem* elemCheck = GSetGetElem(set, 0);
   int dim = ((Shapoid*)(elemCheck->_data))->_dim;
   while (elemCheck != NULL) {
     if (((Shapoid*)(elemCheck->_data))->_dim != dim) {
@@ -400,7 +400,7 @@ Facoid* ShapoidGetBoundingBoxSet(GSet* set) {
   // Declare a variable for the result
   Facoid* res = NULL;
   // Declare a pointer to the elements of the set
-  GSetElem* elem = set->_head;
+  GSetElem* elem = GSetGetElem(set, 0);
   // Loop on element of the set
   while (elem != NULL) {
     // Declare a pointer to the Facoid
@@ -536,7 +536,7 @@ float _ShapoidGetCoverageDelta(Shapoid* that, Shapoid* tho,
 // The Facoid in the set and 'that' must be aligned with the 
 // coordinates system axis and have 
 // same dimensions
-void FacoidAlignedAddClippedToSet(Facoid* that, GSet* set) {
+void FacoidAlignedAddClippedToSet(Facoid* that, GSetShapoid* set) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -557,7 +557,7 @@ void FacoidAlignedAddClippedToSet(Facoid* that, GSet* set) {
   } else {
     // Create a set of sub facoid to be added and initialize it with a
     // clone of 'that'
-    GSet setToAdd = GSetCreateStatic();
+    GSetShapoid setToAdd = GSetShapoidCreateStatic();
     GSetAppend(&setToAdd, FacoidClone(that));
     // For each sub facoid to add
     GSetIterForward iterToAdd = GSetIterForwardCreateStatic(&setToAdd);
@@ -591,7 +591,7 @@ void FacoidAlignedAddClippedToSet(Facoid* that, GSet* set) {
           facoid)) {
           // Split the facoid to be added into new facoids
           // which cover the non intersecting area
-          GSet* split = 
+          GSetShapoid* split = 
             FacoidAlignedSplitExcludingFacoidAligned(facoidToAdd, 
               facoid);
           GSetAppendSet(&setToAdd, split);
@@ -610,8 +610,8 @@ void FacoidAlignedAddClippedToSet(Facoid* that, GSet* set) {
     // to be added to 'set'
     GSetAppendSet(set, &setToAdd);
     // There may have been deleted facoid, ensure the resulting set
-    // is clean by removeing null pointer
-    GSetRemoveAll(set, NULL);
+    // is clean by removing null pointer
+    GSetRemoveAll(set, (Shapoid*)NULL);
     // Free memory used by the set of sub facoid to add
     GSetFlush(&setToAdd);
   }
@@ -703,7 +703,7 @@ bool FacoidAlignedIsOutsideFacoidAligned(Facoid* that,
 // Facoid 'that' except for area in the Facoid 'facoid'
 // Both Facoid must be aligned with the coordinates system and have 
 // same dimensions
-GSet* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that, 
+GSetShapoid* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that, 
   Facoid* facoid) {
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -726,7 +726,7 @@ GSet* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that,
 #endif  
   // Ladies and Gentleman, here comes the infamous "Gruyere Algorithm"
   // Declare the result GSet
-  GSet* set = GSetCreate();
+  GSetShapoid* set = GSetShapoidCreate();
   // Declare a clone of the original facoid
   Facoid* src = FacoidClone(that);
   // For each axis

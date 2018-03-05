@@ -1392,7 +1392,7 @@ void UnitTestGetBoundingBox() {
       PBErrCatch(ShapoidErr);
     }
   }
-  GSet set = GSetCreateStatic();
+  GSetShapoid set = GSetShapoidCreateStatic();
   GSetPush(&set, facoid);
   GSetPush(&set, pyramidoid);
   GSetPush(&set, spheroid);
@@ -1659,8 +1659,9 @@ void UnitTestFacoidAlignedSplitExcludingFacoidAligned() {
   ShapoidSetPos(facB, &p);
   ShapoidSetAxis(facB, 0, &u);
   ShapoidSetAxis(facB, 1, &v);
-  GSet* split = FacoidAlignedSplitExcludingFacoidAligned(facA, facB);
-  Facoid* facC = GSetPop(split);
+  GSetShapoid* split = 
+    FacoidAlignedSplitExcludingFacoidAligned(facA, facB);
+  Facoid* facC = (Facoid*)GSetPop(split);
   VecSet(&p, 0, 0.0); VecSet(&p, 1, 0.0); 
   VecSet(&u, 0, 1.0); VecSet(&v, 1, 0.5); 
   if (VecIsEqual(ShapoidPos(facC), &p) == false ||
@@ -1671,7 +1672,7 @@ void UnitTestFacoidAlignedSplitExcludingFacoidAligned() {
       "FacoidAlignedSplitExcludingFacoidAligned failed");
     PBErrCatch(ShapoidErr);
   }
-  Facoid* facD = GSetPop(split);
+  Facoid* facD = (Facoid*)GSetPop(split);
   VecSet(&p, 0, 0.0); VecSet(&p, 1, 0.5); 
   VecSet(&u, 0, 0.5); VecSet(&v, 1, 0.5); 
   if (VecIsEqual(ShapoidPos(facD), &p) == false ||
@@ -1700,7 +1701,7 @@ void UnitTestFacoidAlignedAddClippedToSet() {
   ShapoidSetPos(facA, &p);
   ShapoidSetAxis(facA, 0, &u);
   ShapoidSetAxis(facA, 1, &v);
-  GSet set = GSetCreateStatic();
+  GSetShapoid set = GSetShapoidCreateStatic();
   FacoidAlignedAddClippedToSet(facA, &set);
   VecSet(&p, 0, 15.0); VecSet(&p, 1, 15.0); 
   ShapoidSetPos(facA, &p);
@@ -1733,7 +1734,7 @@ void UnitTestFacoidAlignedAddClippedToSet() {
   float checku[6] = {10.0, 10.0, 8.0, 10.0, 7.0, 1.0};
   float checkv[6] = {10.0, 10.0, 2.0, 5.0, 3.0, 1.0};
   do {
-    Facoid* fac = GSetPop(&set);
+    Facoid* fac = (Facoid*)GSetPop(&set);
     VecSet(&p, 0, checkp[2 * iCheck]); 
     VecSet(&p, 1, checkp[2 * iCheck + 1]); 
     VecSet(&u, 0, checku[iCheck]); VecSet(&v, 1, checkv[iCheck]); 
