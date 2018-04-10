@@ -2,7 +2,7 @@
 
 Shapoid is a C library providing the \begin{ttfamily}Shapoid\end{ttfamily} structure and its functions which can be used to manipulate Shapoid objects (see next section for details).\\
 
-It also provides the \begin{ttfamily}ShapoidIter\end{ttfamily} structure and its functions which can be used to sequantially loop through the surface/volume/... of a \begin{ttfamily}Shapoid\end{ttfamily}.
+It also provides the \begin{ttfamily}ShapoidIter\end{ttfamily} structure and its functions which can be used to sequantially loop through the surface/volume/... of a \begin{ttfamily}Shapoid\end{ttfamily}.\\
 
 It uses the \begin{ttfamily}PBErr\end{ttfamily}, \begin{ttfamily}PBMath\end{ttfamily} and \begin{ttfamily}GSet\end{ttfamily} libraries.\\
 
@@ -200,6 +200,10 @@ This result can then be used to solve our problem with what I'll call the "Wormy
 \end{scriptsize}
 
 This algorithm step $P$ to the next position in the path by $delta$ and returns true if we haven't reached the end of the path, or false if we have reached the end of the path (i.e. if we have iterated through all the surface/volume/... of the Spheroid). Remember that $P$ must be initialised to $<0,0,...,-0.5>$ as the beginning of the path, and that \begin{ttfamily}ShapoidIter\end{ttfamily} iterates coordinates in the Shapoid's coordinate system.\\
+
+\subsection{Collision detection of Spheroid}
+
+The detection of collision between two Spheroids is done as follow. One of the spheroid is converted into the coordinates system of the other and checked against a circle of radius 0.5 centered at the origin of the system. By checking that the position of the converted Spheroid is less than its minor radius plus 0.5 or more than its major radius plus 0.5, the trivial cases of, respectively, interesection and non intersection can be performed. In other cases an incremental search from the center of the converted Spheroid toward the nearest point to the origin inside this Spheroid is performed. The intersection can then be checked by testing if the distance of this point to the origin is less or equal than 0.5.\\
 
 \section{Interface}
 
