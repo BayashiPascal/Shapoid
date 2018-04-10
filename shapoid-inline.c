@@ -189,6 +189,10 @@ void _ShapoidSetAxis(Shapoid* that, int dim, VecFloat* v) {
   VecCopy(that->_axis[dim], v);
   // Update the SysLinEq
   ShapoidUpdateSysLinEqImport(that);
+  // If it's a Spheroid
+  if (that->_type == ShapoidTypeSpheroid)
+    // Update the major and minor axis
+    SpheroidUpdateMajMinAxis((Spheroid*)that);
 }
 
 // Translate the Shapoid by 'v'
@@ -246,6 +250,10 @@ void _ShapoidScaleVector(Shapoid* that, VecFloat* v) {
     VecScale(that->_axis[iAxis], VecGet(v, iAxis));
   // Update the SysLinEq
   ShapoidUpdateSysLinEqImport(that);
+  // If it's a Spheroid
+  if (that->_type == ShapoidTypeSpheroid)
+    // Update the major and minor axis
+    SpheroidUpdateMajMinAxis((Spheroid*)that);
 }
 
 // Scale the Shapoid by 'c'
@@ -265,6 +273,10 @@ void _ShapoidScaleScalar(Shapoid* that, float c) {
     VecScale(that->_axis[iAxis], c);
   // Update the SysLinEq
   ShapoidUpdateSysLinEqImport(that);
+  // If it's a Spheroid
+  if (that->_type == ShapoidTypeSpheroid)
+    // Update the major and minor axis
+    SpheroidUpdateMajMinAxis((Spheroid*)that);
 }
 
 // Scale the Shapoid by 'v' (each axis is multiplied by v[iAxis])
@@ -303,6 +315,8 @@ void _ShapoidGrowVector(Shapoid* that, VecFloat* v) {
   if (that->_type == ShapoidTypeSpheroid) {
     // Scale
     ShapoidScale(that, v);
+    // Update the major and minor axis
+    SpheroidUpdateMajMinAxis((Spheroid*)that);
   // Else, the shapoid is not a spheroid
   } else {
     // Memorize the center
@@ -345,6 +359,8 @@ void _ShapoidGrowScalar(Shapoid* that, float c) {
   if (that->_type == ShapoidTypeSpheroid) {
     // Scale
     ShapoidScale(that, c);
+    // Update the major and minor axis
+    SpheroidUpdateMajMinAxis((Spheroid*)that);
   // Else, the shapoid is not a spheroid
   } else {
     // Memorize the center
@@ -1122,6 +1138,12 @@ bool _ShapoidIsEqual(Shapoid* that, Shapoid* tho) {
   for (int i = that->_dim; i--;)
     if (VecIsEqual(that->_axis[i], tho->_axis[i]) == false)
       return false;
+  // If the Shapoid is a Spheroid, check Spheroid properties
+  if (that->_type == ShapoidTypeSpheroid) {
+    if (((Spheroid*)that)->_majAxis != ((Spheroid*)tho)->_majAxis ||
+      ((Spheroid*)that)->_minAxis != ((Spheroid*)tho)->_minAxis)
+      return false;
+  }
   // Return the success code
   return true;
 }

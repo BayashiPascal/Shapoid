@@ -36,7 +36,11 @@ Shapoid* ShapoidCreate(int dim, ShapoidType type) {
   MatFloat* mat = MatFloatCreate(&d);
   MatSetIdentity(mat);
   // Allocate memory
-  Shapoid* that = PBErrMalloc(ShapoidErr, sizeof(Shapoid));
+  Shapoid* that = NULL;
+  if (type == ShapoidTypeSpheroid)
+    that = PBErrMalloc(ShapoidErr, sizeof(Spheroid));
+  else
+    that = PBErrMalloc(ShapoidErr, sizeof(Shapoid));
   // Init pointers
   that->_pos = NULL;
   that->_axis = NULL;
@@ -61,6 +65,11 @@ Shapoid* ShapoidCreate(int dim, ShapoidType type) {
   that->_sysLinEqImport = SysLinEqCreate(mat, (VecFloat*)NULL);
   // Free memory
   MatFree(&mat);
+  // Specific properties of Spheroid
+  if (type == ShapoidTypeSpheroid) {
+    ((Spheroid*)that)->_majAxis = 0;
+    ((Spheroid*)that)->_minAxis = 0;
+  }
   // Return the new Shapoid
   return that;
 }
@@ -84,6 +93,11 @@ Shapoid* _ShapoidClone(Shapoid* that) {
   // Clone the SysLinEq
   SysLinEqFree(&(clone->_sysLinEqImport));
   clone->_sysLinEqImport = SysLinEqClone(that->_sysLinEqImport);
+  // If it's a spheroid, copy the spheroid properties too
+  if (that->_type == ShapoidTypeSpheroid) {
+    ((Spheroid*)clone)->_majAxis = ((Spheroid*)that)->_majAxis;
+    ((Spheroid*)clone)->_minAxis = ((Spheroid*)that)->_minAxis;
+  }
   // Return the clone
   return clone;
 }
@@ -152,6 +166,10 @@ bool _ShapoidLoad(Shapoid** that, FILE* stream, ShapoidType type) {
   }
   // Update the SysLinEq
   ShapoidUpdateSysLinEqImport(*that);
+  // If it's a Spheroid
+  if ((*that)->_type == ShapoidTypeSpheroid)
+    // Update the major and minor axis
+    SpheroidUpdateMajMinAxis((Spheroid*)*that);
   // Return success code
   return true;
 }
@@ -779,6 +797,159 @@ GSetShapoid* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that,
   ShapoidFree(&src);
   // Return the result set
   return set;
+}
+
+// Return true if 'that' intersects 'tho'
+// Return false else
+// 'that' and 'tho' must have same dimension
+// https://hal.inria.fr/hal-00646511/PDF/CCD.3.0.pdf
+bool _SpheroidIsInterSpheroid(Spheroid* that, Spheroid* tho) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (tho == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'tho' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidGetDim(that) != ShapoidGetDim(tho)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' and 'tho' have different dimensions (%d==%d)",
+      ShapoidGetDim(that), ShapoidGetDim(tho));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Create the projection of 'tho' in 'that' 's coordinates space
+  Spheroid* proj = SpheroidCreate(ShapoidGetDim(tho));
+  VecFloat* v = ShapoidImportCoord(that, ShapoidPos(tho));
+  ShapoidSetPos(proj, v);
+  VecFree(&v);
+  for (int iAxis = ShapoidGetDim(tho); iAxis--;) {
+    v = ShapoidImportCoord(that, ShapoidAxis(tho, iAxis));
+    ShapoidSetAxis(proj, iAxis, v);
+    VecFree(&v);
+  }
+  // Declare a variable to memorize the distance to the origin of
+  // 'that' 's coordinate system
+  float dist = VecNorm(ShapoidPos(proj));
+  // Check for trivial cases
+  float majRadius = 0.5 * VecNorm(ShapoidAxis(proj, proj->_majAxis));
+  if (dist > majRadius + 0.5) {
+    ShapoidFree(&proj);
+    VecFree(&v);
+    return false;
+  } else if (proj->_majAxis == proj->_minAxis) {
+    ShapoidFree(&proj);
+    VecFree(&v);
+    return true;
+  }
+  float minRadius = 0.5 * VecNorm(ShapoidAxis(proj, proj->_minAxis));
+  if (dist <= minRadius + 0.5) {
+    ShapoidFree(&proj);
+    VecFree(&v);
+    return true;
+  }
+  // Non trivial case
+  // Search a position in the projection of 'tho' less than 1.0 units 
+  // from the origin in 'that' 's coordinates space
+  // Declare a variable to move in the projection's coordinates space
+  VecFloat* pos = VecFloatCreate(ShapoidGetDim(tho));
+  // Declare a variable to memorize the derivative
+  VecFloat* dPos = VecFloatCreate(ShapoidGetDim(tho));
+  // Declare a variable to memorize the step for derivate calculation
+  float delta = 0.01;
+  // Declare a flag to stop the loop in case of deadlock
+  bool flag = false;
+  // Loop until we find a solution or deadlock
+  while (dist > 0.5 && !flag) {
+    // Calculate the derivative along each axis
+    v = VecFloatCreate(VecGetDim(pos));
+    for (int iAxis = ShapoidGetDim(tho); iAxis--;) {
+      // Copy the current position
+      VecCopy(v, pos);
+      // Move a delta along the current axis
+      VecSet(v, iAxis, VecGet(v, iAxis) + delta);
+      // Get the cooridnate in 'that' 's coordinates system
+      VecFloat* w = ShapoidExportCoord(proj, v);
+      // Calculate the distance ot origin of 'that' 's coordinates 
+      // system
+      float dp = VecNorm(w);
+      // Free memory
+      VecFree(&w);
+      // Do the same thing with minus delta
+      VecSet(v, iAxis, VecGet(v, iAxis) - 2.0 * delta);
+      w = ShapoidExportCoord(proj, v);
+      float dm = VecNorm(w);
+      VecFree(&w);
+      // Calculate the derivative along the current axis
+      VecSet(dPos, iAxis, (dp - dm) / (2.0 * delta));
+    }
+    // Free memory
+    VecFree(&v);
+    // Move toward better solution
+    // Declare a variable to memorize the next position
+    VecFloat* nPos = VecGetOp(pos, 1.0, dPos, -1.0);
+    // Ensure the position stay inside the Spheroid
+    if (VecNorm(nPos) > 0.5) {
+      VecNormalise(nPos);
+      VecScale(nPos, 0.5);
+    }
+    // If we are stuck to the same position
+    if (VecDist(pos, nPos) < PBMATH_EPSILON)
+      // Stop the loop
+      flag = true;
+    // Else we keep moving
+    else {
+      VecCopy(pos, nPos);
+      // Update the current distance
+      v = ShapoidExportCoord(proj, pos);
+      dist = VecNorm(v);
+      VecFree(&v);
+    }
+    // Free memory
+    VecFree(&nPos);
+  }
+  // Free memory
+  ShapoidFree(&proj);
+  VecFree(&pos);
+  VecFree(&dPos);
+  // If we have found a position less than one unit from the origin
+  // of 'that' 's coordinates system
+  if (dist <= 0.5)
+    // The spheroids intersect
+    return true;
+  else
+    // The spheroids do not intersect
+    return false;
+}
+
+// Update the major and minor axis of the Spheroid 'that'
+void SpheroidUpdateMajMinAxis(Spheroid* that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  that->_majAxis = 0;
+  float maj = VecNorm(ShapoidAxis(that, 0));
+  that->_minAxis = 0;
+  float min = maj;
+  for (int iAxis = ShapoidGetDim(that); iAxis-- && iAxis != 0;) {
+    float n = VecNorm(ShapoidAxis(that, iAxis));
+    if (n > maj) {
+      maj = n;
+      that->_majAxis = iAxis;
+    } else if (n < min) {
+      min = n;
+      that->_minAxis = iAxis;
+    }
+  }
 }
 
 // -------------- ShapoidIter

@@ -1753,6 +1753,51 @@ void UnitTestFacoidAlignedAddClippedToSet() {
   printf("UnitTestFacoidAlignedAddClippedToSet OK\n");
 }
 
+void UnitTestIsInter() {
+  Spheroid* spheroidA = SpheroidCreate(3);
+  Spheroid* spheroidB = SpheroidCreate(3);
+  VecFloat3D v = VecFloatCreateStatic3D();
+  if (ShapoidIsInter(spheroidA, spheroidB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&v, 0, 1.1);
+  ShapoidSetPos(spheroidB, &v);
+  if (ShapoidIsInter(spheroidB, spheroidA) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&v, 1, 1.0);
+  ShapoidSetPos(spheroidB, &v);
+  if (ShapoidIsInter(spheroidA, spheroidB) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&v, 0, 0.0); VecSet(&v, 1, 1.1);
+  ShapoidSetPos(spheroidB, &v);
+  VecSet(&v, 0, 1.0); VecSet(&v, 1, 2.0); VecSet(&v, 2, 1.0);
+  ShapoidScale(spheroidB, (VecFloat*)&v);
+  if (ShapoidIsInter(spheroidA, spheroidB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed");
+    PBErrCatch(ShapoidErr);
+  }
+  ShapoidRotZCenter(spheroidB, -PBMATH_QUARTERPI);
+  VecSet(&v, 0, 1.0); VecSet(&v, 1, 1.0); VecSet(&v, 2, 0.0);
+  ShapoidSetPos(spheroidB, &v);
+  if (ShapoidIsInter(spheroidA, spheroidB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed");
+    PBErrCatch(ShapoidErr);
+  }
+  ShapoidFree(&spheroidA);
+  ShapoidFree(&spheroidB);
+  printf("UnitTestIsInter OK\n");
+}
+
 void UnitTestShapoidIterCreateFree() {
   Facoid* facoid = FacoidCreate(2);
   VecFloat2D delta = VecFloatCreateStatic2D();
@@ -1955,6 +2000,7 @@ void UnitTestAll() {
   UnitTestFacoidAlignedIsOutsideFacoidAligned();
   UnitTestFacoidAlignedSplitExcludingFacoidAligned();
   UnitTestFacoidAlignedAddClippedToSet();
+  UnitTestIsInter();
   UnitTestShapoidIter();
   printf("UnitTestAll OK\n");
 }

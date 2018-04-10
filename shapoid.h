@@ -333,6 +333,12 @@ extern const char* ShapoidTypeString[3];
   Spheroid*: SpheroidGetPosDepth, \
   default: PBErrInvalidPolymorphism)(Shap, (VecFloat*)VecPos)
 
+#define ShapoidIsInter(ShapA, ShapB) _Generic(ShapA, \
+  Spheroid*: _Generic(ShapB, \
+    Spheroid*: _SpheroidIsInterSpheroid, \
+    default: PBErrInvalidPolymorphism), \
+  default: PBErrInvalidPolymorphism) (ShapA, ShapB)
+
 // -------------- ShapoidIter
 
 // ================= Data structure ===================
@@ -359,7 +365,13 @@ typedef struct Shapoid {
 
 CloneShapoidType(Facoid);
 CloneShapoidType(Pyramidoid);
-CloneShapoidType(Spheroid);
+typedef struct Spheroid {
+  Shapoid _s;
+  // Major and minor axis for optimization
+  int _majAxis;
+  int _minAxis;
+} Spheroid;
+//CloneShapoidType(Spheroid);
 
 // ================ Functions declaration ====================
 
@@ -752,6 +764,14 @@ bool FacoidAlignedIsOutsideFacoidAligned(Facoid* that, Facoid* facoid);
 // same dimensions
 GSetShapoid* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that, 
   Facoid* facoid);
+
+// Return true if 'that' intersects 'tho'
+// Return false else
+// 'that' and 'tho' must have same dimension
+bool _SpheroidIsInterSpheroid(Spheroid* that, Spheroid* tho);
+
+// Update the major and minor axis of the Spheroid 'that'
+void SpheroidUpdateMajMinAxis(Spheroid* that);
 
 // -------------- ShapoidIter
 
