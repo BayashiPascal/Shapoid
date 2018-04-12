@@ -398,18 +398,19 @@ void _ShapoidFree(Shapoid** that);
 // Load the Shapoid of type 'type' from the stream
 // If the Shapoid is already allocated, it is freed before loading
 // Return true upon success else false
-bool _ShapoidLoad(Shapoid** that, FILE* stream, ShapoidType type);
-inline bool FacoidLoad(Facoid** that, FILE* stream) {
-  return _ShapoidLoad((Shapoid**)that, stream, ShapoidTypeFacoid);
-}
-inline bool PyramidoidLoad(Pyramidoid** that, FILE* stream) {
-  return _ShapoidLoad((Shapoid**)that, stream, 
-    ShapoidTypePyramidoid);
-}
-inline bool SpheroidLoad(Spheroid** that, FILE* stream) {
-  return _ShapoidLoad((Shapoid**)that, stream, 
-    ShapoidTypeSpheroid);
-}
+bool _ShapoidLoad(Shapoid** that, FILE* stream);
+#if BUILDMODE != 0
+inline
+#endif 
+bool FacoidLoad(Facoid** that, FILE* stream);
+#if BUILDMODE != 0
+inline
+#endif 
+bool PyramidoidLoad(Pyramidoid** that, FILE* stream);
+#if BUILDMODE != 0
+inline
+#endif 
+bool SpheroidLoad(Spheroid** that, FILE* stream);
 
 // Save the Shapoid to the stream
 // Return true upon success else false

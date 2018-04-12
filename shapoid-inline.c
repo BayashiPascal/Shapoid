@@ -1521,6 +1521,42 @@ float SpheroidGetPosDepth(Spheroid* that, VecFloat* pos) {
   return ret;
 }
 
+#if BUILDMODE != 0
+inline
+#endif 
+bool FacoidLoad(Facoid** that, FILE* stream) {
+  bool ret = _ShapoidLoad((Shapoid**)that, stream);
+  if (!ret || ShapoidGetType(*that) != ShapoidTypeFacoid) {
+    ShapoidFree(that);
+    return false;
+  }
+  return true;
+}
+
+#if BUILDMODE != 0
+inline
+#endif 
+bool PyramidoidLoad(Pyramidoid** that, FILE* stream) {
+  bool ret = _ShapoidLoad((Shapoid**)that, stream);
+  if (!ret || ShapoidGetType(*that) != ShapoidTypePyramidoid) {
+    ShapoidFree(that);
+    return false;
+  }
+  return true;
+}
+
+#if BUILDMODE != 0
+inline
+#endif 
+bool SpheroidLoad(Spheroid** that, FILE* stream) {
+  bool ret = _ShapoidLoad((Shapoid**)that, stream);
+  if (!ret || ShapoidGetType(*that) != ShapoidTypeSpheroid) {
+    ShapoidFree(that);
+    return false;
+  }
+  return true;
+}
+
 // -------------- ShapoidIter
 
 // ================ Functions implementation ====================

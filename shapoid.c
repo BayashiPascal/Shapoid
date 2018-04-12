@@ -120,7 +120,7 @@ void _ShapoidFree(Shapoid** that) {
 // Load the Shapoid from the stream
 // If the Shapoid is already allocated, it is freed before loading
 // Return true upon success else false
-bool _ShapoidLoad(Shapoid** that, FILE* stream, ShapoidType type) {
+bool _ShapoidLoad(Shapoid** that, FILE* stream) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -150,11 +150,8 @@ bool _ShapoidLoad(Shapoid** that, FILE* stream, ShapoidType type) {
   // If we coudln't fscanf
   if (ret == EOF)
     return false;
-  // Check the type
-  if (type != typeLoad)
-    return false;
   // Allocate memory
-  *that = ShapoidCreate(dim, type);
+  *that = ShapoidCreate(dim, typeLoad);
   // Read the values
   bool ok = VecLoad(&((*that)->_pos), stream);
   if (ok == false)
