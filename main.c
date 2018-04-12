@@ -212,6 +212,16 @@ void UnitTestGetSetTypeDimPosAxis() {
       PBErrCatch(ShapoidErr);
     }
   }
+  for (int i = dim; i--;)
+    VecSet(v, i, i);
+  ShapoidSetCenterPos(facoid, v);
+  VecFloat* center = ShapoidGetCenter(facoid);
+  if (VecIsEqual(v, center) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidSetCenterPos failed");
+    PBErrCatch(ShapoidErr);
+  }
+  VecFree(&center);
   VecFree(&v);
   ShapoidFree(&facoid);
   ShapoidFree(&pyramidoid);

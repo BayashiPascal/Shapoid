@@ -128,6 +128,13 @@ extern const char* ShapoidTypeString[3];
   Spheroid*: _ShapoidSetPos, \
   default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), (VecFloat*)Vec)
 
+#define ShapoidSetCenterPos(Shap, Vec) _Generic(Shap, \
+  Shapoid*: _ShapoidSetCenterPos, \
+  Facoid*: _ShapoidSetCenterPos, \
+  Pyramidoid*: _ShapoidSetCenterPos, \
+  Spheroid*: _ShapoidSetCenterPos, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), (VecFloat*)Vec)
+
 #define ShapoidGetAxis(Shap, Index) _Generic(Shap, \
   Shapoid*: _ShapoidGetAxis, \
   Facoid*: _ShapoidGetAxis, \
@@ -467,6 +474,12 @@ VecFloat* _ShapoidAxis(Shapoid* that, int dim);
 inline
 #endif 
 void _ShapoidSetPos(Shapoid* that, VecFloat* pos);
+
+// Set the position of the Shapoid such as its center is at 'pos'
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidSetCenterPos(Shapoid* that, VecFloat* pos);
 
 // Set the 'dim'-th axis of the Shapoid to 'v'
 #if BUILDMODE != 0

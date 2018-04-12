@@ -156,6 +156,36 @@ void _ShapoidSetPos(Shapoid* that, VecFloat* pos) {
   VecCopy(that->_pos, pos);
 }
 
+// Set the position of the Shapoid such as its center is at 'pos'
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidSetCenterPos(Shapoid* that, VecFloat* pos) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (pos == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'pos' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (VecGetDim(pos) != that->_dim) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+      VecGetDim(pos), that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  VecFloat* v = ShapoidGetCenter(that);
+  VecOp(v, -1.0, ShapoidPos(that), 1.0);
+  VecOp(v, 1.0, pos, 1.0);
+  ShapoidSetPos(that, v);
+  VecFree(&v);
+}
+
 // Set the 'dim'-th axis of the Shapoid to 'v'
 #if BUILDMODE != 0
 inline
