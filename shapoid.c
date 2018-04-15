@@ -961,7 +961,8 @@ float _ShapoidGetBoundingRadius(Shapoid* that) {
   }
 #endif
   if (ShapoidGetType(that) == ShapoidTypeSpheroid) {
-    return VecNorm(ShapoidAxis(that, ((Spheroid*)that)->_majAxis));
+    return 
+      VecNorm(ShapoidAxis(that, ((Spheroid*)that)->_majAxis)) * 0.5;
   }
   return 0.0;
 }
