@@ -949,6 +949,23 @@ void SpheroidUpdateMajMinAxis(Spheroid* that) {
   }
 }
 
+// Get the maximum distance from the center of the Shapoid 'that' and 
+// its surface
+// Currenty only defined for spheroid, return 0.0 else
+float _ShapoidGetBoundingRadius(Shapoid* that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  if (ShapoidGetType(that) == ShapoidTypeSpheroid) {
+    return VecNorm(ShapoidAxis(that, ((Spheroid*)that)->_majAxis));
+  }
+  return 0.0;
+}
+
 // -------------- ShapoidIter
 
 // ================ Functions declaration ====================

@@ -346,6 +346,13 @@ extern const char* ShapoidTypeString[3];
     default: PBErrInvalidPolymorphism), \
   default: PBErrInvalidPolymorphism) (ShapA, ShapB)
 
+#define ShapoidGetBoundingRadius(Shap) _Generic(Shap, \
+  Shapoid*: _ShapoidGetBoundingRadius, \
+  Pyramidoid*: _ShapoidGetBoundingRadius, \
+  Facoid*: _ShapoidGetBoundingRadius, \
+  Spheroid*: _ShapoidGetBoundingRadius, \
+  default: PBErrInvalidPolymorphism) ((Shapoid*)(Shap))
+  
 // -------------- ShapoidIter
 
 // ================= Data structure ===================
@@ -786,6 +793,11 @@ bool _SpheroidIsInterSpheroid(Spheroid* that, Spheroid* tho);
 
 // Update the major and minor axis of the Spheroid 'that'
 void SpheroidUpdateMajMinAxis(Spheroid* that);
+
+// Get the maximum distance from the center of the Shapoid 'that' and 
+// its surface
+// Currenty only defined for spheroid, return 0.0 else
+float _ShapoidGetBoundingRadius(Shapoid* that);
 
 // -------------- ShapoidIter
 

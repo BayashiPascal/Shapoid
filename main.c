@@ -222,6 +222,13 @@ void UnitTestGetSetTypeDimPosAxis() {
     PBErrCatch(ShapoidErr);
   }
   VecFree(&center);
+  VecSet(v, 0, 1.0); VecSet(v, 1, 2.0); VecSet(v, 2, 0.5);
+  ShapoidScale(spheroid, v); 
+  if (!ISEQUALF(ShapoidGetBoundingRadius(spheroid), 2.0)) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidGetBoundingRadius failed");
+    PBErrCatch(ShapoidErr);
+  }
   VecFree(&v);
   ShapoidFree(&facoid);
   ShapoidFree(&pyramidoid);
