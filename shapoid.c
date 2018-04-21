@@ -433,8 +433,7 @@ Facoid* ShapoidGetBoundingBoxSet(GSetShapoid* set) {
         // Update the bounding box
         if (VecGet(((Shapoid*)bound)->_pos, iDim) < 
           VecGet(((Shapoid*)res)->_pos, iDim)) {
-          VecSet(((Shapoid*)res)->_axis[iDim], iDim, 
-            VecGet(((Shapoid*)res)->_axis[iDim], iDim) +
+          VecSetAdd(((Shapoid*)res)->_axis[iDim], iDim, 
             VecGet(((Shapoid*)res)->_pos, iDim) -
             VecGet(((Shapoid*)bound)->_pos, iDim));
           VecSet(((Shapoid*)res)->_pos, iDim, 
@@ -444,10 +443,9 @@ Facoid* ShapoidGetBoundingBoxSet(GSetShapoid* set) {
           VecGet(((Shapoid*)bound)->_axis[iDim], iDim) >
           VecGet(((Shapoid*)res)->_pos, iDim) + 
           VecGet(((Shapoid*)res)->_axis[iDim], iDim))
-          VecSet(((Shapoid*)res)->_axis[iDim], iDim, 
-          VecGet(((Shapoid*)bound)->_pos, iDim) + 
-          VecGet(((Shapoid*)bound)->_axis[iDim], iDim) -
-          VecGet(((Shapoid*)res)->_pos, iDim));
+          VecSetAdd(((Shapoid*)res)->_axis[iDim], iDim, 
+            VecGet(((Shapoid*)bound)->_axis[iDim], iDim) -
+            VecGet(((Shapoid*)res)->_pos, iDim));
       }
       // Free memory used by the bounding box
       ShapoidFree(&bound);
@@ -527,7 +525,7 @@ float _ShapoidGetCoverageDelta(Shapoid* that, Shapoid* tho,
     // Step the relative coordinates
     int iDim = 0;
     while (iDim >= 0) {
-      VecSet(pRel, iDim, VecGet(pRel, iDim) + delta);
+      VecSetAdd(pRel, iDim, delta);
       if (iDim != lastI && 
         VecGet(pRel, iDim) > max + PBMATH_EPSILON) {
         VecSet(pRel, iDim, max - 1.0);
@@ -757,9 +755,8 @@ GSetShapoid* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that,
       // Add it to the result set
       GSetAppend(set, sub);
       // Chop the added area from 'src'
-      VecSet(ShapoidAxis(src, iAxis), iAxis,
-        VecGet(ShapoidAxis(src, iAxis), iAxis) -
-        VecGet(ShapoidAxis(sub, iAxis), iAxis));
+      VecSetAdd(ShapoidAxis(src, iAxis), iAxis,
+        -1.0 * VecGet(ShapoidAxis(sub, iAxis), iAxis));
       VecSet(ShapoidPos(src), iAxis, 
         VecGet(ShapoidPos(facoid), iAxis));
     }
@@ -781,9 +778,8 @@ GSetShapoid* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that,
       // Add it to the result set
       GSetAppend(set, sub);
       // Chop the added area from 'src'
-      VecSet(ShapoidAxis(src, iAxis), iAxis,
-        VecGet(ShapoidAxis(src, iAxis), iAxis) -
-        VecGet(ShapoidAxis(sub, iAxis), iAxis));
+      VecSetAdd(ShapoidAxis(src, iAxis), iAxis,
+        -1.0 * VecGet(ShapoidAxis(sub, iAxis), iAxis));
     }
     // If 'src' is empty
     if (ISEQUALF(VecGet(ShapoidAxis(src, iAxis), iAxis), 0.0))
@@ -869,7 +865,7 @@ bool _SpheroidIsInterSpheroid(Spheroid* that, Spheroid* tho) {
       // Copy the current position
       VecCopy(v, pos);
       // Move a delta along the current axis
-      VecSet(v, iAxis, VecGet(v, iAxis) + delta);
+      VecSetAdd(v, iAxis, delta);
       // Get the cooridnate in 'that' 's coordinates system
       VecFloat* w = ShapoidExportCoord(proj, v);
       // Calculate the distance ot origin of 'that' 's coordinates 
@@ -878,7 +874,7 @@ bool _SpheroidIsInterSpheroid(Spheroid* that, Spheroid* tho) {
       // Free memory
       VecFree(&w);
       // Do the same thing with minus delta
-      VecSet(v, iAxis, VecGet(v, iAxis) - 2.0 * delta);
+      VecSetAdd(v, iAxis, -2.0 * delta);
       w = ShapoidExportCoord(proj, v);
       float dm = VecNorm(w);
       VecFree(&w);
@@ -1095,8 +1091,7 @@ bool _ShapoidIterStepFacoid(ShapoidIter* that) {
   bool flag = true;
   // Increment
   do {
-    VecSet(that->_pos, iDim, 
-      VecGet(that->_pos, iDim) + VecGet(that->_delta, iDim));
+    VecSetAdd(that->_pos, iDim, VecGet(that->_delta, iDim));
     if (VecGet(that->_pos, iDim) > 1.0 + PBMATH_EPSILON) {
       VecSet(that->_pos, iDim, 0.0);
       --iDim;
@@ -1121,8 +1116,7 @@ bool _ShapoidIterStepPyramidoid(ShapoidIter* that) {
   bool flag = true;
   // Increment
   do {
-    VecSet(that->_pos, iDim, 
-      VecGet(that->_pos, iDim) + VecGet(that->_delta, iDim));
+    VecSetAdd(that->_pos, iDim, VecGet(that->_delta, iDim));
     float sum = 0.0;
     for (int iAxis = VecGetDim(that->_pos); iAxis--;)
       sum += VecGet(that->_pos, iAxis);
@@ -1153,8 +1147,7 @@ bool _ShapoidIterStepSpheroid(ShapoidIter* that) {
   for (iDim = 0; iDim < VecGetDim(that->_pos) && flag == true; ++iDim) {
     float prevNorm = norm;
     // Try to step in this axis
-    VecSet(that->_pos, iDim, 
-      VecGet(that->_pos, iDim) + VecGet(that->_delta, iDim));
+    VecSetAdd(that->_pos, iDim, VecGet(that->_delta, iDim));
     // Get the norm of the new position
     norm = VecNorm(that->_pos);
     // If we have just jumped over the boundary

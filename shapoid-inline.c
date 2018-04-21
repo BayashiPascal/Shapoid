@@ -1195,9 +1195,9 @@ void ShapoidUpdateSysLinEqImport(Shapoid* that) {
   MatFloat* mat = MatClone(that->_sysLinEqImport->_M);
   // Set the values of the matrix
   for (VecSet(&dim, 0, 0); VecGet(&dim, 0) < that->_dim; 
-    VecSet(&dim, 0, VecGet(&dim, 0) + 1)) {
+    VecSetAdd(&dim, 0, 1)) {
     for (VecSet(&dim, 1, 0); VecGet(&dim, 1) < that->_dim; 
-      VecSet(&dim, 1, VecGet(&dim, 1) + 1)) {
+      VecSetAdd(&dim, 1, 1)) {
       MatSet(mat, &dim, VecGet(that->_axis[VecGet(&dim, 0)], 
         VecGet(&dim, 1)));
     }
