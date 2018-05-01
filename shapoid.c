@@ -117,6 +117,103 @@ void _ShapoidFree(Shapoid** that) {
   *that = NULL;
 }
 
+// Function which return the JSON encoding of 'that' 
+JSONNode* _ShapoidEncodeAsJSON(Shapoid* that) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    PBMathErr->_type = PBErrTypeNullPointer;
+    sprintf(PBMathErr->_msg, "'that' is null");
+    PBErrCatch(PBMathErr);
+  }
+#endif
+  // Create the JSON structure
+  JSONNode* json = JSONCreate();
+  // Declare a buffer to convert value into string
+  char val[100];
+  // Encode the dimension
+  sprintf(val, "%d", that->_dim);
+  JSONAddProp(json, "_dim", val);
+  // Encode the type
+  sprintf(val, "%u", that->_type);
+  JSONAddProp(json, "_type", val);
+  // Encode the position
+  JSONAddProp(json, "_pos", VecEncodeAsJSON(ShapoidPos(that)));
+  // Encode the axis
+  JSONArrayStruct setAxis = JSONArrayStructCreateStatic();
+  // For each axis
+  for (int iAxis = 0; iAxis < that->_dim; ++iAxis)
+    JSONArrayStructAdd(&setAxis, 
+      VecEncodeAsJSON(ShapoidAxis(that, iAxis)));
+  JSONAddProp(json, "_axis", &setAxis);
+  // Free memory
+  JSONArrayStructFlush(&setAxis);
+  // Return the created JSON 
+  return json;
+}
+
+// Function which decode from JSON encoding 'json' to 'that'
+bool _ShapoidDecodeAsJSON(Shapoid** that, JSONNode* json) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    PBMathErr->_type = PBErrTypeNullPointer;
+    sprintf(PBMathErr->_msg, "'that' is null");
+    PBErrCatch(PBMathErr);
+  }
+  if (json == NULL) {
+    PBMathErr->_type = PBErrTypeNullPointer;
+    sprintf(PBMathErr->_msg, "'json' is null");
+    PBErrCatch(PBMathErr);
+  }
+#endif
+  // If 'that' is already allocated
+  if (*that != NULL)
+    // Free memory
+    ShapoidFree(that);
+  // Get the dim from the JSON
+  JSONNode* prop = JSONProperty(json, "_dim");
+  if (prop == NULL) {
+    return false;
+  }
+  int dim = atoi(JSONLabel(JSONValue(prop, 0)));
+  // Get the type from the JSON
+  prop = JSONProperty(json, "_type");
+  if (prop == NULL) {
+    return false;
+  }
+  ShapoidType type = atoi(JSONLabel(JSONValue(prop, 0)));
+  // If data are invalid
+  if (dim <= 0)
+    return false;
+  // Allocate memory
+  *that = ShapoidCreate(dim, type);
+  // Get the position from the JSON
+  prop = JSONProperty(json, "_pos");
+  if (prop == NULL) {
+    return false;
+  }
+  if (!VecDecodeAsJSON(&((*that)->_pos), prop)) {
+    return false;
+  }
+  // Decode the axis
+  prop = JSONProperty(json, "_axis");
+  if (prop == NULL) {
+    return false;
+  }
+  if (JSONGetNbValue(prop) != dim) {
+    return false;
+  }
+  for (int iAxis = 0; iAxis < dim; ++iAxis) {
+    JSONNode* axis = JSONValue(prop, iAxis);
+    if (!VecDecodeAsJSON((*that)->_axis + iAxis, axis))
+      return false;
+    // If the axis is not of the correct dimension
+    if (VecGetDim((*that)->_axis[iAxis]) != (*that)->_dim)
+      return false;
+  }
+  // Return the success code
+  return true;
+}
+
 // Load the Shapoid from the stream
 // If the Shapoid is already allocated, it is freed before loading
 // Return true upon success else false
@@ -133,34 +230,18 @@ bool _ShapoidLoad(Shapoid** that, FILE* stream) {
     PBErrCatch(ShapoidErr);
   }
 #endif
-  // If 'that' is already allocated
-  if (*that != NULL)
-    // Free memory
-    ShapoidFree(that);
-  // Read the dimension and type
-  int dim;
-  int ret = fscanf(stream, "%d", &dim);
-  // If we couldn't fscanf
-  if (ret == EOF)
+  // Declare a json to load the encoded data
+  JSONNode* json = JSONCreate();
+  // Load the whole encoded data
+  if (!JSONLoad(json, stream)) {
     return false;
-  if (dim <= 0)
-    return false;
-  ShapoidType typeLoad;
-  ret = fscanf(stream, "%u", &typeLoad);
-  // If we coudln't fscanf
-  if (ret == EOF)
-    return false;
-  // Allocate memory
-  *that = ShapoidCreate(dim, typeLoad);
-  // Read the values
-  bool ok = VecLoad(&((*that)->_pos), stream);
-  if (ok == false)
-    return false;
-  for (int iAxis = 0; iAxis < dim; ++iAxis) {
-    ok = VecLoad((*that)->_axis + iAxis, stream);
-    if (ok == false)
-      return false;
   }
+  // Decode the data from the JSON
+  if (!ShapoidDecodeAsJSON(that, json)) {
+    return false;
+  }
+  // Free the memory used by the JSON
+  JSONFree(&json);
   // Update the SysLinEq
   ShapoidUpdateSysLinEqImport(*that);
   // If it's a Spheroid
@@ -172,8 +253,10 @@ bool _ShapoidLoad(Shapoid** that, FILE* stream) {
 }
 
 // Save the Shapoid to the stream
+// If 'compact' equals true it saves in compact form, else it saves in 
+// readable form
 // Return true upon success else false
-bool _ShapoidSave(Shapoid* that, FILE* stream) {
+bool _ShapoidSave(Shapoid* that, FILE* stream, bool compact) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -186,20 +269,14 @@ bool _ShapoidSave(Shapoid* that, FILE* stream) {
     PBErrCatch(ShapoidErr);
   }
 #endif
-  // Save the dimension and type
-  int ret = fprintf(stream, "%d %u\n", that->_dim, that->_type);
-  // If we coudln't fprintf
-  if (ret < 0)
+  // Get the JSON encoding
+  JSONNode* json = ShapoidEncodeAsJSON(that);
+  // Save the JSON
+  if (!JSONSave(json, stream, compact)) {
     return false;
-  // Save the position and axis
-  bool ok = VecSave(that->_pos, stream);
-  if (ok == false)
-    return false;
-  for (int iAxis = 0; iAxis < that->_dim; ++iAxis) {
-    ok = VecSave(that->_axis[iAxis], stream);
-    if (ok == false)
-      return false;
   }
+  // Free memory
+  JSONFree(&json);
   // Return success code
   return true;
 }

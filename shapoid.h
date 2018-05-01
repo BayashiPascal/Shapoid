@@ -57,6 +57,20 @@ extern const char* ShapoidTypeString[3];
   Spheroid**: _ShapoidFree, \
   default: PBErrInvalidPolymorphism)((Shapoid**)(ShapRef))
 
+#define ShapoidEncodeAsJSON(Shap) _Generic(Shap, \
+  Shapoid*: _ShapoidEncodeAsJSON, \
+  Facoid**: _ShapoidEncodeAsJSON, \
+  Pyramidoid**: _ShapoidEncodeAsJSON, \
+  Spheroid**: _ShapoidEncodeAsJSON, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)Shap)
+
+#define ShapoidDecodeAsJSON(ShapRef, Json) _Generic(ShapRef, \
+  Shapoid**: _ShapoidDecodeAsJSON, \
+  Facoid**: _ShapoidDecodeAsJSON, \
+  Pyramidoid**: _ShapoidDecodeAsJSON, \
+  Spheroid**: _ShapoidDecodeAsJSON, \
+  default: PBErrInvalidPolymorphism)((Shapoid**)ShapRef, Json)
+
 #define ShapoidLoad(ShapRef, Stream) _Generic(ShapRef, \
   Shapoid**: _ShapoidLoad, \
   Facoid**: FacoidLoad, \
@@ -64,12 +78,12 @@ extern const char* ShapoidTypeString[3];
   Spheroid**: SpheroidLoad, \
   default: PBErrInvalidPolymorphism)(ShapRef, Stream)
 
-#define ShapoidSave(Shap, Stream) _Generic(Shap, \
+#define ShapoidSave(Shap, Stream, Compact) _Generic(Shap, \
   Shapoid*: _ShapoidSave, \
   Facoid*: _ShapoidSave, \
   Pyramidoid*: _ShapoidSave, \
   Spheroid*: _ShapoidSave, \
-  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Stream)
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Stream, Compact)
 
 #define ShapoidPrintln(Shap, Stream) _Generic(Shap, \
   Shapoid*: _ShapoidPrintln, \
@@ -409,6 +423,12 @@ inline Spheroid* SpheroidClone(Spheroid* that) {
 // Free memory used by a Shapoid
 void _ShapoidFree(Shapoid** that);
 
+// Function which return the JSON encoding of 'that' 
+JSONNode* _ShapoidEncodeAsJSON(Shapoid* that);
+
+// Function which decode from JSON encoding 'json' to 'that'
+bool _ShapoidDecodeAsJSON(Shapoid** that, JSONNode* json);
+
 // Load the Shapoid of type 'type' from the stream
 // If the Shapoid is already allocated, it is freed before loading
 // Return true upon success else false
@@ -427,8 +447,10 @@ inline
 bool SpheroidLoad(Spheroid** that, FILE* stream);
 
 // Save the Shapoid to the stream
+// If 'compact' equals true it saves in compact form, else it saves in 
+// readable form
 // Return true upon success else false
-bool _ShapoidSave(Shapoid* that, FILE* stream);
+bool _ShapoidSave(Shapoid* that, FILE* stream, bool compact);
 
 // Print the Shapoid on 'stream'
 void _ShapoidPrintln(Shapoid* that, FILE* stream);
