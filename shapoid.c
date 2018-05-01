@@ -210,6 +210,12 @@ bool _ShapoidDecodeAsJSON(Shapoid** that, JSONNode* json) {
     if (VecGetDim((*that)->_axis[iAxis]) != (*that)->_dim)
       return false;
   }
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(*that);
+  // If it's a Spheroid
+  if ((*that)->_type == ShapoidTypeSpheroid)
+    // Update the major and minor axis
+    SpheroidUpdateMajMinAxis((Spheroid*)*that);
   // Return the success code
   return true;
 }
@@ -242,12 +248,6 @@ bool _ShapoidLoad(Shapoid** that, FILE* stream) {
   }
   // Free the memory used by the JSON
   JSONFree(&json);
-  // Update the SysLinEq
-  ShapoidUpdateSysLinEqImport(*that);
-  // If it's a Spheroid
-  if ((*that)->_type == ShapoidTypeSpheroid)
-    // Update the major and minor axis
-    SpheroidUpdateMajMinAxis((Spheroid*)*that);
   // Return success code
   return true;
 }
