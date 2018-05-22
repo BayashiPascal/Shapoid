@@ -8,7 +8,7 @@
 #if BUILDMODE != 0
 inline
 #endif 
-int _ShapoidGetDim(Shapoid* that) {
+int _ShapoidGetDim(const Shapoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -24,7 +24,7 @@ int _ShapoidGetDim(Shapoid* that) {
 #if BUILDMODE != 0
 inline
 #endif 
-ShapoidType _ShapoidGetType(Shapoid* that) {
+ShapoidType _ShapoidGetType(const Shapoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -41,7 +41,7 @@ ShapoidType _ShapoidGetType(Shapoid* that) {
 #if BUILDMODE != 0
 inline
 #endif 
-const char* _ShapoidGetTypeAsString(Shapoid* that) {
+const char* _ShapoidGetTypeAsString(const Shapoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -57,7 +57,7 @@ const char* _ShapoidGetTypeAsString(Shapoid* that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidGetPos(Shapoid* that) {
+VecFloat* _ShapoidGetPos(const Shapoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -73,7 +73,7 @@ VecFloat* _ShapoidGetPos(Shapoid* that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidGetAxis(Shapoid* that, int dim) {
+VecFloat* _ShapoidGetAxis(const Shapoid* const that, const int dim) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -95,7 +95,7 @@ VecFloat* _ShapoidGetAxis(Shapoid* that, int dim) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidPos(Shapoid* that) {
+const VecFloat* _ShapoidPos(const Shapoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -111,7 +111,7 @@ VecFloat* _ShapoidPos(Shapoid* that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidAxis(Shapoid* that, int dim) {
+const VecFloat* _ShapoidAxis(const Shapoid* const that, const int dim) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -133,7 +133,7 @@ VecFloat* _ShapoidAxis(Shapoid* that, int dim) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidSetPos(Shapoid* that, VecFloat* pos) {
+void _ShapoidSetPos(Shapoid* const that, const VecFloat* const pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -156,11 +156,60 @@ void _ShapoidSetPos(Shapoid* that, VecFloat* pos) {
   VecCopy(that->_pos, pos);
 }
 
+// Set the 'iElem'-th value of the position of the Shapoid to 'val'
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidPosSet(Shapoid* const that, const int iElem, 
+  const float val) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (iElem < 0 || iElem >= that->_dim) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "'iElem' is invalid (0<=%d<%d)", 
+      iElem, that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Set the position
+  VecSet(that->_pos, iElem, val);
+}
+
+// Set the 'iElem'-th value of the position of the Shapoid to 'val' 
+// added to its current value
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidPosSetAdd(Shapoid* const that, const int iElem, 
+  const float val) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (iElem < 0 || iElem >= that->_dim) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "'iElem' is invalid (0<=%d<%d)", 
+      iElem, that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Set the position
+  VecSetAdd(that->_pos, iElem, val);
+}
+
+
 // Set the position of the Shapoid such as its center is at 'pos'
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidSetCenterPos(Shapoid* that, VecFloat* pos) {
+void _ShapoidSetCenterPos(Shapoid* const that, 
+  const VecFloat* const pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -190,7 +239,8 @@ void _ShapoidSetCenterPos(Shapoid* that, VecFloat* pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidSetAxis(Shapoid* that, int dim, VecFloat* v) {
+void _ShapoidSetAxis(Shapoid* const that, const int dim, 
+  const VecFloat* const v) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -225,11 +275,83 @@ void _ShapoidSetAxis(Shapoid* that, int dim, VecFloat* v) {
     SpheroidUpdateMajMinAxis((Spheroid*)that);
 }
 
+// Set the 'iElem'-th element of the 'dim'-th axis of the Shapoid to 'v'
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidAxisSet(Shapoid* const that, const int dim, 
+  const int iElem, const float v) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (dim < 0 || dim >= that->_dim) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "Axis' index is invalid (0<=%d<%d)", 
+      dim, that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+  if (iElem < 0 || iElem >= VecGetDim(ShapoidAxis(that, dim))) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "iElem is invalid (0<=%d<%d)", 
+      iElem, VecGetDim(ShapoidAxis(that, dim)));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Set the axis
+  VecSet(that->_axis[dim], iElem, v);
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+  // If it's a Spheroid
+  if (that->_type == ShapoidTypeSpheroid)
+    // Update the major and minor axis
+    SpheroidUpdateMajMinAxis((Spheroid*)that);
+}
+
+// Set the 'iElem'-th element of the 'dim'-th axis of the Shapoid to 
+// 'v' added to its current value
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidAxisSetAdd(Shapoid* const that, const int dim, 
+  const int iElem, const float v) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (dim < 0 || dim >= that->_dim) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "Axis' index is invalid (0<=%d<%d)", 
+      dim, that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+  if (iElem < 0 || iElem >= VecGetDim(ShapoidAxis(that, dim))) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "iElem is invalid (0<=%d<%d)", 
+      iElem, VecGetDim(ShapoidAxis(that, dim)));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Set the axis
+  VecSetAdd(that->_axis[dim], iElem, v);
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+  // If it's a Spheroid
+  if (that->_type == ShapoidTypeSpheroid)
+    // Update the major and minor axis
+    SpheroidUpdateMajMinAxis((Spheroid*)that);
+}
+
+
 // Translate the Shapoid by 'v'
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidTranslate(Shapoid* that, VecFloat* v) {
+void _ShapoidTranslate(Shapoid* const that, const VecFloat* const v) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -256,7 +378,7 @@ void _ShapoidTranslate(Shapoid* that, VecFloat* v) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidScaleVector(Shapoid* that, VecFloat* v) {
+void _ShapoidScaleVector(Shapoid* const that, const VecFloat* const v) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -290,7 +412,7 @@ void _ShapoidScaleVector(Shapoid* that, VecFloat* v) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidScaleScalar(Shapoid* that, float c) {
+void _ShapoidScaleScalar(Shapoid* const that, const float c) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -315,7 +437,7 @@ void _ShapoidScaleScalar(Shapoid* that, float c) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidGrowVector(Shapoid* that, VecFloat* v) {
+void _ShapoidGrowVector(Shapoid* const that, const VecFloat* const v) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -370,7 +492,7 @@ void _ShapoidGrowVector(Shapoid* that, VecFloat* v) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidGrowScalar(Shapoid* that, float c) {
+void _ShapoidGrowScalar(Shapoid* const that, const float c) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -413,7 +535,7 @@ void _ShapoidGrowScalar(Shapoid* that, float c) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotCenter(Shapoid* that, float theta) {
+void _ShapoidRotCenter(Shapoid* const that, const float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -462,7 +584,7 @@ void _ShapoidRotCenter(Shapoid* that, float theta) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotStart(Shapoid* that, float theta) {
+void _ShapoidRotStart(Shapoid* const that, const float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -488,7 +610,7 @@ void _ShapoidRotStart(Shapoid* that, float theta) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotOrigin(Shapoid* that, float theta) {
+void _ShapoidRotOrigin(Shapoid* const that, const float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -517,7 +639,8 @@ void _ShapoidRotOrigin(Shapoid* that, float theta) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotAxisCenter(Shapoid* that, VecFloat3D* axis, float theta) {
+void _ShapoidRotAxisCenter(Shapoid* const that, 
+  const VecFloat3D* const axis, const float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -578,8 +701,8 @@ void _ShapoidRotAxisCenter(Shapoid* that, VecFloat3D* axis, float theta) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotAxisStart(Shapoid* that, VecFloat3D* axis, 
-  float theta) {
+void _ShapoidRotAxisStart(Shapoid* const that, 
+  const VecFloat3D* const axis, const float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -618,8 +741,8 @@ void _ShapoidRotAxisStart(Shapoid* that, VecFloat3D* axis,
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotAxisOrigin(Shapoid* that, VecFloat3D* axis, 
-  float theta) {
+void _ShapoidRotAxisOrigin(Shapoid* const that, 
+  const VecFloat3D* const axis, const float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -658,7 +781,7 @@ void _ShapoidRotAxisOrigin(Shapoid* that, VecFloat3D* axis,
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotXCenter(Shapoid* that, float theta) {
+void _ShapoidRotXCenter(Shapoid* const that, const float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -707,7 +830,7 @@ void _ShapoidRotXCenter(Shapoid* that, float theta) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotXStart(Shapoid* that, 
+void _ShapoidRotXStart(Shapoid* const that, 
   float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -735,7 +858,7 @@ void _ShapoidRotXStart(Shapoid* that,
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotXOrigin(Shapoid* that, 
+void _ShapoidRotXOrigin(Shapoid* const that, 
   float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -764,7 +887,7 @@ void _ShapoidRotXOrigin(Shapoid* that,
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotYCenter(Shapoid* that, float theta) {
+void _ShapoidRotYCenter(Shapoid* const that, const float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -813,7 +936,7 @@ void _ShapoidRotYCenter(Shapoid* that, float theta) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotYStart(Shapoid* that, 
+void _ShapoidRotYStart(Shapoid* const that, 
   float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -841,7 +964,7 @@ void _ShapoidRotYStart(Shapoid* that,
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotYOrigin(Shapoid* that, 
+void _ShapoidRotYOrigin(Shapoid* const that, 
   float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -870,7 +993,7 @@ void _ShapoidRotYOrigin(Shapoid* that,
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotZCenter(Shapoid* that, float theta) {
+void _ShapoidRotZCenter(Shapoid* const that, const float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -919,7 +1042,7 @@ void _ShapoidRotZCenter(Shapoid* that, float theta) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotZStart(Shapoid* that, 
+void _ShapoidRotZStart(Shapoid* const that, 
   float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -947,7 +1070,7 @@ void _ShapoidRotZStart(Shapoid* that,
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidRotZOrigin(Shapoid* that, 
+void _ShapoidRotZOrigin(Shapoid* const that, 
   float theta) {
 #if BUILDMODE == 0
   if (that == NULL) {
@@ -976,7 +1099,8 @@ void _ShapoidRotZOrigin(Shapoid* that,
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidImportCoord(Shapoid* that, VecFloat* pos) {
+VecFloat* _ShapoidImportCoord(const Shapoid* const that, 
+  const VecFloat* const pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1014,7 +1138,8 @@ inline
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidExportCoord(Shapoid* that, VecFloat* pos) {
+VecFloat* _ShapoidExportCoord(const Shapoid* const that, 
+  const VecFloat* const pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1045,7 +1170,7 @@ VecFloat* _ShapoidExportCoord(Shapoid* that, VecFloat* pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* _ShapoidGetCenter(Shapoid* that) {
+VecFloat* _ShapoidGetCenter(const Shapoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1073,7 +1198,7 @@ VecFloat* _ShapoidGetCenter(Shapoid* that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* FacoidGetCenter(Facoid* that) {
+VecFloat* FacoidGetCenter(const Facoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1098,7 +1223,7 @@ VecFloat* FacoidGetCenter(Facoid* that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* PyramidoidGetCenter(Pyramidoid* that) {
+VecFloat* PyramidoidGetCenter(const Pyramidoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1123,7 +1248,7 @@ VecFloat* PyramidoidGetCenter(Pyramidoid* that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* SpheroidGetCenter(Spheroid* that) {
+VecFloat* SpheroidGetCenter(const Spheroid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1146,7 +1271,8 @@ VecFloat* SpheroidGetCenter(Spheroid* that) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool _ShapoidIsEqual(Shapoid* that, Shapoid* tho) {
+bool _ShapoidIsEqual(const Shapoid* const that, 
+  const Shapoid* const tho) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1182,7 +1308,7 @@ bool _ShapoidIsEqual(Shapoid* that, Shapoid* tho) {
 #if BUILDMODE != 0
 inline
 #endif 
-void ShapoidUpdateSysLinEqImport(Shapoid* that) {
+void ShapoidUpdateSysLinEqImport(Shapoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1214,7 +1340,8 @@ void ShapoidUpdateSysLinEqImport(Shapoid* that) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool _ShapoidIsPosInside(Shapoid* that, VecFloat* pos) {
+bool _ShapoidIsPosInside(const Shapoid* const that, 
+  const VecFloat* const pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1256,7 +1383,8 @@ bool _ShapoidIsPosInside(Shapoid* that, VecFloat* pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool FacoidIsPosInside(Facoid* that, VecFloat* pos) {
+bool FacoidIsPosInside(const Facoid* const that, 
+  const VecFloat* const pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1296,7 +1424,8 @@ bool FacoidIsPosInside(Facoid* that, VecFloat* pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool PyramidoidIsPosInside(Pyramidoid* that, VecFloat* pos) {
+bool PyramidoidIsPosInside(const Pyramidoid* const that, 
+  const VecFloat* const pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1340,7 +1469,8 @@ bool PyramidoidIsPosInside(Pyramidoid* that, VecFloat* pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool SpheroidIsPosInside(Spheroid* that, VecFloat* pos) {
+bool SpheroidIsPosInside(const Spheroid* const that, 
+  const VecFloat* const pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1382,7 +1512,8 @@ bool SpheroidIsPosInside(Spheroid* that, VecFloat* pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-float _ShapoidGetPosDepth(Shapoid* that, VecFloat* pos) {
+float _ShapoidGetPosDepth(const Shapoid* const that, 
+  const VecFloat* const pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1425,7 +1556,8 @@ float _ShapoidGetPosDepth(Shapoid* that, VecFloat* pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-float FacoidGetPosDepth(Facoid* that, VecFloat* pos) {
+float FacoidGetPosDepth(const Facoid* const that, 
+  const VecFloat* const pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1464,7 +1596,8 @@ float FacoidGetPosDepth(Facoid* that, VecFloat* pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-float PyramidoidGetPosDepth(Pyramidoid* that, VecFloat* pos) {
+float PyramidoidGetPosDepth(const Pyramidoid* const that, 
+  const VecFloat* const pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1519,7 +1652,8 @@ float PyramidoidGetPosDepth(Pyramidoid* that, VecFloat* pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-float SpheroidGetPosDepth(Spheroid* that, VecFloat* pos) {
+float SpheroidGetPosDepth(const Spheroid* const that, 
+  const VecFloat* const pos) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1554,7 +1688,7 @@ float SpheroidGetPosDepth(Spheroid* that, VecFloat* pos) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool FacoidLoad(Facoid** that, FILE* stream) {
+bool FacoidLoad(Facoid** that, FILE* const stream) {
   bool ret = _ShapoidLoad((Shapoid**)that, stream);
   if (!ret || ShapoidGetType(*that) != ShapoidTypeFacoid) {
     ShapoidFree(that);
@@ -1566,7 +1700,7 @@ bool FacoidLoad(Facoid** that, FILE* stream) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool PyramidoidLoad(Pyramidoid** that, FILE* stream) {
+bool PyramidoidLoad(Pyramidoid** that, FILE* const stream) {
   bool ret = _ShapoidLoad((Shapoid**)that, stream);
   if (!ret || ShapoidGetType(*that) != ShapoidTypePyramidoid) {
     ShapoidFree(that);
@@ -1578,7 +1712,7 @@ bool PyramidoidLoad(Pyramidoid** that, FILE* stream) {
 #if BUILDMODE != 0
 inline
 #endif 
-bool SpheroidLoad(Spheroid** that, FILE* stream) {
+bool SpheroidLoad(Spheroid** that, FILE* const stream) {
   bool ret = _ShapoidLoad((Shapoid**)that, stream);
   if (!ret || ShapoidGetType(*that) != ShapoidTypeSpheroid) {
     ShapoidFree(that);
@@ -1596,7 +1730,7 @@ bool SpheroidLoad(Spheroid** that, FILE* stream) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* ShapoidIterGetInternal(ShapoidIter* that) {
+VecFloat* ShapoidIterGetInternalPos(const ShapoidIter* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1612,7 +1746,7 @@ VecFloat* ShapoidIterGetInternal(ShapoidIter* that) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* ShapoidIterGetExternal(ShapoidIter* that) {
+VecFloat* ShapoidIterGetExternalPos(const ShapoidIter* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1628,7 +1762,8 @@ VecFloat* ShapoidIterGetExternal(ShapoidIter* that) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidIterSetShapoid(ShapoidIter* that, Shapoid* shap) {
+void _ShapoidIterSetShapoid(ShapoidIter* const that, 
+  const Shapoid* const shap) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1643,7 +1778,7 @@ void _ShapoidIterSetShapoid(ShapoidIter* that, Shapoid* shap) {
 #if BUILDMODE != 0
 inline
 #endif 
-Shapoid* ShapoidIterShapoid(ShapoidIter* that) {
+const Shapoid* ShapoidIterShapoid(const ShapoidIter* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1658,7 +1793,8 @@ Shapoid* ShapoidIterShapoid(ShapoidIter* that) {
 #if BUILDMODE != 0
 inline
 #endif 
-void _ShapoidIterSetDelta(ShapoidIter* that, VecFloat* delta) {
+void _ShapoidIterSetDelta(ShapoidIter* const that, 
+  const VecFloat* const delta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1674,7 +1810,7 @@ void _ShapoidIterSetDelta(ShapoidIter* that, VecFloat* delta) {
 #if BUILDMODE != 0
 inline
 #endif 
-VecFloat* ShapoidIterDelta(ShapoidIter* that) {
+const VecFloat* ShapoidIterDelta(const ShapoidIter* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;

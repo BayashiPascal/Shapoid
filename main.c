@@ -133,7 +133,7 @@ void UnitTestLoadSavePrint() {
   int dim = 3;
   Facoid* facoid = FacoidCreate(dim);
   FILE* file = fopen("./facoid.txt", "w");
-  if (ShapoidSave(facoid, file) == false) {
+  if (ShapoidSave(facoid, file, false) == false) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidSave failed");
     PBErrCatch(ShapoidErr);
@@ -224,12 +224,37 @@ void UnitTestGetSetTypeDimPosAxis() {
   VecFree(&center);
   VecSet(v, 0, 1.0); VecSet(v, 1, 2.0); VecSet(v, 2, 0.5);
   ShapoidScale(spheroid, v); 
-  if (!ISEQUALF(ShapoidGetBoundingRadius(spheroid), 2.0)) {
+  if (!ISEQUALF(ShapoidGetBoundingRadius(spheroid), 1.0)) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidGetBoundingRadius failed");
     PBErrCatch(ShapoidErr);
   }
   VecFree(&v);
+  ShapoidPosSet(facoid, 1, -1.0);
+  if (!ISEQUALF(((Shapoid*)facoid)->_pos->_val[1], -1.0)) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidPosSet failed");
+    PBErrCatch(ShapoidErr);
+  }
+  ShapoidPosSetAdd(facoid, 1, -1.0);
+  if (!ISEQUALF(((Shapoid*)facoid)->_pos->_val[1], -2.0)) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidPosSet failed");
+    PBErrCatch(ShapoidErr);
+  }
+  ShapoidAxisSet(facoid, 2, 1, -1.0);
+  if (!ISEQUALF(((Shapoid*)facoid)->_axis[2]->_val[1], -1.0)) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidAxisSet failed");
+    PBErrCatch(ShapoidErr);
+  }
+  ShapoidAxisSetAdd(facoid, 2, 1, -1.0);
+  if (!ISEQUALF(((Shapoid*)facoid)->_axis[2]->_val[1], -2.0)) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidAxisSet failed");
+    PBErrCatch(ShapoidErr);
+  }
+
   ShapoidFree(&facoid);
   ShapoidFree(&pyramidoid);
   ShapoidFree(&spheroid);
@@ -1871,7 +1896,6 @@ void UnitTestShapoidIterGetSet() {
     sprintf(ShapoidErr->_msg, "ShapoidIterSetDelta failed");
     PBErrCatch(ShapoidErr);
   }
-  
   ShapoidFree(&facoidA);
   ShapoidFree(&facoidB);
   ShapoidIterFreeStatic(&iter);
@@ -1892,7 +1916,7 @@ void UnitTestShapoidIterStepFacoid() {
     0.000,1.000,0.250,1.000,0.500,1.000,0.750,1.000,1.000
     };
   do {
-    VecFloat* v = ShapoidIterGetInternal(&iter);
+    VecFloat* v = ShapoidIterGetInternalPos(&iter);
     if (ISEQUALF(VecGet(v, 0), check[2 * iCheck]) == false ||
       ISEQUALF(VecGet(v, 1), check[2 * iCheck + 1]) == false) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
@@ -1926,7 +1950,7 @@ void UnitTestShapoidIterStepPyramidoid() {
     0.750,0.000,0.250,0.750,0.250,0.000,1.000,0.000,0.000
     };
   do {
-    VecFloat* v = ShapoidIterGetInternal(&iter);
+    VecFloat* v = ShapoidIterGetInternalPos(&iter);
     if (ISEQUALF(VecGet(v, 0), check[3 * iCheck]) == false ||
       ISEQUALF(VecGet(v, 1), check[3 * iCheck + 1]) == false ||
       ISEQUALF(VecGet(v, 2), check[3 * iCheck + 2]) == false) {
@@ -1973,7 +1997,7 @@ void UnitTestShapoidIterStepSpheroid() {
     0.00000,0.00000,0.50000
     };
   do {
-    VecFloat* v = ShapoidIterGetInternal(&iter);
+    VecFloat* v = ShapoidIterGetInternalPos(&iter);
     if (ISEQUALF(VecGet(v, 0), check[3 * iCheck]) == false ||
       ISEQUALF(VecGet(v, 1), check[3 * iCheck + 1]) == false ||
       ISEQUALF(VecGet(v, 2), check[3 * iCheck + 2]) == false) {

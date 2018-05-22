@@ -20,7 +20,7 @@ const char* ShapoidTypeString[3] = {
 // Create a Shapoid of dimension 'dim' and type 'type', default values:
 // _pos = null vector
 // _axis[d] = unit vector along dimension d
-Shapoid* ShapoidCreate(int dim, ShapoidType type) {
+Shapoid* ShapoidCreate(const int dim, const ShapoidType type) {
 #if BUILDMODE == 0
   if (dim <= 0) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
@@ -75,7 +75,7 @@ Shapoid* ShapoidCreate(int dim, ShapoidType type) {
 }
 
 // Clone a Shapoid
-Shapoid* _ShapoidClone(Shapoid* that) {
+Shapoid* _ShapoidClone(const Shapoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -118,7 +118,7 @@ void _ShapoidFree(Shapoid** that) {
 }
 
 // Function which return the JSON encoding of 'that' 
-JSONNode* _ShapoidEncodeAsJSON(Shapoid* that) {
+JSONNode* _ShapoidEncodeAsJSON(const Shapoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     PBMathErr->_type = PBErrTypeNullPointer;
@@ -152,7 +152,7 @@ JSONNode* _ShapoidEncodeAsJSON(Shapoid* that) {
 }
 
 // Function which decode from JSON encoding 'json' to 'that'
-bool _ShapoidDecodeAsJSON(Shapoid** that, JSONNode* json) {
+bool _ShapoidDecodeAsJSON(Shapoid** that, const JSONNode* const json) {
 #if BUILDMODE == 0
   if (that == NULL) {
     PBMathErr->_type = PBErrTypeNullPointer;
@@ -223,7 +223,7 @@ bool _ShapoidDecodeAsJSON(Shapoid** that, JSONNode* json) {
 // Load the Shapoid from the stream
 // If the Shapoid is already allocated, it is freed before loading
 // Return true upon success else false
-bool _ShapoidLoad(Shapoid** that, FILE* stream) {
+bool _ShapoidLoad(Shapoid** that, FILE* const stream) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -256,7 +256,8 @@ bool _ShapoidLoad(Shapoid** that, FILE* stream) {
 // If 'compact' equals true it saves in compact form, else it saves in 
 // readable form
 // Return true upon success else false
-bool _ShapoidSave(Shapoid* that, FILE* stream, bool compact) {
+bool _ShapoidSave(const Shapoid* const that, FILE* const stream, 
+  const bool compact) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -282,7 +283,7 @@ bool _ShapoidSave(Shapoid* that, FILE* stream, bool compact) {
 }
 
 // Print the Shapoid on 'stream'
-void _ShapoidPrintln(Shapoid* that, FILE* stream) {
+void _ShapoidPrintln(const Shapoid* const that, FILE* const stream) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -313,7 +314,7 @@ void _ShapoidPrintln(Shapoid* that, FILE* stream) {
 // the axis of the standard coordinate system).
 // The bounding box is returned as a Facoid, which position is
 // at the minimum value along each axis.
-Facoid* _ShapoidGetBoundingBox(Shapoid* that) {
+Facoid* _ShapoidGetBoundingBox(const Shapoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -342,7 +343,7 @@ Facoid* _ShapoidGetBoundingBox(Shapoid* that) {
   }
 }
 
-Facoid* FacoidGetBoundingBox(Facoid* that) {
+Facoid* FacoidGetBoundingBox(const Facoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -377,7 +378,7 @@ Facoid* FacoidGetBoundingBox(Facoid* that) {
   return res;
 }
 
-Facoid* PyramidoidGetBoundingBox(Pyramidoid* that) {
+Facoid* PyramidoidGetBoundingBox(const Pyramidoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -416,7 +417,7 @@ Facoid* PyramidoidGetBoundingBox(Pyramidoid* that) {
   return res;
 }
 
-Facoid* SpheroidGetBoundingBox(Spheroid* that) {
+Facoid* SpheroidGetBoundingBox(const Spheroid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -470,7 +471,7 @@ Facoid* SpheroidGetBoundingBox(Spheroid* that) {
 // the axis of the standard coordinate system).
 // The bounding box is returned as a Facoid, which position is
 // at the minimum value along each axis.
-Facoid* ShapoidGetBoundingBoxSet(GSetShapoid* set) {
+Facoid* ShapoidGetBoundingBoxSet(const GSetShapoid* const set) {
 #if BUILDMODE == 0
   if (set == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -541,8 +542,8 @@ Facoid* ShapoidGetBoundingBoxSet(GSetShapoid* set) {
 // delta is the step of the algorithm (in ]0.0, 1.0])
 // small -> slow but precise
 // big -> fast but rough
-float _ShapoidGetCoverageDelta(Shapoid* that, Shapoid* tho, 
-  float delta) {
+float _ShapoidGetCoverageDelta(const Shapoid* const that, 
+  const Shapoid* const tho, const float delta) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -626,7 +627,8 @@ float _ShapoidGetCoverageDelta(Shapoid* that, Shapoid* tho,
 // The Facoid in the set and 'that' must be aligned with the 
 // coordinates system axis and have 
 // same dimensions
-void FacoidAlignedAddClippedToSet(Facoid* that, GSetShapoid* set) {
+void FacoidAlignedAddClippedToSet(const Facoid* const that, 
+  GSetShapoid* const set) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -713,7 +715,8 @@ void FacoidAlignedAddClippedToSet(Facoid* that, GSetShapoid* set) {
 // 'that' and 'facoid' must have same dimensions and have 
 // same dimensions
 // Return true if it is included, false else
-bool FacoidAlignedIsInsideFacoidAligned(Facoid* that, Facoid* facoid) {
+bool FacoidAlignedIsInsideFacoidAligned(const Facoid* const that, 
+  const Facoid* const facoid) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -753,8 +756,8 @@ bool FacoidAlignedIsInsideFacoidAligned(Facoid* that, Facoid* facoid) {
 // Both Facoid must be aligned with the coordinates system and have 
 // same dimensions
 // Return true if it is excluded, false else
-bool FacoidAlignedIsOutsideFacoidAligned(Facoid* that, 
-  Facoid* facoid) {
+bool FacoidAlignedIsOutsideFacoidAligned(const Facoid* const that, 
+  const Facoid* const facoid) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -793,8 +796,8 @@ bool FacoidAlignedIsOutsideFacoidAligned(Facoid* that,
 // Facoid 'that' except for area in the Facoid 'facoid'
 // Both Facoid must be aligned with the coordinates system and have 
 // same dimensions
-GSetShapoid* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that, 
-  Facoid* facoid) {
+GSetShapoid* FacoidAlignedSplitExcludingFacoidAligned(
+  const Facoid* const that, const Facoid* const facoid) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -826,15 +829,15 @@ GSetShapoid* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that,
       VecGet(ShapoidPos(facoid), iAxis)) {
       // Create the facoid made of this area
       Facoid* sub = FacoidClone(src);
-      VecSet(ShapoidAxis(sub, iAxis), iAxis, 
+      ShapoidAxisSet(sub, iAxis, iAxis, 
         VecGet(ShapoidPos(facoid), iAxis) - 
         VecGet(ShapoidPos(src), iAxis));
       // Add it to the result set
       GSetAppend(set, sub);
       // Chop the added area from 'src'
-      VecSetAdd(ShapoidAxis(src, iAxis), iAxis,
+      ShapoidAxisSetAdd(src, iAxis, iAxis,
         -1.0 * VecGet(ShapoidAxis(sub, iAxis), iAxis));
-      VecSet(ShapoidPos(src), iAxis, 
+      ShapoidPosSet(src, iAxis, 
         VecGet(ShapoidPos(facoid), iAxis));
     }
     // If 'src' has area on the right of 'facoid' along this axis
@@ -844,18 +847,18 @@ GSetShapoid* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that,
       VecGet(ShapoidAxis(facoid, iAxis), iAxis)) {
       // Create the facoid made of this area
       Facoid* sub = FacoidClone(src);
-      VecSet(ShapoidAxis(sub, iAxis), iAxis, 
+      ShapoidAxisSet(sub, iAxis, iAxis, 
         (VecGet(ShapoidPos(src), iAxis) + 
         VecGet(ShapoidAxis(src, iAxis), iAxis)) - 
         (VecGet(ShapoidPos(facoid), iAxis) +
         VecGet(ShapoidAxis(facoid, iAxis), iAxis)));
-      VecSet(ShapoidPos(sub), iAxis, 
+      ShapoidPosSet(sub, iAxis, 
         VecGet(ShapoidPos(facoid), iAxis) +
         VecGet(ShapoidAxis(facoid, iAxis), iAxis));
       // Add it to the result set
       GSetAppend(set, sub);
       // Chop the added area from 'src'
-      VecSetAdd(ShapoidAxis(src, iAxis), iAxis,
+      ShapoidAxisSetAdd(src, iAxis, iAxis,
         -1.0 * VecGet(ShapoidAxis(sub, iAxis), iAxis));
     }
     // If 'src' is empty
@@ -873,7 +876,8 @@ GSetShapoid* FacoidAlignedSplitExcludingFacoidAligned(Facoid* that,
 // Return false else
 // 'that' and 'tho' must have same dimension
 // https://hal.inria.fr/hal-00646511/PDF/CCD.3.0.pdf
-bool _SpheroidIsInterSpheroid(Spheroid* that, Spheroid* tho) {
+bool _SpheroidIsInterSpheroid(const Spheroid* const that, 
+  const Spheroid* const tho) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -998,7 +1002,7 @@ bool _SpheroidIsInterSpheroid(Spheroid* that, Spheroid* tho) {
 }
 
 // Update the major and minor axis of the Spheroid 'that'
-void SpheroidUpdateMajMinAxis(Spheroid* that) {
+void SpheroidUpdateMajMinAxis(Spheroid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1025,7 +1029,7 @@ void SpheroidUpdateMajMinAxis(Spheroid* that) {
 // Get the maximum distance from the center of the Shapoid 'that' and 
 // its surface
 // Currenty only defined for spheroid, return 0.0 else
-float _ShapoidGetBoundingRadius(Shapoid* that) {
+float _ShapoidGetBoundingRadius(const Shapoid* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1046,22 +1050,23 @@ float _ShapoidGetBoundingRadius(Shapoid* that) {
 
 // Step the ShapoidIter 'that' for a Facoid
 // Return false if the iterator is at its end and couldn't be stepped
-bool _ShapoidIterStepFacoid(ShapoidIter* that);
+bool _ShapoidIterStepFacoid(ShapoidIter* const that);
 
 // Step the ShapoidIter 'that' for a Pyramidoid
 // Return false if the iterator is at its end and couldn't be stepped
-bool _ShapoidIterStepPyramidoid(ShapoidIter* that);
+bool _ShapoidIterStepPyramidoid(ShapoidIter* const that);
 
 // Step the ShapoidIter 'that' for a Spheroid
 // Return false if the iterator is at its end and couldn't be stepped
-bool _ShapoidIterStepSpheroid(ShapoidIter* that);
+bool _ShapoidIterStepSpheroid(ShapoidIter* const that);
 
 // ================ Functions implementation ====================
 
 // Create a new iterator on the Shapoid 'shap' with a step of 'delta'
 // (step on the internal coordinates of the Shapoid)
 // The iterator is initialized and ready to be stepped
-ShapoidIter _ShapoidIterCreateStatic(Shapoid* shap, VecFloat* delta) {
+ShapoidIter _ShapoidIterCreateStatic(const Shapoid* const shap, 
+  const VecFloat* const delta) {
 #if BUILDMODE == 0
   if (shap == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1094,7 +1099,7 @@ ShapoidIter _ShapoidIterCreateStatic(Shapoid* shap, VecFloat* delta) {
 }
 
 // Free the memory used by the ShapoidIter 'that'
-void ShapoidIterFreeStatic(ShapoidIter* that) {
+void ShapoidIterFreeStatic(ShapoidIter* const that) {
   // Check argument
   if (that == NULL)
     // Nothing to do
@@ -1105,7 +1110,7 @@ void ShapoidIterFreeStatic(ShapoidIter* that) {
 }
 
 // Reinitialise the ShapoidIter 'that' to its starting position
-void ShapoidIterInit(ShapoidIter* that) {
+void ShapoidIterInit(ShapoidIter* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1130,7 +1135,7 @@ void ShapoidIterInit(ShapoidIter* that) {
 
 // Step the ShapoidIter 'that'
 // Return false if the iterator is at its end and couldn't be stepped
-bool ShapoidIterStep(ShapoidIter* that) {
+bool ShapoidIterStep(ShapoidIter* const that) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -1159,7 +1164,7 @@ bool ShapoidIterStep(ShapoidIter* that) {
 
 // Step the ShapoidIter 'that' for a Facoid
 // Return false if the iterator is at its end and couldn't be stepped
-bool _ShapoidIterStepFacoid(ShapoidIter* that) {
+bool _ShapoidIterStepFacoid(ShapoidIter* const that) {
   // Declare a variable for the returned flag
   bool ret = true;
   // Declare a variable to memorise the dimension currently increasing
@@ -1184,7 +1189,7 @@ bool _ShapoidIterStepFacoid(ShapoidIter* that) {
 
 // Step the ShapoidIter 'that' for a Pyramidoid
 // Return false if the iterator is at its end and couldn't be stepped
-bool _ShapoidIterStepPyramidoid(ShapoidIter* that) {
+bool _ShapoidIterStepPyramidoid(ShapoidIter* const that) {
   // Declare a variable for the returned flag
   bool ret = true;
   // Declare a variable to memorise the dimension currently increasing
@@ -1212,7 +1217,7 @@ bool _ShapoidIterStepPyramidoid(ShapoidIter* that) {
 
 // Step the ShapoidIter 'that' for a Spheroid
 // Return false if the iterator is at its end and couldn't be stepped
-bool _ShapoidIterStepSpheroid(ShapoidIter* that) {
+bool _ShapoidIterStepSpheroid(ShapoidIter* const that) {
   // Declare a variable to memorise the dimension currently increasing
   int iDim = 0;
   // Declare a flag for the loop condition 
