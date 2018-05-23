@@ -346,6 +346,34 @@ void _ShapoidAxisSetAdd(Shapoid* const that, const int dim,
     SpheroidUpdateMajMinAxis((Spheroid*)that);
 }
 
+// Scale the 'dim'-th axis of the Shapoid by 'v'
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidAxisScale(Shapoid* const that, const int dim, 
+  const float v) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (dim < 0 || dim >= that->_dim) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "Axis' index is invalid (0<=%d<%d)", 
+      dim, that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Set the axis
+  VecScale(that->_axis[dim], v);
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+  // If it's a Spheroid
+  if (that->_type == ShapoidTypeSpheroid)
+    // Update the major and minor axis
+    SpheroidUpdateMajMinAxis((Spheroid*)that);
+}
 
 // Translate the Shapoid by 'v'
 #if BUILDMODE != 0

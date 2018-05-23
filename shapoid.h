@@ -225,6 +225,13 @@ inline
 void _ShapoidAxisSetAdd(Shapoid* const that, const int dim, 
   const int iElem, const float v);
 
+// Scale the 'dim'-th axis of the Shapoid by 'v'
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidAxisScale(Shapoid* const that, const int dim, 
+  const float v);
+
 // Translate the Shapoid by 'v'
 #if BUILDMODE != 0
 inline
@@ -801,10 +808,6 @@ const VecFloat* ShapoidIterDelta(const ShapoidIter* const that);
   Facoid*: _ShapoidAxisSet, \
   Pyramidoid*: _ShapoidAxisSet, \
   Spheroid*: _ShapoidAxisSet, \
-  const Shapoid*: _ShapoidAxisSet, \
-  const Facoid*: _ShapoidAxisSet, \
-  const Pyramidoid*: _ShapoidAxisSet, \
-  const Spheroid*: _ShapoidAxisSet, \
   default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Dim, Index, Val)
 
 #define ShapoidAxisSetAdd(Shap, Dim, Index, Val) _Generic(Shap, \
@@ -812,11 +815,14 @@ const VecFloat* ShapoidIterDelta(const ShapoidIter* const that);
   Facoid*: _ShapoidAxisSetAdd, \
   Pyramidoid*: _ShapoidAxisSetAdd, \
   Spheroid*: _ShapoidAxisSetAdd, \
-  const Shapoid*: _ShapoidAxisSetAdd, \
-  const Facoid*: _ShapoidAxisSetAdd, \
-  const Pyramidoid*: _ShapoidAxisSetAdd, \
-  const Spheroid*: _ShapoidAxisSetAdd, \
   default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Dim, Index, Val)
+
+#define ShapoidAxisScale(Shap, Dim, Val) _Generic(Shap, \
+  Shapoid*: _ShapoidAxisScale, \
+  Facoid*: _ShapoidAxisScale, \
+  Pyramidoid*: _ShapoidAxisScale, \
+  Spheroid*: _ShapoidAxisScale, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Dim, Val)
 
 #define ShapoidTranslate(Shap, Vec) _Generic(Shap, \
   Shapoid*: _ShapoidTranslate, \

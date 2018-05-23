@@ -251,9 +251,18 @@ void UnitTestGetSetTypeDimPosAxis() {
   ShapoidAxisSetAdd(facoid, 2, 1, -1.0);
   if (!ISEQUALF(((Shapoid*)facoid)->_axis[2]->_val[1], -2.0)) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
-    sprintf(ShapoidErr->_msg, "ShapoidAxisSet failed");
+    sprintf(ShapoidErr->_msg, "ShapoidAxisSetAdd failed");
     PBErrCatch(ShapoidErr);
   }
+  VecFloat* w = ShapoidGetAxis(facoid, 2);
+  VecScale(w, 2.0);
+  ShapoidAxisScale(facoid, 2, 2.0);
+  if (!VecIsEqual(ShapoidAxis(facoid, 2), w)) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidAxisScale failed");
+    PBErrCatch(ShapoidErr);
+  }
+  VecFree(&w);
 
   ShapoidFree(&facoid);
   ShapoidFree(&pyramidoid);
