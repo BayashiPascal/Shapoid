@@ -203,6 +203,27 @@ void _ShapoidPosSetAdd(Shapoid* const that, const int iElem,
   VecSetAdd(that->_pos, iElem, val);
 }
 
+// Set the 'iElem'-th value of the position of the Shapoid to 'val'
+#if BUILDMODE != 0
+inline
+#endif 
+float _ShapoidPosGet(Shapoid* const that, const int iElem) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (iElem < 0 || iElem >= that->_dim) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "'iElem' is invalid (0<=%d<%d)", 
+      iElem, that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Set the position
+  return VecGet(that->_pos, iElem);
+}
 
 // Set the position of the Shapoid such as its center is at 'pos'
 #if BUILDMODE != 0
@@ -344,6 +365,35 @@ void _ShapoidAxisSetAdd(Shapoid* const that, const int dim,
   if (that->_type == ShapoidTypeSpheroid)
     // Update the major and minor axis
     SpheroidUpdateMajMinAxis((Spheroid*)that);
+}
+
+// Get the 'iElem'-th element of the 'dim'-th axis of the Shapoid
+#if BUILDMODE != 0
+inline
+#endif 
+float _ShapoidAxisGet(Shapoid* const that, const int dim, 
+  const int iElem) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (dim < 0 || dim >= that->_dim) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "Axis' index is invalid (0<=%d<%d)", 
+      dim, that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+  if (iElem < 0 || iElem >= VecGetDim(ShapoidAxis(that, dim))) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, "iElem is invalid (0<=%d<%d)", 
+      iElem, VecGetDim(ShapoidAxis(that, dim)));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  // Set the axis
+  return VecGet(that->_axis[dim], iElem);
 }
 
 // Scale the 'dim'-th axis of the Shapoid by 'v'
