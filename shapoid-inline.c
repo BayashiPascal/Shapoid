@@ -207,7 +207,7 @@ void _ShapoidPosSetAdd(Shapoid* const that, const int iElem,
 #if BUILDMODE != 0
 inline
 #endif 
-float _ShapoidPosGet(Shapoid* const that, const int iElem) {
+float _ShapoidPosGet(const Shapoid* const that, const int iElem) {
 #if BUILDMODE == 0
   if (that == NULL) {
     ShapoidErr->_type = PBErrTypeNullPointer;
@@ -371,7 +371,7 @@ void _ShapoidAxisSetAdd(Shapoid* const that, const int dim,
 #if BUILDMODE != 0
 inline
 #endif 
-float _ShapoidAxisGet(Shapoid* const that, const int dim, 
+float _ShapoidAxisGet(const Shapoid* const that, const int dim, 
   const int iElem) {
 #if BUILDMODE == 0
   if (that == NULL) {

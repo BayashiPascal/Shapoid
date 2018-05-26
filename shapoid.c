@@ -410,7 +410,7 @@ Facoid* PyramidoidGetBoundingBox(const Pyramidoid* const that) {
       bound[1] = 0.0;
     // Memorize the result
     VecSet(((Shapoid*)res)->_pos, dim, 
-      VecGet(ShapoidPos(that), dim) + bound[0]);
+      ShapoidPosGet(that, dim) + bound[0]);
     VecSet(((Shapoid*)res)->_axis[dim], dim, bound[1] - bound[0]);
   }
   // Return the result
@@ -739,12 +739,12 @@ bool FacoidAlignedIsInsideFacoidAligned(const Facoid* const that,
   // Check inclusion for each axis
   for (int iAxis = ShapoidGetDim(that); iAxis--;)
     // If 'that' is outside 'facoid' for this axis
-    if (VecGet(ShapoidPos(that), iAxis) < 
-      VecGet(ShapoidPos(facoid), iAxis) ||
-      VecGet(ShapoidPos(that), iAxis) + 
-      VecGet(ShapoidAxis(that, iAxis), iAxis) > 
-      VecGet(ShapoidPos(facoid), iAxis) +
-      VecGet(ShapoidAxis(facoid, iAxis), iAxis))
+    if (ShapoidPosGet(that, iAxis) < 
+      ShapoidPosGet(facoid, iAxis) ||
+      ShapoidPosGet(that, iAxis) + 
+      ShapoidAxisGet(that, iAxis, iAxis) > 
+      ShapoidPosGet(facoid, iAxis) +
+      ShapoidAxisGet(facoid, iAxis, iAxis))
       // Return false
       return false;
   // If we reach here it means 'that' is inside 'facoid', return true
@@ -780,12 +780,12 @@ bool FacoidAlignedIsOutsideFacoidAligned(const Facoid* const that,
   // Check exclusion for each axis
   for (int iAxis = ShapoidGetDim(that); iAxis--;)
     // If 'that' is outside 'facoid' for this axis
-    if (VecGet(ShapoidPos(that), iAxis) > 
-      VecGet(ShapoidPos(facoid), iAxis) +
-      VecGet(ShapoidAxis(facoid, iAxis), iAxis) - PBMATH_EPSILON ||
-      VecGet(ShapoidPos(that), iAxis) + 
-      VecGet(ShapoidAxis(that, iAxis), iAxis) < 
-      VecGet(ShapoidPos(facoid), iAxis) + PBMATH_EPSILON)
+    if (ShapoidPosGet(that, iAxis) > 
+      ShapoidPosGet(facoid, iAxis) +
+      ShapoidAxisGet(facoid, iAxis, iAxis) - PBMATH_EPSILON ||
+      ShapoidPosGet(that, iAxis) + 
+      ShapoidAxisGet(that, iAxis, iAxis) < 
+      ShapoidPosGet(facoid, iAxis) + PBMATH_EPSILON)
       // Return true
       return true;
   // If we reach here it means 'that' intersects 'facoid', return false
@@ -825,44 +825,39 @@ GSetShapoid* FacoidAlignedSplitExcludingFacoidAligned(
   // For each axis
   for (int iAxis = ShapoidGetDim(that); iAxis--;) {
     // If 'src' has area on the left of 'facoid' along this axis
-    if (VecGet(ShapoidPos(src), iAxis) < 
-      VecGet(ShapoidPos(facoid), iAxis)) {
+    if (ShapoidPosGet(src, iAxis) < ShapoidPosGet(facoid, iAxis)) {
       // Create the facoid made of this area
       Facoid* sub = FacoidClone(src);
       ShapoidAxisSet(sub, iAxis, iAxis, 
-        VecGet(ShapoidPos(facoid), iAxis) - 
-        VecGet(ShapoidPos(src), iAxis));
+        ShapoidPosGet(facoid, iAxis) - ShapoidPosGet(src, iAxis));
       // Add it to the result set
       GSetAppend(set, sub);
       // Chop the added area from 'src'
       ShapoidAxisSetAdd(src, iAxis, iAxis,
-        -1.0 * VecGet(ShapoidAxis(sub, iAxis), iAxis));
-      ShapoidPosSet(src, iAxis, 
-        VecGet(ShapoidPos(facoid), iAxis));
+        -1.0 * ShapoidAxisGet(sub, iAxis, iAxis));
+      ShapoidPosSet(src, iAxis, ShapoidPosGet(facoid, iAxis));
     }
     // If 'src' has area on the right of 'facoid' along this axis
-    if (VecGet(ShapoidPos(src), iAxis) + 
-      VecGet(ShapoidAxis(src, iAxis), iAxis) > 
-      VecGet(ShapoidPos(facoid), iAxis) +
-      VecGet(ShapoidAxis(facoid, iAxis), iAxis)) {
+    if (ShapoidPosGet(src, iAxis) + ShapoidAxisGet(src, iAxis, iAxis) > 
+      ShapoidPosGet(facoid, iAxis) + 
+      ShapoidAxisGet(facoid, iAxis, iAxis)) {
       // Create the facoid made of this area
       Facoid* sub = FacoidClone(src);
       ShapoidAxisSet(sub, iAxis, iAxis, 
-        (VecGet(ShapoidPos(src), iAxis) + 
-        VecGet(ShapoidAxis(src, iAxis), iAxis)) - 
-        (VecGet(ShapoidPos(facoid), iAxis) +
-        VecGet(ShapoidAxis(facoid, iAxis), iAxis)));
-      ShapoidPosSet(sub, iAxis, 
-        VecGet(ShapoidPos(facoid), iAxis) +
-        VecGet(ShapoidAxis(facoid, iAxis), iAxis));
+        (ShapoidPosGet(src, iAxis) + 
+        ShapoidAxisGet(src, iAxis, iAxis)) - 
+        (ShapoidPosGet(facoid, iAxis) +
+        ShapoidAxisGet(facoid, iAxis, iAxis)));
+      ShapoidPosSet(sub, iAxis, ShapoidPosGet(facoid, iAxis) +
+        ShapoidAxisGet(facoid, iAxis, iAxis));
       // Add it to the result set
       GSetAppend(set, sub);
       // Chop the added area from 'src'
       ShapoidAxisSetAdd(src, iAxis, iAxis,
-        -1.0 * VecGet(ShapoidAxis(sub, iAxis), iAxis));
+        -1.0 * ShapoidAxisGet(sub, iAxis, iAxis));
     }
     // If 'src' is empty
-    if (ISEQUALF(VecGet(ShapoidAxis(src, iAxis), iAxis), 0.0))
+    if (ISEQUALF(ShapoidAxisGet(src, iAxis, iAxis), 0.0))
       // End the loop
       iAxis = 0;
   }

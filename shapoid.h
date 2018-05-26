@@ -200,7 +200,7 @@ void _ShapoidPosSetAdd(Shapoid* const that, const int iElem,
 #if BUILDMODE != 0
 inline
 #endif 
-float _ShapoidPosGet(Shapoid* const that, const int iElem);
+float _ShapoidPosGet(const Shapoid* const that, const int iElem);
 
 // Set the position of the Shapoid such as its center is at 'pos'
 #if BUILDMODE != 0
@@ -235,7 +235,7 @@ void _ShapoidAxisSetAdd(Shapoid* const that, const int dim,
 #if BUILDMODE != 0
 inline
 #endif 
-float _ShapoidAxisGet(Shapoid* const that, const int dim, 
+float _ShapoidAxisGet(const Shapoid* const that, const int dim, 
   const int iElem);
 
 // Scale the 'dim'-th axis of the Shapoid by 'v'
@@ -792,6 +792,10 @@ const VecFloat* ShapoidIterDelta(const ShapoidIter* const that);
   Facoid*: _ShapoidPosGet, \
   Pyramidoid*: _ShapoidPosGet, \
   Spheroid*: _ShapoidPosGet, \
+  const Shapoid*: _ShapoidPosGet, \
+  const Facoid*: _ShapoidPosGet, \
+  const Pyramidoid*: _ShapoidPosGet, \
+  const Spheroid*: _ShapoidPosGet, \
   default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Index)
 
 #define ShapoidSetCenterPos(Shap, Vec) _Generic(Shap, \
@@ -842,6 +846,10 @@ const VecFloat* ShapoidIterDelta(const ShapoidIter* const that);
   Facoid*: _ShapoidAxisGet, \
   Pyramidoid*: _ShapoidAxisGet, \
   Spheroid*: _ShapoidAxisGet, \
+  const Shapoid*: _ShapoidAxisGet, \
+  const Facoid*: _ShapoidAxisGet, \
+  const Pyramidoid*: _ShapoidAxisGet, \
+  const Spheroid*: _ShapoidAxisGet, \
   default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Dim, Index)
 
 #define ShapoidAxisScale(Shap, Dim, Val) _Generic(Shap, \
