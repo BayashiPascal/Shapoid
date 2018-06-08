@@ -478,7 +478,7 @@ Facoid* ShapoidGetBoundingBoxSet(const GSetShapoid* const set) {
     sprintf(ShapoidErr->_msg, "'set' is null");
     PBErrCatch(ShapoidErr);
   }
-  GSetElem* elemCheck = GSetGetElem(set, 0);
+  GSetElem* elemCheck = GSetElement(set, 0);
   int dim = ((Shapoid*)(elemCheck->_data))->_dim;
   while (elemCheck != NULL) {
     if (((Shapoid*)(elemCheck->_data))->_dim != dim) {
@@ -493,7 +493,7 @@ Facoid* ShapoidGetBoundingBoxSet(const GSetShapoid* const set) {
   // Declare a variable for the result
   Facoid* res = NULL;
   // Declare a pointer to the elements of the set
-  GSetElem* elem = GSetGetElem(set, 0);
+  GSetElem* elem = GSetElement(set, 0);
   // Loop on element of the set
   while (elem != NULL) {
     // Declare a pointer to the Facoid
