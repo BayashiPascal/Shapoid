@@ -478,58 +478,59 @@ Facoid* ShapoidGetBoundingBoxSet(const GSetShapoid* const set) {
     sprintf(ShapoidErr->_msg, "'set' is null");
     PBErrCatch(ShapoidErr);
   }
-  GSetElem* elemCheck = GSetElement(set, 0);
-  int dim = ((Shapoid*)(elemCheck->_data))->_dim;
-  while (elemCheck != NULL) {
-    if (((Shapoid*)(elemCheck->_data))->_dim != dim) {
-      ShapoidErr->_type = PBErrTypeInvalidArg;
-      sprintf(ShapoidErr->_msg, 
-        "'set' contains Shapoids of various dimensions");
-      PBErrCatch(ShapoidErr);
-    }
-    elemCheck = elemCheck->_next;
+  if (GSetNbElem(set) > 0) {
+    GSetIterForward iter = GSetIterForwardCreateStatic(set);
+    int dim = ((Shapoid*)GSetIterGet(&iter))->_dim;
+    do {
+      if (((Shapoid*)GSetIterGet(&iter))->_dim != dim) {
+        ShapoidErr->_type = PBErrTypeInvalidArg;
+        sprintf(ShapoidErr->_msg, 
+          "'set' contains Shapoids of various dimensions");
+        PBErrCatch(ShapoidErr);
+      }
+    } while (GSetIterStep(&iter));
   }
 #endif
   // Declare a variable for the result
   Facoid* res = NULL;
-  // Declare a pointer to the elements of the set
-  GSetElem* elem = GSetElement(set, 0);
-  // Loop on element of the set
-  while (elem != NULL) {
-    // Declare a pointer to the Facoid
-    Shapoid* shapoid = (Shapoid*)(elem->_data);
-    // If it's the first Facoid in the set
-    if (res == NULL) {
-      // Get the bounding box of this shapoid
-      res = ShapoidGetBoundingBox(shapoid);
-    // Else, this is not the first Shapoid in the set
-    } else {
-      // Get the bounding box of this shapoid
-      Facoid* bound = ShapoidGetBoundingBox(shapoid);
-      // For each dimension
-      for (int iDim = ShapoidGetDim(res); iDim--;) {
-        // Update the bounding box
-        if (VecGet(((Shapoid*)bound)->_pos, iDim) < 
-          VecGet(((Shapoid*)res)->_pos, iDim)) {
-          VecSetAdd(((Shapoid*)res)->_axis[iDim], iDim, 
-            VecGet(((Shapoid*)res)->_pos, iDim) -
+  if (GSetNbElem(set) > 0) {
+    // Declare an interator on the elements of the set
+    GSetIterForward iter = GSetIterForwardCreateStatic(set);
+    // Loop on element of the set
+    do {
+      // Declare a pointer to the Facoid
+      Shapoid* shapoid = GSetIterGet(&iter);
+      // If it's the first Facoid in the set
+      if (res == NULL) {
+        // Get the bounding box of this shapoid
+        res = ShapoidGetBoundingBox(shapoid);
+      // Else, this is not the first Shapoid in the set
+      } else {
+        // Get the bounding box of this shapoid
+        Facoid* bound = ShapoidGetBoundingBox(shapoid);
+        // For each dimension
+        for (int iDim = ShapoidGetDim(res); iDim--;) {
+          // Update the bounding box
+          if (VecGet(((Shapoid*)bound)->_pos, iDim) < 
+            VecGet(((Shapoid*)res)->_pos, iDim)) {
+            VecSetAdd(((Shapoid*)res)->_axis[iDim], iDim, 
+              VecGet(((Shapoid*)res)->_pos, iDim) -
+              VecGet(((Shapoid*)bound)->_pos, iDim));
+            VecSet(((Shapoid*)res)->_pos, iDim, 
             VecGet(((Shapoid*)bound)->_pos, iDim));
-          VecSet(((Shapoid*)res)->_pos, iDim, 
-          VecGet(((Shapoid*)bound)->_pos, iDim));
+          }
+          if (VecGet(((Shapoid*)bound)->_pos, iDim) + 
+            VecGet(((Shapoid*)bound)->_axis[iDim], iDim) >
+            VecGet(((Shapoid*)res)->_pos, iDim) + 
+            VecGet(((Shapoid*)res)->_axis[iDim], iDim))
+            VecSetAdd(((Shapoid*)res)->_axis[iDim], iDim, 
+              VecGet(((Shapoid*)bound)->_axis[iDim], iDim) -
+              VecGet(((Shapoid*)res)->_pos, iDim));
         }
-        if (VecGet(((Shapoid*)bound)->_pos, iDim) + 
-          VecGet(((Shapoid*)bound)->_axis[iDim], iDim) >
-          VecGet(((Shapoid*)res)->_pos, iDim) + 
-          VecGet(((Shapoid*)res)->_axis[iDim], iDim))
-          VecSetAdd(((Shapoid*)res)->_axis[iDim], iDim, 
-            VecGet(((Shapoid*)bound)->_axis[iDim], iDim) -
-            VecGet(((Shapoid*)res)->_pos, iDim));
+        // Free memory used by the bounding box
+        ShapoidFree(&bound);
       }
-      // Free memory used by the bounding box
-      ShapoidFree(&bound);
-    }
-    // Move to the next element
-    elem = elem->_next;
+    } while (GSetIterStep(&iter));
   }
   // Return the result
   return res;
@@ -668,7 +669,7 @@ void FacoidAlignedAddClippedToSet(const Facoid* const that,
         if (FacoidAlignedIsInsideFacoidAligned(facoidToAdd, facoid)) {
           // This facoid doesn't need to be added, delete it
           ShapoidFree(&facoidToAdd);
-          GSetIterGetElem(&iterToAdd)->_data = NULL;
+          GSetIterSetData(&iterToAdd, NULL);
           // And skip the other facoids in the set
           flagSkip = true;
         // Else, if this facoid is completely include in the facoid to 
@@ -677,7 +678,7 @@ void FacoidAlignedAddClippedToSet(const Facoid* const that,
           facoidToAdd)) {
           // Remove the facoid in the set
           ShapoidFree(&facoid);
-          GSetIterGetElem(&iter)->_data = NULL;
+          GSetIterSetData(&iter, NULL);
         // Else, if both facoid are in intersection
         } else if (!FacoidAlignedIsOutsideFacoidAligned(facoidToAdd, 
           facoid)) {
@@ -690,7 +691,7 @@ void FacoidAlignedAddClippedToSet(const Facoid* const that,
           GSetFree(&split);
           // Delete the splitted facoid
           ShapoidFree(&facoidToAdd);
-          GSetIterGetElem(&iterToAdd)->_data = NULL;
+          GSetIterSetData(&iterToAdd, NULL);
           // And skip the other facoids in the set
           flagSkip = true;          
         }
