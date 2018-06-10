@@ -58,11 +58,11 @@ typedef struct Shapoid {
   // Position of origin
   VecFloat* _pos;
   // Dimension
-  int _dim;
+  const int _dim;
   // Vectors defining axes
   VecFloat** _axis;
   // Type of Shapoid
-  ShapoidType _type;
+  const ShapoidType _type;
   // Linear sytem used to import coordinates
   SysLinEq* _sysLinEqImport;
 } Shapoid;

@@ -46,8 +46,8 @@ Shapoid* ShapoidCreate(const int dim, const ShapoidType type) {
   that->_axis = NULL;
   that->_sysLinEqImport = NULL;
   // Set the dimension and type
-  that->_type = type;
-  that->_dim = dim;
+  *(ShapoidType*)&(that->_type) = type;
+  *(int*)&(that->_dim) = dim;
   // Allocate memory for position
   that->_pos = VecFloatCreate(dim);
   // Allocate memory for array of axis

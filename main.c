@@ -91,20 +91,20 @@ void UnitTestCreateCloneIsEqualFree() {
     sprintf(ShapoidErr->_msg, "ShapoidIsEqual failed");
     PBErrCatch(ShapoidErr);
   }
-  clone->_type = ShapoidTypePyramidoid;
+  *(ShapoidType*)&(clone->_type) = ShapoidTypePyramidoid;
   if (ShapoidIsEqual(facoid, clone) == true) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidIsEqual failed");
     PBErrCatch(ShapoidErr);
   }
-  clone->_type = facoid->_type;
-  clone->_dim = dim + 1;
+  *(ShapoidType*)&(clone->_type) = facoid->_type;
+  *(int*)&(clone->_dim) = dim + 1;
   if (ShapoidIsEqual(facoid, clone) == true) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
     sprintf(ShapoidErr->_msg, "ShapoidIsEqual failed");
     PBErrCatch(ShapoidErr);
   }
-  clone->_dim = facoid->_dim;
+  *(int*)&(clone->_dim) = facoid->_dim;
   VecSet(clone->_pos, 0, 1.0);
   if (ShapoidIsEqual(facoid, clone) == true) {
     ShapoidErr->_type = PBErrTypeUnitTestFailed;
