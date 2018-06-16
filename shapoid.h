@@ -907,8 +907,48 @@ const VecFloat* ShapoidIterDelta(const ShapoidIter* const that);
     const Pyramidoid*: _ShapoidIsEqual, \
     const Spheroid*: _ShapoidIsEqual, \
     default: PBErrInvalidPolymorphism), \
-  default: PBErrInvalidPolymorphism)((const Shapoid*)(ShapA), \
-    (const Shapoid*)(ShapB))
+  const Shapoid*: _Generic(ShapB, \
+    Shapoid*: _ShapoidIsEqual, \
+    Facoid*: _ShapoidIsEqual, \
+    Pyramidoid*: _ShapoidIsEqual, \
+    Spheroid*: _ShapoidIsEqual, \
+    const Shapoid*: _ShapoidIsEqual, \
+    const Facoid*: _ShapoidIsEqual, \
+    const Pyramidoid*: _ShapoidIsEqual, \
+    const Spheroid*: _ShapoidIsEqual, \
+    default: PBErrInvalidPolymorphism), \
+  const Facoid*: _Generic(ShapB, \
+    Shapoid*: _ShapoidIsEqual, \
+    Facoid*: _ShapoidIsEqual, \
+    Pyramidoid*: _ShapoidIsEqual, \
+    Spheroid*: _ShapoidIsEqual, \
+    const Shapoid*: _ShapoidIsEqual, \
+    const Facoid*: _ShapoidIsEqual, \
+    const Pyramidoid*: _ShapoidIsEqual, \
+    const Spheroid*: _ShapoidIsEqual, \
+    default: PBErrInvalidPolymorphism), \
+  const Pyramidoid*: _Generic(ShapB, \
+    Shapoid*: _ShapoidIsEqual, \
+    Facoid*: _ShapoidIsEqual, \
+    Pyramidoid*: _ShapoidIsEqual, \
+    Spheroid*: _ShapoidIsEqual, \
+    const Shapoid*: _ShapoidIsEqual, \
+    const Facoid*: _ShapoidIsEqual, \
+    const Pyramidoid*: _ShapoidIsEqual, \
+    const Spheroid*: _ShapoidIsEqual, \
+    default: PBErrInvalidPolymorphism), \
+  const Spheroid*: _Generic(ShapB, \
+    Shapoid*: _ShapoidIsEqual, \
+    Facoid*: _ShapoidIsEqual, \
+    Pyramidoid*: _ShapoidIsEqual, \
+    Spheroid*: _ShapoidIsEqual, \
+    const Shapoid*: _ShapoidIsEqual, \
+    const Facoid*: _ShapoidIsEqual, \
+    const Pyramidoid*: _ShapoidIsEqual, \
+    const Spheroid*: _ShapoidIsEqual, \
+    default: PBErrInvalidPolymorphism), \
+  default: PBErrInvalidPolymorphism)((const Shapoid* const)(ShapA), \
+    (const Shapoid* const)(ShapB))
 
 #define ShapoidGetBoundingBox(Shap) _Generic(Shap, \
   Shapoid*: _ShapoidGetBoundingBox, \
