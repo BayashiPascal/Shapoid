@@ -296,6 +296,58 @@ void _ShapoidSetAxis(Shapoid* const that, const int dim,
     SpheroidUpdateMajMinAxis((Spheroid*)that);
 }
 
+// Set all the axis of the Shapoid to vectors in 'set' (axis in 
+// dimensions order
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidSetAllAxis(Shapoid* const that, GSetVecFloat* const set) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (set == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'set' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (GSetNbElem(set) != that->_dim) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "Number of elements in set is invalid (%d!=%d)", 
+      GSetNbElem(set), that->_dim);
+    PBErrCatch(ShapoidErr);
+  }
+  for (int iDim = that->_dim; iDim--;) {
+    VecFloat* vec = GSetGet(set, iDim);
+    if (VecGetDim(vec) != that->_dim) {
+      ShapoidErr->_type = PBErrTypeInvalidArg;
+      sprintf(ShapoidErr->_msg, 
+        "%d-th axis' dimension is invalid (%d!=%d)", 
+        iDim, VecGetDim(vec), that->_dim);
+      PBErrCatch(ShapoidErr);
+    }
+  }
+#endif
+  // Set the axis
+  GSetIterForward iter = GSetIterForwardCreateStatic(set);
+  int iDim = 0;
+  do {
+    VecFloat* axis = GSetIterGet(&iter);
+    VecCopy(that->_axis[iDim], axis);
+    ++iDim;
+  } while (GSetIterStep(&iter));
+  // Update the SysLinEq
+  ShapoidUpdateSysLinEqImport(that);
+  // If it's a Spheroid
+  if (that->_type == ShapoidTypeSpheroid)
+    // Update the major and minor axis
+    SpheroidUpdateMajMinAxis((Spheroid*)that);
+}
+
+
 // Set the 'iElem'-th element of the 'dim'-th axis of the Shapoid to 'v'
 #if BUILDMODE != 0
 inline

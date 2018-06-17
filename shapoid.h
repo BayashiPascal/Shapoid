@@ -216,6 +216,13 @@ inline
 void _ShapoidSetAxis(Shapoid* const that, const int dim, 
   const VecFloat* const v);
 
+// Set all the axis of the Shapoid to vectors in 'set' (axis in 
+// dimensions order
+#if BUILDMODE != 0
+inline
+#endif 
+void _ShapoidSetAllAxis(Shapoid* const that, GSetVecFloat* const set);
+
 // Set the 'iElem'-th element of the 'dim'-th axis of the Shapoid to 'v'
 #if BUILDMODE != 0
 inline
@@ -646,6 +653,10 @@ const VecFloat* ShapoidIterDelta(const ShapoidIter* const that);
   Facoid*: FacoidClone, \
   Pyramidoid*: PyramidoidClone, \
   Spheroid*: SpheroidClone, \
+  const Shapoid*: _ShapoidClone, \
+  const Facoid*: FacoidClone, \
+  const Pyramidoid*: PyramidoidClone, \
+  const Spheroid*: SpheroidClone, \
   default: PBErrInvalidPolymorphism)(Shap)
 
 #define ShapoidFree(ShapRef) _Generic(ShapRef, \
@@ -765,6 +776,13 @@ const VecFloat* ShapoidIterDelta(const ShapoidIter* const that);
   Spheroid*: _ShapoidSetAxis, \
   default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Index, \
     (VecFloat*)Vec)
+
+#define ShapoidSetAllAxis(Shap, Set) _Generic(Shap, \
+  Shapoid*: _ShapoidSetAllAxis, \
+  Facoid*: _ShapoidSetAllAxis, \
+  Pyramidoid*: _ShapoidSetAllAxis, \
+  Spheroid*: _ShapoidSetAllAxis, \
+  default: PBErrInvalidPolymorphism)((Shapoid*)(Shap), Set)
 
 #define ShapoidSetPos(Shap, Vec) _Generic(Shap, \
   Shapoid*: _ShapoidSetPos, \
