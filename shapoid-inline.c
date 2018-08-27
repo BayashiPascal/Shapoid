@@ -147,7 +147,7 @@ void _ShapoidSetPos(Shapoid* const that, const VecFloat* const pos) {
   }
   if (VecGetDim(pos) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%ld==%d)", 
       VecGetDim(pos), that->_dim);
     PBErrCatch(ShapoidErr);
   }
@@ -244,7 +244,7 @@ void _ShapoidSetCenterPos(Shapoid* const that,
   }
   if (VecGetDim(pos) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%ld==%d)", 
       VecGetDim(pos), that->_dim);
     PBErrCatch(ShapoidErr);
   }
@@ -281,7 +281,7 @@ void _ShapoidSetAxis(Shapoid* const that, const int dim,
   }
   if (VecGetDim(v) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'v' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'v' 's dimension is invalid (%d==%ld)", 
       dim, VecGetDim(v));
     PBErrCatch(ShapoidErr);
   }
@@ -325,7 +325,7 @@ void _ShapoidSetAllAxis(Shapoid* const that, GSetVecFloat* const set) {
     if (VecGetDim(vec) != that->_dim) {
       ShapoidErr->_type = PBErrTypeInvalidArg;
       sprintf(ShapoidErr->_msg, 
-        "%d-th axis' dimension is invalid (%d!=%d)", 
+        "%d-th axis' dimension is invalid (%ld!=%d)", 
         iDim, VecGetDim(vec), that->_dim);
       PBErrCatch(ShapoidErr);
     }
@@ -368,7 +368,7 @@ void _ShapoidAxisSet(Shapoid* const that, const int dim,
   }
   if (iElem < 0 || iElem >= VecGetDim(ShapoidAxis(that, dim))) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "iElem is invalid (0<=%d<%d)", 
+    sprintf(ShapoidErr->_msg, "iElem is invalid (0<=%d<%ld)", 
       iElem, VecGetDim(ShapoidAxis(that, dim)));
     PBErrCatch(ShapoidErr);
   }
@@ -404,7 +404,7 @@ void _ShapoidAxisSetAdd(Shapoid* const that, const int dim,
   }
   if (iElem < 0 || iElem >= VecGetDim(ShapoidAxis(that, dim))) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "iElem is invalid (0<=%d<%d)", 
+    sprintf(ShapoidErr->_msg, "iElem is invalid (0<=%d<%ld)", 
       iElem, VecGetDim(ShapoidAxis(that, dim)));
     PBErrCatch(ShapoidErr);
   }
@@ -439,7 +439,7 @@ float _ShapoidAxisGet(const Shapoid* const that, const int dim,
   }
   if (iElem < 0 || iElem >= VecGetDim(ShapoidAxis(that, dim))) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "iElem is invalid (0<=%d<%d)", 
+    sprintf(ShapoidErr->_msg, "iElem is invalid (0<=%d<%ld)", 
       iElem, VecGetDim(ShapoidAxis(that, dim)));
     PBErrCatch(ShapoidErr);
   }
@@ -495,7 +495,7 @@ void _ShapoidTranslate(Shapoid* const that, const VecFloat* const v) {
   }
   if (VecGetDim(v) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'v' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'v' 's dimension is invalid (%d==%ld)", 
       that->_dim, VecGetDim(v));
     PBErrCatch(ShapoidErr);
   }
@@ -522,7 +522,7 @@ void _ShapoidScaleVector(Shapoid* const that, const VecFloat* const v) {
   }
   if (VecGetDim(v) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'v' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'v' 's dimension is invalid (%d==%ld)", 
       that->_dim, VecGetDim(v));
     PBErrCatch(ShapoidErr);
   }
@@ -581,7 +581,7 @@ void _ShapoidGrowVector(Shapoid* const that, const VecFloat* const v) {
   }
   if (VecGetDim(v) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'v' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'v' 's dimension is invalid (%d==%ld)", 
       that->_dim, VecGetDim(v));
     PBErrCatch(ShapoidErr);
   }
@@ -785,7 +785,7 @@ void _ShapoidRotAxisCenter(Shapoid* const that,
   if (VecGetDim(axis) != 3) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, 
-      "'axis' 's dimension is invalid (%d==3)", VecGetDim(axis));
+      "'axis' 's dimension is invalid (%ld==3)", VecGetDim(axis));
     PBErrCatch(ShapoidErr);
   }
   if (that->_dim != 3) {
@@ -853,7 +853,7 @@ void _ShapoidRotAxisStart(Shapoid* const that,
   if (VecGetDim(axis) != 3) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, 
-      "'axis' 's dimension is invalid (%d==3)", VecGetDim(axis));
+      "'axis' 's dimension is invalid (%ld==3)", VecGetDim(axis));
     PBErrCatch(ShapoidErr);
   }
 #endif
@@ -893,7 +893,7 @@ void _ShapoidRotAxisOrigin(Shapoid* const that,
   if (VecGetDim(axis) != 3) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, 
-      "'axis' 's dimension is invalid (%d==3)", VecGetDim(axis));
+      "'axis' 's dimension is invalid (%ld==3)", VecGetDim(axis));
     PBErrCatch(ShapoidErr);
   }
 #endif
@@ -1244,7 +1244,7 @@ VecFloat* _ShapoidImportCoord(const Shapoid* const that,
   }
   if (VecGetDim(pos) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%ld)", 
       that->_dim, VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
@@ -1283,7 +1283,7 @@ VecFloat* _ShapoidExportCoord(const Shapoid* const that,
   }
   if (VecGetDim(pos) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%ld)", 
       that->_dim, VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
@@ -1485,7 +1485,7 @@ bool _ShapoidIsPosInside(const Shapoid* const that,
   }
   if (VecGetDim(pos) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%ld)", 
       that->_dim, VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
@@ -1528,7 +1528,7 @@ bool FacoidIsPosInside(const Facoid* const that,
   }
   if (VecGetDim(pos) != ShapoidGetDim(that)) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%ld)", 
       ShapoidGetDim(that), VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
@@ -1569,7 +1569,7 @@ bool PyramidoidIsPosInside(const Pyramidoid* const that,
   }
   if (VecGetDim(pos) != ShapoidGetDim(that)) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%ld)", 
       ShapoidGetDim(that), VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
@@ -1614,7 +1614,7 @@ bool SpheroidIsPosInside(const Spheroid* const that,
   }
   if (VecGetDim(pos) != ShapoidGetDim(that)) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%ld)", 
       ShapoidGetDim(that), VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
@@ -1657,7 +1657,7 @@ float _ShapoidGetPosDepth(const Shapoid* const that,
   }
   if (VecGetDim(pos) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%ld)", 
       that->_dim, VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
@@ -1701,7 +1701,7 @@ float FacoidGetPosDepth(const Facoid* const that,
   }
   if (VecGetDim(pos) != ShapoidGetDim(that)) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%ld)", 
       ShapoidGetDim(that), VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
@@ -1741,7 +1741,7 @@ float PyramidoidGetPosDepth(const Pyramidoid* const that,
   }
   if (VecGetDim(pos) != ShapoidGetDim(that)) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%ld)", 
       ShapoidGetDim(that), VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }
@@ -1797,7 +1797,7 @@ float SpheroidGetPosDepth(const Spheroid* const that,
   }
   if (VecGetDim(pos) != ShapoidGetDim(that)) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
-    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%d)", 
+    sprintf(ShapoidErr->_msg, "'pos' 's dimension is invalid (%d==%ld)", 
       ShapoidGetDim(that), VecGetDim(pos));
     PBErrCatch(ShapoidErr);
   }

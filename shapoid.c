@@ -578,7 +578,7 @@ float _ShapoidGetCoverageDelta(const Shapoid* const that,
   VecFloat* pRel = VecFloatCreate(ShapoidGetDim(that));
   VecFloat* pStd = NULL;
   // Declare a variable to memorize the last index in dimension
-  int lastI = VecGetDim(pRel) - 1;
+  long lastI = VecGetDim(pRel) - 1;
   // Declare a variable to memorize the max value of coordinates
   float max = 1.0;
   // If 'tho' is a spheroid, correct the start coordinates and range
@@ -602,7 +602,7 @@ float _ShapoidGetCoverageDelta(const Shapoid* const that,
     // Free memory
     VecFree(&pStd);
     // Step the relative coordinates
-    int iDim = 0;
+    long iDim = 0;
     while (iDim >= 0) {
       VecSetAdd(pRel, iDim, delta);
       if (iDim != lastI && 
@@ -1077,7 +1077,7 @@ ShapoidIter _ShapoidIterCreateStatic(const Shapoid* const shap,
   if (VecGetDim(delta) != ShapoidGetDim(shap)) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, 
-      "'delta' dimensions and 'shap' dimensions don't match (%d==%d)",
+      "'delta' dimensions and 'shap' dimensions don't match (%ld==%d)",
       VecGetDim(delta), ShapoidGetDim(shap));
     PBErrCatch(ShapoidErr);
   }
@@ -1164,7 +1164,7 @@ bool _ShapoidIterStepFacoid(ShapoidIter* const that) {
   // Declare a variable for the returned flag
   bool ret = true;
   // Declare a variable to memorise the dimension currently increasing
-  int iDim = VecGetDim(that->_pos) - 1;
+  long iDim = VecGetDim(that->_pos) - 1;
   // Declare a flag for the loop condition 
   bool flag = true;
   // Increment
@@ -1189,14 +1189,14 @@ bool _ShapoidIterStepPyramidoid(ShapoidIter* const that) {
   // Declare a variable for the returned flag
   bool ret = true;
   // Declare a variable to memorise the dimension currently increasing
-  int iDim = VecGetDim(that->_pos) - 1;
+  long iDim = VecGetDim(that->_pos) - 1;
   // Declare a flag for the loop condition 
   bool flag = true;
   // Increment
   do {
     VecSetAdd(that->_pos, iDim, VecGet(that->_delta, iDim));
     float sum = 0.0;
-    for (int iAxis = VecGetDim(that->_pos); iAxis--;)
+    for (long iAxis = VecGetDim(that->_pos); iAxis--;)
       sum += VecGet(that->_pos, iAxis);
     if (sum > 1.0 + PBMATH_EPSILON) {
       VecSet(that->_pos, iDim, 0.0);
@@ -1215,7 +1215,7 @@ bool _ShapoidIterStepPyramidoid(ShapoidIter* const that) {
 // Return false if the iterator is at its end and couldn't be stepped
 bool _ShapoidIterStepSpheroid(ShapoidIter* const that) {
   // Declare a variable to memorise the dimension currently increasing
-  int iDim = 0;
+  long iDim = 0;
   // Declare a flag for the loop condition 
   bool flag = true;
   // Declare a variable to memorize the norm of the current position
