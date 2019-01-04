@@ -316,7 +316,7 @@ void _ShapoidSetAllAxis(Shapoid* const that, GSetVecFloat* const set) {
   if (GSetNbElem(set) != that->_dim) {
     ShapoidErr->_type = PBErrTypeInvalidArg;
     sprintf(ShapoidErr->_msg, 
-      "Number of elements in set is invalid (%d!=%d)", 
+      "Number of elements in set is invalid (%ld!=%d)", 
       GSetNbElem(set), that->_dim);
     PBErrCatch(ShapoidErr);
   }
