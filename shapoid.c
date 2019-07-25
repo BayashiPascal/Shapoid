@@ -174,13 +174,13 @@ bool _ShapoidDecodeAsJSON(Shapoid** that, const JSONNode* const json) {
   if (prop == NULL) {
     return false;
   }
-  int dim = atoi(JSONLabel(JSONValue(prop, 0)));
+  int dim = atoi(JSONLblVal(prop));
   // Get the type from the JSON
   prop = JSONProperty(json, "_type");
   if (prop == NULL) {
     return false;
   }
-  ShapoidType type = atoi(JSONLabel(JSONValue(prop, 0)));
+  ShapoidType type = atoi(JSONLblVal(prop));
   // If data are invalid
   if (dim <= 0)
     return false;
