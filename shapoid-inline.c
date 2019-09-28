@@ -1,4 +1,4 @@
-// ============ SHAPOID-INLINE.C ================
+// ============ SHAPOID-static inline.C ================
 
 // -------------- Shapoid
 
@@ -6,7 +6,7 @@
 
 // Get the dimension of the Shapoid
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 int _ShapoidGetDim(const Shapoid* const that) {
 #if BUILDMODE == 0
@@ -22,7 +22,7 @@ int _ShapoidGetDim(const Shapoid* const that) {
 
 // Get the dimension of the Shapoid
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 ShapoidType _ShapoidGetType(const Shapoid* const that) {
 #if BUILDMODE == 0
@@ -39,7 +39,7 @@ ShapoidType _ShapoidGetType(const Shapoid* const that) {
 // Get the type of the Shapoid as a string
 // Return a pointer to a constant string (not to be freed)
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 const char* _ShapoidGetTypeAsString(const Shapoid* const that) {
 #if BUILDMODE == 0
@@ -55,7 +55,7 @@ const char* _ShapoidGetTypeAsString(const Shapoid* const that) {
 
 // Return a VecFloat equals to the position of the Shapoid
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 VecFloat* _ShapoidGetPos(const Shapoid* const that) {
 #if BUILDMODE == 0
@@ -71,7 +71,7 @@ VecFloat* _ShapoidGetPos(const Shapoid* const that) {
 
 // Return a VecFloat equals to the 'dim'-th axis of the Shapoid
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 VecFloat* _ShapoidGetAxis(const Shapoid* const that, const int dim) {
 #if BUILDMODE == 0
@@ -93,7 +93,7 @@ VecFloat* _ShapoidGetAxis(const Shapoid* const that, const int dim) {
 
 // Return the position of the Shapoid
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 const VecFloat* _ShapoidPos(const Shapoid* const that) {
 #if BUILDMODE == 0
@@ -109,7 +109,7 @@ const VecFloat* _ShapoidPos(const Shapoid* const that) {
 
 // Return the 'dim'-th axis of the Shapoid
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 const VecFloat* _ShapoidAxis(const Shapoid* const that, const int dim) {
 #if BUILDMODE == 0
@@ -131,7 +131,7 @@ const VecFloat* _ShapoidAxis(const Shapoid* const that, const int dim) {
 
 // Set the position of the Shapoid to 'pos'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidSetPos(Shapoid* const that, const VecFloat* const pos) {
 #if BUILDMODE == 0
@@ -158,7 +158,7 @@ void _ShapoidSetPos(Shapoid* const that, const VecFloat* const pos) {
 
 // Set the 'iElem'-th value of the position of the Shapoid to 'val'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidPosSet(Shapoid* const that, const int iElem, 
   const float val) {
@@ -182,7 +182,7 @@ void _ShapoidPosSet(Shapoid* const that, const int iElem,
 // Set the 'iElem'-th value of the position of the Shapoid to 'val' 
 // added to its current value
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidPosSetAdd(Shapoid* const that, const int iElem, 
   const float val) {
@@ -205,7 +205,7 @@ void _ShapoidPosSetAdd(Shapoid* const that, const int iElem,
 
 // Set the 'iElem'-th value of the position of the Shapoid to 'val'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 float _ShapoidPosGet(const Shapoid* const that, const int iElem) {
 #if BUILDMODE == 0
@@ -227,7 +227,7 @@ float _ShapoidPosGet(const Shapoid* const that, const int iElem) {
 
 // Set the position of the Shapoid such as its center is at 'pos'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidSetCenterPos(Shapoid* const that, 
   const VecFloat* const pos) {
@@ -258,7 +258,7 @@ void _ShapoidSetCenterPos(Shapoid* const that,
 
 // Set the 'dim'-th axis of the Shapoid to 'v'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidSetAxis(Shapoid* const that, const int dim, 
   const VecFloat* const v) {
@@ -299,7 +299,7 @@ void _ShapoidSetAxis(Shapoid* const that, const int dim,
 // Set all the axis of the Shapoid to vectors in 'set' (axis in 
 // dimensions order
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidSetAllAxis(Shapoid* const that, GSetVecFloat* const set) {
 #if BUILDMODE == 0
@@ -350,7 +350,7 @@ void _ShapoidSetAllAxis(Shapoid* const that, GSetVecFloat* const set) {
 
 // Set the 'iElem'-th element of the 'dim'-th axis of the Shapoid to 'v'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidAxisSet(Shapoid* const that, const int dim, 
   const int iElem, const float v) {
@@ -386,7 +386,7 @@ void _ShapoidAxisSet(Shapoid* const that, const int dim,
 // Set the 'iElem'-th element of the 'dim'-th axis of the Shapoid to 
 // 'v' added to its current value
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidAxisSetAdd(Shapoid* const that, const int dim, 
   const int iElem, const float v) {
@@ -421,7 +421,7 @@ void _ShapoidAxisSetAdd(Shapoid* const that, const int dim,
 
 // Get the 'iElem'-th element of the 'dim'-th axis of the Shapoid
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 float _ShapoidAxisGet(const Shapoid* const that, const int dim, 
   const int iElem) {
@@ -450,7 +450,7 @@ float _ShapoidAxisGet(const Shapoid* const that, const int dim,
 
 // Scale the 'dim'-th axis of the Shapoid by 'v'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidAxisScale(Shapoid* const that, const int dim, 
   const float v) {
@@ -479,7 +479,7 @@ void _ShapoidAxisScale(Shapoid* const that, const int dim,
 
 // Translate the Shapoid by 'v'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidTranslate(Shapoid* const that, const VecFloat* const v) {
 #if BUILDMODE == 0
@@ -506,7 +506,7 @@ void _ShapoidTranslate(Shapoid* const that, const VecFloat* const v) {
 
 // Scale the Shapoid by 'v' (each axis is multiplied by v[iAxis])
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidScaleVector(Shapoid* const that, const VecFloat* const v) {
 #if BUILDMODE == 0
@@ -540,7 +540,7 @@ void _ShapoidScaleVector(Shapoid* const that, const VecFloat* const v) {
 
 // Scale the Shapoid by 'c'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidScaleScalar(Shapoid* const that, const float c) {
 #if BUILDMODE == 0
@@ -565,7 +565,7 @@ void _ShapoidScaleScalar(Shapoid* const that, const float c) {
 // and translate the Shapoid such as its center after scaling
 // is at the same position than before scaling
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidGrowVector(Shapoid* const that, const VecFloat* const v) {
 #if BUILDMODE == 0
@@ -620,7 +620,7 @@ void _ShapoidGrowVector(Shapoid* const that, const VecFloat* const v) {
 // and translate the Shapoid such as its center after scaling
 // is at the same position than before scaling
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidGrowScalar(Shapoid* const that, const float c) {
 #if BUILDMODE == 0
@@ -663,7 +663,7 @@ void _ShapoidGrowScalar(Shapoid* const that, const float c) {
 // Rotate the Shapoid of dimension 2 by 'theta' (in radians, CCW)
 // relatively to its center
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotCenter(Shapoid* const that, const float theta) {
 #if BUILDMODE == 0
@@ -712,7 +712,7 @@ void _ShapoidRotCenter(Shapoid* const that, const float theta) {
 // Rotate the Shapoid of dimension 2 by 'theta' (in radians, CCW)
 // relatively to its position
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotStart(Shapoid* const that, const float theta) {
 #if BUILDMODE == 0
@@ -738,7 +738,7 @@ void _ShapoidRotStart(Shapoid* const that, const float theta) {
 // Rotate the Shapoid of dimension 2 by 'theta' (in radians, CCW)
 // relatively to the origin of the global coordinates system
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotOrigin(Shapoid* const that, const float theta) {
 #if BUILDMODE == 0
@@ -767,7 +767,7 @@ void _ShapoidRotOrigin(Shapoid* const that, const float theta) {
 // relatively to its center around 'axis'
 // 'axis' must be normalized
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotAxisCenter(Shapoid* const that, 
   const VecFloat3D* const axis, const float theta) {
@@ -829,7 +829,7 @@ void _ShapoidRotAxisCenter(Shapoid* const that,
 // relatively to its position around 'axis'
 // 'axis' must be normalized
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotAxisStart(Shapoid* const that, 
   const VecFloat3D* const axis, const float theta) {
@@ -869,7 +869,7 @@ void _ShapoidRotAxisStart(Shapoid* const that,
 // around 'axis'
 // 'axis' must be normalized
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotAxisOrigin(Shapoid* const that, 
   const VecFloat3D* const axis, const float theta) {
@@ -909,7 +909,7 @@ void _ShapoidRotAxisOrigin(Shapoid* const that,
 // Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
 // relatively to its center around X
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotXCenter(Shapoid* const that, const float theta) {
 #if BUILDMODE == 0
@@ -958,7 +958,7 @@ void _ShapoidRotXCenter(Shapoid* const that, const float theta) {
 // Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
 // relatively to its position around X
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotXStart(Shapoid* const that, 
   float theta) {
@@ -986,7 +986,7 @@ void _ShapoidRotXStart(Shapoid* const that,
 // relatively to the origin of the global coordinates system
 // around X
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotXOrigin(Shapoid* const that, 
   float theta) {
@@ -1015,7 +1015,7 @@ void _ShapoidRotXOrigin(Shapoid* const that,
 // Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
 // relatively to its center around Y
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotYCenter(Shapoid* const that, const float theta) {
 #if BUILDMODE == 0
@@ -1064,7 +1064,7 @@ void _ShapoidRotYCenter(Shapoid* const that, const float theta) {
 // Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
 // relatively to its position around Y
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotYStart(Shapoid* const that, 
   float theta) {
@@ -1092,7 +1092,7 @@ void _ShapoidRotYStart(Shapoid* const that,
 // relatively to the origin of the global coordinates system
 // around Y
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotYOrigin(Shapoid* const that, 
   float theta) {
@@ -1121,7 +1121,7 @@ void _ShapoidRotYOrigin(Shapoid* const that,
 // Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
 // relatively to its center around Z
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotZCenter(Shapoid* const that, const float theta) {
 #if BUILDMODE == 0
@@ -1170,7 +1170,7 @@ void _ShapoidRotZCenter(Shapoid* const that, const float theta) {
 // Rotate the Shapoid of dimension 3 by 'theta' (in radians, CCW)
 // relatively to its position around Z
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotZStart(Shapoid* const that, 
   float theta) {
@@ -1198,7 +1198,7 @@ void _ShapoidRotZStart(Shapoid* const that,
 // relatively to the origin of the global coordinates system
 // around Z
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidRotZOrigin(Shapoid* const that, 
   float theta) {
@@ -1227,7 +1227,7 @@ void _ShapoidRotZOrigin(Shapoid* const that,
 // Convert the coordinates of 'pos' from standard coordinate system 
 // toward the Shapoid coordinates system
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 VecFloat* _ShapoidImportCoord(const Shapoid* const that, 
   const VecFloat* const pos) {
@@ -1259,14 +1259,11 @@ VecFloat* _ShapoidImportCoord(const Shapoid* const that,
   // return the result
   return res;
 }
-#if BUILDMODE != 0
-inline
-#endif 
 
 // Convert the coordinates of 'pos' from the Shapoid coordinates system 
 // toward standard coordinate system
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 VecFloat* _ShapoidExportCoord(const Shapoid* const that, 
   const VecFloat* const pos) {
@@ -1298,7 +1295,7 @@ VecFloat* _ShapoidExportCoord(const Shapoid* const that,
 
 // Get the center of the shapoid in standard coordinate system
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 VecFloat* _ShapoidGetCenter(const Shapoid* const that) {
 #if BUILDMODE == 0
@@ -1326,7 +1323,7 @@ VecFloat* _ShapoidGetCenter(const Shapoid* const that) {
 }
 
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 VecFloat* FacoidGetCenter(const Facoid* const that) {
 #if BUILDMODE == 0
@@ -1351,7 +1348,7 @@ VecFloat* FacoidGetCenter(const Facoid* const that) {
 }
 
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 VecFloat* PyramidoidGetCenter(const Pyramidoid* const that) {
 #if BUILDMODE == 0
@@ -1376,7 +1373,7 @@ VecFloat* PyramidoidGetCenter(const Pyramidoid* const that) {
 }
 
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 VecFloat* SpheroidGetCenter(const Spheroid* const that) {
 #if BUILDMODE == 0
@@ -1399,7 +1396,7 @@ VecFloat* SpheroidGetCenter(const Spheroid* const that) {
 
 // Check if shapoid 'that' and 'tho' are equals
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 bool _ShapoidIsEqual(const Shapoid* const that, 
   const Shapoid* const tho) {
@@ -1436,7 +1433,7 @@ bool _ShapoidIsEqual(const Shapoid* const that,
 
 // Update the system of linear equation used to import coordinates
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void ShapoidUpdateSysLinEqImport(Shapoid* const that) {
 #if BUILDMODE == 0
@@ -1468,7 +1465,7 @@ void ShapoidUpdateSysLinEqImport(Shapoid* const that) {
 // Shapoid
 // Else return false
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 bool _ShapoidIsPosInside(const Shapoid* const that, 
   const VecFloat* const pos) {
@@ -1511,7 +1508,7 @@ bool _ShapoidIsPosInside(const Shapoid* const that,
 }
 
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 bool FacoidIsPosInside(const Facoid* const that, 
   const VecFloat* const pos) {
@@ -1552,7 +1549,7 @@ bool FacoidIsPosInside(const Facoid* const that,
 }
 
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 bool PyramidoidIsPosInside(const Pyramidoid* const that, 
   const VecFloat* const pos) {
@@ -1597,7 +1594,7 @@ bool PyramidoidIsPosInside(const Pyramidoid* const that,
 }
 
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 bool SpheroidIsPosInside(const Spheroid* const that, 
   const VecFloat* const pos) {
@@ -1640,7 +1637,7 @@ bool SpheroidIsPosInside(const Spheroid* const that,
 // Shapoid. Depth is continuous and derivable over the volume of the
 // Shapoid
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 float _ShapoidGetPosDepth(const Shapoid* const that, 
   const VecFloat* const pos) {
@@ -1684,7 +1681,7 @@ float _ShapoidGetPosDepth(const Shapoid* const that,
 }
 
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 float FacoidGetPosDepth(const Facoid* const that, 
   const VecFloat* const pos) {
@@ -1724,7 +1721,7 @@ float FacoidGetPosDepth(const Facoid* const that,
 }
 
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 float PyramidoidGetPosDepth(const Pyramidoid* const that, 
   const VecFloat* const pos) {
@@ -1780,7 +1777,7 @@ float PyramidoidGetPosDepth(const Pyramidoid* const that,
 }
 
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 float SpheroidGetPosDepth(const Spheroid* const that, 
   const VecFloat* const pos) {
@@ -1816,7 +1813,7 @@ float SpheroidGetPosDepth(const Spheroid* const that,
 }
 
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 bool FacoidLoad(Facoid** that, FILE* const stream) {
   bool ret = _ShapoidLoad((Shapoid**)that, stream);
@@ -1828,7 +1825,7 @@ bool FacoidLoad(Facoid** that, FILE* const stream) {
 }
 
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 bool PyramidoidLoad(Pyramidoid** that, FILE* const stream) {
   bool ret = _ShapoidLoad((Shapoid**)that, stream);
@@ -1840,7 +1837,7 @@ bool PyramidoidLoad(Pyramidoid** that, FILE* const stream) {
 }
 
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 bool SpheroidLoad(Spheroid** that, FILE* const stream) {
   bool ret = _ShapoidLoad((Shapoid**)that, stream);
@@ -1858,7 +1855,7 @@ bool SpheroidLoad(Spheroid** that, FILE* const stream) {
 // Return the current position in Shapoid coordinates of the 
 // ShapoidIter 'that'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 VecFloat* ShapoidIterGetInternalPos(const ShapoidIter* const that) {
 #if BUILDMODE == 0
@@ -1874,7 +1871,7 @@ VecFloat* ShapoidIterGetInternalPos(const ShapoidIter* const that) {
 // Return the current position in standard coordinates of the 
 // ShapoidIter 'that'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 VecFloat* ShapoidIterGetExternalPos(const ShapoidIter* const that) {
 #if BUILDMODE == 0
@@ -1890,7 +1887,7 @@ VecFloat* ShapoidIterGetExternalPos(const ShapoidIter* const that) {
 // Set the attached Shapoid of the ShapoidIter 'that' to 'shap'
 // The iterator is reset to its initial position
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidIterSetShapoid(ShapoidIter* const that, 
   const Shapoid* const shap) {
@@ -1906,7 +1903,7 @@ void _ShapoidIterSetShapoid(ShapoidIter* const that,
 
 // Get the Shapoid of the ShapoidIter 'that'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 const Shapoid* ShapoidIterShapoid(const ShapoidIter* const that) {
 #if BUILDMODE == 0
@@ -1921,7 +1918,7 @@ const Shapoid* ShapoidIterShapoid(const ShapoidIter* const that) {
 
 // Set the delta of the ShapoidIter 'that' to a copy of 'delta'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 void _ShapoidIterSetDelta(ShapoidIter* const that, 
   const VecFloat* const delta) {
@@ -1938,7 +1935,7 @@ void _ShapoidIterSetDelta(ShapoidIter* const that,
 
 // Get the delta of the ShapoidIter 'that'
 #if BUILDMODE != 0
-inline
+static inline
 #endif 
 const VecFloat* ShapoidIterDelta(const ShapoidIter* const that) {
 #if BUILDMODE == 0
