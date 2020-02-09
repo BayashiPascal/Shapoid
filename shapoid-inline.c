@@ -688,9 +688,9 @@ void _ShapoidRotCenter(Shapoid* const that, const float theta) {
 #endif
   // If it's a spheroid
   if (that->_type == ShapoidTypeSpheroid) {
-  // Rotate each axis
-  for (int iAxis = that->_dim; iAxis--;)
-    VecRot(that->_axis[iAxis], theta);
+    // Rotate each axis
+    for (int iAxis = that->_dim; iAxis--;)
+      VecRot(that->_axis[iAxis], theta);
   // Else, it's not a spheroid
   } else {
     VecFloat* center = ShapoidGetCenter(that);
@@ -698,12 +698,19 @@ void _ShapoidRotCenter(Shapoid* const that, const float theta) {
     for (int iAxis = that->_dim; iAxis--;)
       VecRot(that->_axis[iAxis], theta);
     // Reposition the origin
-    VecFloat* v = VecGetOp(that->_pos, 1.0, center, -1.0);
-    VecRot(v, theta);
-    VecOp(v, 1.0, center, 1.0);
-    VecCopy(that->_pos, v);
+    VecOp(that->_pos, 1.0, center, -1.0);
+    VecRot(that->_pos, theta);
+
+// ???????
+// In BUILD_MODE == 1, that->_pos is not updated for an unknown reason
+// Adding a dummy fflush here makes it work normally
+// ???????
+#if BUILDMODE == 1
+fflush(stdout);
+#endif
+
+    VecOp(that->_pos, 1.0, center, 1.0);
     VecFree(&center);
-    VecFree(&v);
   }
   // Update the SysLinEq
   ShapoidUpdateSysLinEqImport(that);
