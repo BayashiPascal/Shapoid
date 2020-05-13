@@ -1154,8 +1154,9 @@ void _ShapoidRotZCenter(Shapoid* const that, const float theta) {
   // If it's a spheroid
   if (that->_type == ShapoidTypeSpheroid) {
   // Rotate each axis
-  for (int iAxis = that->_dim; iAxis--;)
+  for (int iAxis = that->_dim; iAxis--;) {
     VecRotZ(that->_axis[iAxis], theta);
+  }
   // Else, it's not a spheroid
   } else {
     VecFloat* center = ShapoidGetCenter(that);

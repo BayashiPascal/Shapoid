@@ -1466,32 +1466,928 @@ bool SATPP(const Pyramidoid* const that,
   return true;
 }
 
+// Eliminate the first variable in the system M.X<=Y
+// using the Fourier-Motzkin method and return
+// the resulting system in Mp and Yp, and the number of rows of
+// the resulting system in nbRemainRows
+// (M arrangement is [iRow][iCol])
+// Return true if the system becomes inconsistent during elimination,
+// else return false
+#define neg(x) (x < 0.0 ? x : 0.0)
+#define sgn(v) (((0.0 < (v)) ? 1 : 0) - (((v) < 0.0) ? 1 : 0))
+bool ElimVar3D(
+  const float (*M)[3],
+  const float* Y,
+  const int nbRows,
+  const int nbCols,
+  float (*Mp)[3],
+  float* Yp,
+  int* const nbRemainRows) {
+  // Initialize the number of rows in the result system
+  int nbResRows = 0;
+  // First we process the rows where the eliminated variable is not null
+  // For each row except the last one
+  for (
+    int iRow = 0;
+    iRow < nbRows - 1;
+    ++iRow) {
+    // Shortcuts
+    const float fabsMIRowIVar = fabs(M[iRow][0]);
+    // If the coefficient for the eliminated variable is not null
+    // in this row
+    if (fabsMIRowIVar > PBMATH_EPSILON) {
+      // Shortcuts
+      const float* MiRow = M[iRow];
+      const int sgnMIRowIVar = sgn(MiRow[0]);
+      const float YIRowDivideByFabsMIRowIVar = Y[iRow] / fabsMIRowIVar;
+      // For each following rows
+      for (
+        int jRow = iRow + 1;
+        jRow < nbRows;
+        ++jRow) {
+        // If coefficients of the eliminated variable in the two rows have
+        // different signs and are not null
+        if (
+          sgnMIRowIVar != sgn(M[jRow][0]) &&
+          fabs(M[jRow][0]) > PBMATH_EPSILON) {
+          // Shortcuts
+          const float* MjRow = M[jRow];
+          const float fabsMjRow = fabs(MjRow[0]);
+          // Declare a variable to memorize the sum of the negative
+          // coefficients in the row
+          float sumNegCoeff = 0.0;
+          // Add the sum of the two normed (relative to the eliminated
+          // variable) rows into the result system. This actually
+          // eliminate the variable while keeping the constraints on
+          // others variables
+          for (
+            int iCol = 1;
+            iCol < nbCols;
+            ++iCol ) {
+            Mp[nbResRows][iCol - 1] =
+              MiRow[iCol] / fabsMIRowIVar +
+              MjRow[iCol] / fabsMjRow;
+            // Update the sum of the negative coefficient
+            sumNegCoeff += neg(Mp[nbResRows][iCol - 1]);
+          }
+          // Update the right side of the inequality
+          Yp[nbResRows] =
+            YIRowDivideByFabsMIRowIVar +
+            Y[jRow] / fabsMjRow;
+          // If the right side of the inequality is lower than the sum of
+          // negative coefficients in the row
+          // (Add epsilon for numerical imprecision)
+          if (Yp[nbResRows] < sumNegCoeff - PBMATH_EPSILON) {
+            // Given that X is in [0,1], the system is inconsistent
+            return true;
+          }
+          // Increment the nb of rows into the result system
+          ++nbResRows;
+        }
+      }
+    }
+  }
+  // Then we copy and compress the rows where the eliminated
+  // variable is null
+  // Loop on rows of the input system
+  for (
+    int iRow = 0;
+    iRow < nbRows;
+    ++iRow) {
+    // Shortcut
+    const float* MiRow = M[iRow];
+    // If the coefficient of the eliminated variable is null on
+    // this row
+    if (fabs(MiRow[0]) < PBMATH_EPSILON) {
+      // Shortcut
+      float* MpnbResRows = Mp[nbResRows];
+      // Copy this row into the result system excluding the eliminated
+      // variable
+      for (
+        int iCol = 1;
+        iCol < nbCols;
+        ++iCol) {
+        MpnbResRows[iCol - 1] = MiRow[iCol];
+      }
+      Yp[nbResRows] = Y[iRow];
+      // Increment the nb of rows into the result system
+      ++nbResRows;
+    }
+  }
+  // Memorize the number of rows in the result system
+  *nbRemainRows = nbResRows;
+  // If we reach here the system is not inconsistent
+  return false;
+}
+
+typedef struct {
+  float min[3];
+  float max[3];
+} AABB3D;
+
+// Get the bounds of the iVar-th variable in the nbRows rows
+// system M.X<=Y where the iVar-th variable is on the first column
+// and store them in the iVar-th axis of the AABB bdgBox
+// (M arrangement is [iRow][iCol])
+void GetBoundVar3D(
+  const int iVar,
+  const float (*M)[3],
+  const float* Y,
+  const int nbRows,
+  const int nbCols,
+  AABB3D* const bdgBox) {
+  // Shortcuts
+  float* bdgBoxMin = bdgBox->min;
+  float* bdgBoxMax = bdgBox->max;
+  // Initialize the bounds
+  bdgBoxMin[iVar] = 0.0;
+  bdgBoxMax[iVar] = 1.0;
+  // Loop on the rows
+  for (
+    int iRow = 0;
+    iRow < nbRows;
+    ++iRow) {
+    // Shortcuts
+    const float* MIRow = M[iRow];
+    float fabsMIRowIVar = fabs(MIRow[0]);
+    // If the coefficient of the first variable on this row is not null
+    if (fabsMIRowIVar > PBMATH_EPSILON) {
+      // Declare two variables to memorize the min and max of the
+      // requested variable in this row
+      float min = -1.0 * Y[iRow];
+      float max = Y[iRow];
+      // Loop on columns except the first one which is the one of the
+      // requested variable
+      for (
+        int iCol = 1;
+        iCol < nbCols;
+        ++iCol) {
+        if (MIRow[iCol] > PBMATH_EPSILON) {
+          min += MIRow[iCol] * bdgBoxMin[iCol + iVar];
+          max -= MIRow[iCol] * bdgBoxMin[iCol + iVar];
+        } else if (MIRow[iCol] < PBMATH_EPSILON) {
+          min += MIRow[iCol] * bdgBoxMax[iCol + iVar];
+          max -= MIRow[iCol] * bdgBoxMax[iCol + iVar];
+        }
+      }
+      min /= -1.0 * MIRow[0];
+      max /= MIRow[0];
+      if (bdgBoxMin[iVar] > min) {
+        bdgBoxMin[iVar] = min;
+      }
+      if (bdgBoxMax[iVar] < max) {
+        bdgBoxMax[iVar] = max;
+      }
+    }
+  }
+}
+
+// Get the bounds of the iVar-th variable in the nbRows rows
+// system M.X<=Y which has been reduced to only one variable
+// and store them in the iVar-th axis of the
+// AABB bdgBox
+// (M arrangement is [iRow][iCol])
+// May return inconsistent values (max < min), which would
+// mean the system has no solution
+void GetBoundLastVar3D(
+  const int iVar,
+  const float (*M)[3],
+  const float* Y,
+  const int nbRows,
+  AABB3D* const bdgBox) {
+  // Shortcuts
+  float* min = bdgBox->min + iVar;
+  float* max = bdgBox->max + iVar;
+  // Initialize the bounds to their maximum maximum and minimum minimum
+  *min = 0.0;
+  *max = 1.0;
+  // Loop on rows
+  for (
+    int jRow = 0;
+    jRow < nbRows;
+    ++jRow) {
+    // Shortcut
+    float MjRowiVar = M[jRow][0];
+    // If this row has been reduced to the variable in argument
+    // and it has a strictly positive coefficient
+    if (MjRowiVar > PBMATH_EPSILON) {
+      // Get the scaled value of Y for this row
+      float y = Y[jRow] / MjRowiVar;
+      // If the value is lower than the current maximum bound
+      if (*max > y) {
+        // Update the maximum bound
+        *max = y;
+      }
+    // Else, if this row has been reduced to the variable in argument
+    // and it has a strictly negative coefficient
+    } else if (MjRowiVar < -PBMATH_EPSILON) {
+      // Get the scaled value of Y for this row
+      float y = Y[jRow] / MjRowiVar;
+      // If the value is greater than the current minimum bound
+      if (*min < y) {
+        // Update the minimum bound
+        *min = y;
+      }
+    }
+  }
+}
+
 // FMB algorithm on 3D Facoid-Facoid
+typedef struct {
+  float orig[3];
+  float comp[3][3];
+} Frame3D;
 bool FMBFF(const Facoid* const that, 
   const Facoid* const tho) {
-  (void)that;(void)tho;
-  return false;
+  // Get the projection of the Frame tho in Frame that coordinates
+  // system
+  // TODO: should be externalised
+  Frame3D thoProj;
+  const float* qo  = tho->_s._pos->_val;
+  float* qpo = thoProj.orig;
+  const float* po  = that->_s._pos->_val;
+  const float* pi = that->_s._sysLinEqImport->_Minv->_val;
+  float (*qpc)[3] = thoProj.comp;
+  float v[3];
+  for (
+    int i = 3;
+    i--;) {
+    v[i] = qo[i] - po[i];
+  }
+  for (
+    int i = 3;
+    i--;) {
+    qpo[i] = 0.0;
+    for (
+      int j = 3;
+      j--;) {
+      qpo[i] += pi[j + 3 * i] * v[j];
+      qpc[j][i] = 0.0;
+      for (
+        int k = 3;
+        k--;) {
+        qpc[j][i] += pi[k + 3 * i] * tho->_s._axis[j]->_val[k];
+      }
+    }
+  }
+  // Declare two variables to memorize the system to be solved M.X <= Y
+  // (M arrangement is [iRow][iCol])
+  float M[12][3];
+  float Y[12];
+  // Create the inequality system
+  // -sum_iC_j,iX_i<=O_j
+  M[0][0] = -thoProj.comp[0][0];
+  M[0][1] = -thoProj.comp[1][0];
+  M[0][2] = -thoProj.comp[2][0];
+  Y[0] = thoProj.orig[0];
+  if (Y[0] < neg(M[0][0]) + neg(M[0][1]) + neg(M[0][2])) {
+    return false;
+  }
+  M[1][0] = -thoProj.comp[0][1];
+  M[1][1] = -thoProj.comp[1][1];
+  M[1][2] = -thoProj.comp[2][1];
+  Y[1] = thoProj.orig[1];
+  if (Y[1] < neg(M[1][0]) + neg(M[1][1]) + neg(M[1][2])) {
+    return false;
+  }
+  M[2][0] = -thoProj.comp[0][2];
+  M[2][1] = -thoProj.comp[1][2];
+  M[2][2] = -thoProj.comp[2][2];
+  Y[2] = thoProj.orig[2];
+  if (Y[2] < neg(M[2][0]) + neg(M[2][1]) + neg(M[2][2])) {
+    return false;
+  }
+  // Variable to memorize the nb of rows in the system
+  int nbRows = 12;
+  // sum_iC_j,iX_i<=1.0-O_j
+  M[3][0] = thoProj.comp[0][0];
+  M[3][1] = thoProj.comp[1][0];
+  M[3][2] = thoProj.comp[2][0];
+  Y[3] = 1.0 - thoProj.orig[0];
+  if (
+    Y[3] < neg(M[3][0]) + neg(M[3][1]) + neg(M[3][2])) {
+    return false;
+  }
+  M[4][0] = thoProj.comp[0][1];
+  M[4][1] = thoProj.comp[1][1];
+  M[4][2] = thoProj.comp[2][1];
+  Y[4] = 1.0 - thoProj.orig[1];
+  if (
+    Y[4] < neg(M[4][0]) + neg(M[4][1]) + neg(M[4][2])) {
+    return false;
+  }
+  M[5][0] = thoProj.comp[0][2];
+  M[5][1] = thoProj.comp[1][2];
+  M[5][2] = thoProj.comp[2][2];
+  Y[5] = 1.0 - thoProj.orig[2];
+  if (
+    Y[5] < neg(M[5][0]) + neg(M[5][1]) + neg(M[5][2])) {
+    return false;
+  }
+  // X_i <= 1.0
+  M[6][0] = 1.0;
+  M[6][1] = 0.0;
+  M[6][2] = 0.0;
+  Y[6] = 1.0;
+  M[7][0] = 0.0;
+  M[7][1] = 1.0;
+  M[7][2] = 0.0;
+  Y[7] = 1.0;
+  M[8][0] = 0.0;
+  M[8][1] = 0.0;
+  M[8][2] = 1.0;
+  Y[8] = 1.0;
+  // -X_i <= 0.0
+  M[9][0] = -1.0;
+  M[9][1] = 0.0;
+  M[9][2] = 0.0;
+  Y[9] = 0.0;
+  M[10][0] = 0.0;
+  M[10][1] = -1.0;
+  M[10][2] = 0.0;
+  Y[10] = 0.0;
+  M[11][0] = 0.0;
+  M[11][1] = 0.0;
+  M[11][2] = -1.0;
+  Y[11] = 0.0;
+  // Solve the system
+  // Declare a AABB to memorize the bounding box of the intersection
+  // in the coordinates system of tho
+  AABB3D bdgBoxLocal = {
+    .min = {0.0, 0.0, 0.0},
+    .max = {0.0, 0.0, 0.0}
+  };
+  // Declare variables to eliminate the first variable
+  // The size of the array given in the doc is a majoring value.
+  // Instead I use a smaller value which has proven to be sufficient
+  // during tests, validation and qualification, to avoid running
+  // into the heap limit and to optimize slightly the performance
+  float Mp[20][3];
+  float Yp[20];
+  int nbRowsP;
+  // Eliminate the first variable in the original system
+  bool inconsistency =
+    ElimVar3D(
+      M,
+      Y,
+      nbRows,
+      3,
+      Mp,
+      Yp,
+      &nbRowsP);
+  // If the system is inconsistent
+  if (inconsistency == true) {
+    // The two Frames are not in intersection
+    return false;
+  }
+  // Declare variables to eliminate the second variable
+  // The size of the array given in the doc is a majoring value.
+  // Instead I use a smaller value which has proven to be sufficient
+  // during tests, validation and qualification, to avoid running
+  // into the heap limit and to optimize slightly the performance
+  float Mpp[55][3];
+  float Ypp[55];
+  int nbRowsPP;
+  // Eliminate the second variable (which is the first in the new system)
+  inconsistency =
+    ElimVar3D(
+      Mp,
+      Yp,
+      nbRowsP,
+      2,
+      Mpp,
+      Ypp,
+      &nbRowsPP);
+  // If the system is inconsistent
+  if (inconsistency == true) {
+    // The two Frames are not in intersection
+    return false;
+  }
+  // Get the bounds for the remaining third variable
+  GetBoundLastVar3D(
+    2,
+    Mpp,
+    Ypp,
+    nbRowsPP,
+    &bdgBoxLocal);
+  // If the bounds are inconsistent
+  if (bdgBoxLocal.min[2] >= bdgBoxLocal.max[2]) {
+    // The two Frames are not in intersection
+    return false;
+  }
+  // If we've reached here the two Frames are intersecting
+  return true;
 }
 
 // FMB algorithm on 3D Facoid-Pyramidoid
 bool FMBFP(const Facoid* const that, 
   const Pyramidoid* const tho) {
-  (void)that;(void)tho;
-  return false;
+  // Get the projection of the Frame tho in Frame that coordinates
+  // system
+  // TODO: should be externalised
+  Frame3D thoProj;
+  const float* qo  = tho->_s._pos->_val;
+  float* qpo = thoProj.orig;
+  const float* po  = that->_s._pos->_val;
+  const float* pi = that->_s._sysLinEqImport->_Minv->_val;
+  float (*qpc)[3] = thoProj.comp;
+  float v[3];
+  for (
+    int i = 3;
+    i--;) {
+    v[i] = qo[i] - po[i];
+  }
+  for (
+    int i = 3;
+    i--;) {
+    qpo[i] = 0.0;
+    for (
+      int j = 3;
+      j--;) {
+      qpo[i] += pi[j + 3 * i] * v[j];
+      qpc[j][i] = 0.0;
+      for (
+        int k = 3;
+        k--;) {
+        qpc[j][i] += pi[k + 3 * i] * tho->_s._axis[j]->_val[k];
+      }
+    }
+  }
+  // Declare two variables to memorize the system to be solved M.X <= Y
+  // (M arrangement is [iRow][iCol])
+  float M[10][3];
+  float Y[10];
+  // Create the inequality system
+  // -sum_iC_j,iX_i<=O_j
+  M[0][0] = -thoProj.comp[0][0];
+  M[0][1] = -thoProj.comp[1][0];
+  M[0][2] = -thoProj.comp[2][0];
+  Y[0] = thoProj.orig[0];
+  if (Y[0] < neg(M[0][0]) + neg(M[0][1]) + neg(M[0][2])) {
+    return false;
+  }
+  M[1][0] = -thoProj.comp[0][1];
+  M[1][1] = -thoProj.comp[1][1];
+  M[1][2] = -thoProj.comp[2][1];
+  Y[1] = thoProj.orig[1];
+  if (Y[1] < neg(M[1][0]) + neg(M[1][1]) + neg(M[1][2])) {
+    return false;
+  }
+  M[2][0] = -thoProj.comp[0][2];
+  M[2][1] = -thoProj.comp[1][2];
+  M[2][2] = -thoProj.comp[2][2];
+  Y[2] = thoProj.orig[2];
+  if (Y[2] < neg(M[2][0]) + neg(M[2][1]) + neg(M[2][2])) {
+    return false;
+  }
+  // Variable to memorize the nb of rows in the system
+  int nbRows = 10;
+  // sum_iC_j,iX_i<=1.0-O_j
+  M[3][0] = thoProj.comp[0][0];
+  M[3][1] = thoProj.comp[1][0];
+  M[3][2] = thoProj.comp[2][0];
+  Y[3] = 1.0 - thoProj.orig[0];
+  if (
+    Y[3] < neg(M[3][0]) + neg(M[3][1]) + neg(M[3][2])) {
+    return false;
+  }
+  M[4][0] = thoProj.comp[0][1];
+  M[4][1] = thoProj.comp[1][1];
+  M[4][2] = thoProj.comp[2][1];
+  Y[4] = 1.0 - thoProj.orig[1];
+  if (
+    Y[4] < neg(M[4][0]) + neg(M[4][1]) +
+    neg(M[4][2])) {
+    return false;
+  }
+  M[5][0] = thoProj.comp[0][2];
+  M[5][1] = thoProj.comp[1][2];
+  M[5][2] = thoProj.comp[2][2];
+  Y[5] = 1.0 - thoProj.orig[2];
+  if (
+    Y[5] < neg(M[5][0]) + neg(M[5][1]) +
+    neg(M[5][2])) {
+    return false;
+  }
+  // sum_iX_i<=1.0
+  M[6][0] = 1.0;
+  M[6][1] = 1.0;
+  M[6][2] = 1.0;
+  Y[6] = 1.0;
+  // -X_i <= 0.0
+  M[7][0] = -1.0;
+  M[7][1] = 0.0;
+  M[7][2] = 0.0;
+  Y[7] = 0.0;
+  M[8][0] = 0.0;
+  M[8][1] = -1.0;
+  M[8][2] = 0.0;
+  Y[8] = 0.0;
+  M[9][0] = 0.0;
+  M[9][1] = 0.0;
+  M[9][2] = -1.0;
+  Y[9] = 0.0;
+  // Solve the system
+  // Declare a AABB to memorize the bounding box of the intersection
+  // in the coordinates system of tho
+  AABB3D bdgBoxLocal = {
+    .min = {0.0, 0.0, 0.0},
+    .max = {0.0, 0.0, 0.0}
+  };
+  // Declare variables to eliminate the first variable
+  // The size of the array given in the doc is a majoring value.
+  // Instead I use a smaller value which has proven to be sufficient
+  // during tests, validation and qualification, to avoid running
+  // into the heap limit and to optimize slightly the performance
+  float Mp[20][3];
+  float Yp[20];
+  int nbRowsP;
+  // Eliminate the first variable in the original system
+  bool inconsistency =
+    ElimVar3D(
+      M,
+      Y,
+      nbRows,
+      3,
+      Mp,
+      Yp,
+      &nbRowsP);
+  // If the system is inconsistent
+  if (inconsistency == true) {
+    // The two Frames are not in intersection
+    return false;
+  }
+  // Declare variables to eliminate the second variable
+  // The size of the array given in the doc is a majoring value.
+  // Instead I use a smaller value which has proven to be sufficient
+  // during tests, validation and qualification, to avoid running
+  // into the heap limit and to optimize slightly the performance
+  float Mpp[55][3];
+  float Ypp[55];
+  int nbRowsPP;
+  // Eliminate the second variable (which is the first in the new system)
+  inconsistency =
+    ElimVar3D(
+      Mp,
+      Yp,
+      nbRowsP,
+      2,
+      Mpp,
+      Ypp,
+      &nbRowsPP);
+  // If the system is inconsistent
+  if (inconsistency == true) {
+    // The two Frames are not in intersection
+    return false;
+  }
+  // Get the bounds for the remaining third variable
+  GetBoundLastVar3D(
+    2,
+    Mpp,
+    Ypp,
+    nbRowsPP,
+    &bdgBoxLocal);
+  // If the bounds are inconsistent
+  if (bdgBoxLocal.min[2] >= bdgBoxLocal.max[2]) {
+    // The two Frames are not in intersection
+    return false;
+  }
+  // If we've reached here the two Frames are intersecting
+  return true;
 }
 
 // FMB algorithm on 3D Pyramidoid-Facoid
 bool FMBPF(const Pyramidoid* const that, 
   const Facoid* const tho) {
-  (void)that;(void)tho;
-  return false;
+  // Get the projection of the Frame tho in Frame that coordinates
+  // system
+  // TODO: should be externalised
+  Frame3D thoProj;
+  const float* qo  = tho->_s._pos->_val;
+  float* qpo = thoProj.orig;
+  const float* po  = that->_s._pos->_val;
+  const float* pi = that->_s._sysLinEqImport->_Minv->_val;
+  float (*qpc)[3] = thoProj.comp;
+  float v[3];
+  for (
+    int i = 3;
+    i--;) {
+    v[i] = qo[i] - po[i];
+  }
+  for (
+    int i = 3;
+    i--;) {
+    qpo[i] = 0.0;
+    for (
+      int j = 3;
+      j--;) {
+      qpo[i] += pi[j + 3 * i] * v[j];
+      qpc[j][i] = 0.0;
+      for (
+        int k = 3;
+        k--;) {
+        qpc[j][i] += pi[k + 3 * i] * tho->_s._axis[j]->_val[k];
+      }
+    }
+  }
+  // Declare two variables to memorize the system to be solved M.X <= Y
+  // (M arrangement is [iRow][iCol])
+  float M[10][3];
+  float Y[10];
+  // Create the inequality system
+  // -sum_iC_j,iX_i<=O_j
+  M[0][0] = -thoProj.comp[0][0];
+  M[0][1] = -thoProj.comp[1][0];
+  M[0][2] = -thoProj.comp[2][0];
+  Y[0] = thoProj.orig[0];
+  if (Y[0] < neg(M[0][0]) + neg(M[0][1]) + neg(M[0][2])) {
+    return false;
+  }
+  M[1][0] = -thoProj.comp[0][1];
+  M[1][1] = -thoProj.comp[1][1];
+  M[1][2] = -thoProj.comp[2][1];
+  Y[1] = thoProj.orig[1];
+  if (Y[1] < neg(M[1][0]) + neg(M[1][1]) + neg(M[1][2])) {
+    return false;
+  }
+  M[2][0] = -thoProj.comp[0][2];
+  M[2][1] = -thoProj.comp[1][2];
+  M[2][2] = -thoProj.comp[2][2];
+  Y[2] = thoProj.orig[2];
+  if (Y[2] < neg(M[2][0]) + neg(M[2][1]) + neg(M[2][2])) {
+    return false;
+  }
+  // Variable to memorize the nb of rows in the system
+  int nbRows = 10;
+  // sum_j(sum_iC_j,iX_i)<=1.0-sum_iO_i
+  M[3][0] =
+    thoProj.comp[0][0] + thoProj.comp[0][1] + thoProj.comp[0][2];
+  M[3][1] =
+    thoProj.comp[1][0] + thoProj.comp[1][1] + thoProj.comp[1][2];
+  M[3][2] =
+    thoProj.comp[2][0] + thoProj.comp[2][1] + thoProj.comp[2][2];
+  Y[3] =
+    1.0 - thoProj.orig[0] - thoProj.orig[1] - thoProj.orig[2];
+  if (
+    Y[3] < neg(M[3][0]) + neg(M[3][1]) + neg(M[3][2])) {
+    return false;
+  }
+  // X_i <= 1.0
+  M[4][0] = 1.0;
+  M[4][1] = 0.0;
+  M[4][2] = 0.0;
+  Y[4] = 1.0;
+  M[5][0] = 0.0;
+  M[5][1] = 1.0;
+  M[5][2] = 0.0;
+  Y[5] = 1.0;
+  M[6][0] = 0.0;
+  M[6][1] = 0.0;
+  M[6][2] = 1.0;
+  Y[6] = 1.0;
+  // -X_i <= 0.0
+  M[7][0] = -1.0;
+  M[7][1] = 0.0;
+  M[7][2] = 0.0;
+  Y[7] = 0.0;
+  M[8][0] = 0.0;
+  M[8][1] = -1.0;
+  M[8][2] = 0.0;
+  Y[8] = 0.0;
+  M[9][0] = 0.0;
+  M[9][1] = 0.0;
+  M[9][2] = -1.0;
+  Y[9] = 0.0;
+  // Solve the system
+  // Declare a AABB to memorize the bounding box of the intersection
+  // in the coordinates system of tho
+  AABB3D bdgBoxLocal = {
+    .min = {0.0, 0.0, 0.0},
+    .max = {0.0, 0.0, 0.0}
+  };
+  // Declare variables to eliminate the first variable
+  // The size of the array given in the doc is a majoring value.
+  // Instead I use a smaller value which has proven to be sufficient
+  // during tests, validation and qualification, to avoid running
+  // into the heap limit and to optimize slightly the performance
+  float Mp[20][3];
+  float Yp[20];
+  int nbRowsP;
+  // Eliminate the first variable in the original system
+  bool inconsistency =
+    ElimVar3D(
+      M,
+      Y,
+      nbRows,
+      3,
+      Mp,
+      Yp,
+      &nbRowsP);
+  // If the system is inconsistent
+  if (inconsistency == true) {
+    // The two Frames are not in intersection
+    return false;
+  }
+  // Declare variables to eliminate the second variable
+  // The size of the array given in the doc is a majoring value.
+  // Instead I use a smaller value which has proven to be sufficient
+  // during tests, validation and qualification, to avoid running
+  // into the heap limit and to optimize slightly the performance
+  float Mpp[55][3];
+  float Ypp[55];
+  int nbRowsPP;
+  // Eliminate the second variable (which is the first in the new system)
+  inconsistency =
+    ElimVar3D(
+      Mp,
+      Yp,
+      nbRowsP,
+      2,
+      Mpp,
+      Ypp,
+      &nbRowsPP);
+  // If the system is inconsistent
+  if (inconsistency == true) {
+    // The two Frames are not in intersection
+    return false;
+  }
+  // Get the bounds for the remaining third variable
+  GetBoundLastVar3D(
+    2,
+    Mpp,
+    Ypp,
+    nbRowsPP,
+    &bdgBoxLocal);
+  // If the bounds are inconsistent
+  if (bdgBoxLocal.min[2] >= bdgBoxLocal.max[2]) {
+    // The two Frames are not in intersection
+    return false;
+  }
+  // If we've reached here the two Frames are intersecting
+  return true;
 }
 
 // FMB algorithm on 3D Pyramidoid-Pyramidoid
 bool FMBPP(const Pyramidoid* const that, 
   const Pyramidoid* const tho) {
-  (void)that;(void)tho;
-  return false;
+  // Get the projection of the Frame tho in Frame that coordinates
+  // system
+  // TODO: should be externalised
+  Frame3D thoProj;
+  const float* qo  = tho->_s._pos->_val;
+  float* qpo = thoProj.orig;
+  const float* po  = that->_s._pos->_val;
+  const float* pi = that->_s._sysLinEqImport->_Minv->_val;
+  float (*qpc)[3] = thoProj.comp;
+  float v[3];
+  for (
+    int i = 3;
+    i--;) {
+    v[i] = qo[i] - po[i];
+  }
+  for (
+    int i = 3;
+    i--;) {
+    qpo[i] = 0.0;
+    for (
+      int j = 3;
+      j--;) {
+      qpo[i] += pi[j + 3 * i] * v[j];
+      qpc[j][i] = 0.0;
+      for (
+        int k = 3;
+        k--;) {
+        qpc[j][i] += pi[k + 3 * i] * tho->_s._axis[j]->_val[k];
+      }
+    }
+  }
+  // Declare two variables to memorize the system to be solved M.X <= Y
+  // (M arrangement is [iRow][iCol])
+  float M[8][3];
+  float Y[8];
+  // Create the inequality system
+  // -sum_iC_j,iX_i<=O_j
+  M[0][0] = -thoProj.comp[0][0];
+  M[0][1] = -thoProj.comp[1][0];
+  M[0][2] = -thoProj.comp[2][0];
+  Y[0] = thoProj.orig[0];
+  if (Y[0] < neg(M[0][0]) + neg(M[0][1]) + neg(M[0][2])) {
+    return false;
+  }
+  M[1][0] = -thoProj.comp[0][1];
+  M[1][1] = -thoProj.comp[1][1];
+  M[1][2] = -thoProj.comp[2][1];
+  Y[1] = thoProj.orig[1];
+  if (Y[1] < neg(M[1][0]) + neg(M[1][1]) + neg(M[1][2])) {
+    return false;
+  }
+  M[2][0] = -thoProj.comp[0][2];
+  M[2][1] = -thoProj.comp[1][2];
+  M[2][2] = -thoProj.comp[2][2];
+  Y[2] = thoProj.orig[2];
+  if (Y[2] < neg(M[2][0]) + neg(M[2][1]) + neg(M[2][2])) {
+    return false;
+  }
+  // Variable to memorize the nb of rows in the system
+  int nbRows = 8;
+  // sum_j(sum_iC_j,iX_i)<=1.0-sum_iO_i
+  M[3][0] =
+    thoProj.comp[0][0] + thoProj.comp[0][1] + thoProj.comp[0][2];
+  M[3][1] =
+    thoProj.comp[1][0] + thoProj.comp[1][1] + thoProj.comp[1][2];
+  M[3][2] =
+    thoProj.comp[2][0] + thoProj.comp[2][1] + thoProj.comp[2][2];
+  Y[3] =
+    1.0 - thoProj.orig[0] - thoProj.orig[1] - thoProj.orig[2];
+  if (
+    Y[3] < neg(M[3][0]) + neg(M[3][1]) + neg(M[3][2])) {
+    return false;
+  }
+  // sum_iX_i<=1.0
+  M[4][0] = 1.0;
+  M[4][1] = 1.0;
+  M[4][2] = 1.0;
+  Y[4] = 1.0;
+  // -X_i <= 0.0
+  M[5][0] = -1.0;
+  M[5][1] = 0.0;
+  M[5][2] = 0.0;
+  Y[5] = 0.0;
+  M[6][0] = 0.0;
+  M[6][1] = -1.0;
+  M[6][2] = 0.0;
+  Y[6] = 0.0;
+  M[7][0] = 0.0;
+  M[7][1] = 0.0;
+  M[7][2] = -1.0;
+  Y[7] = 0.0;
+  // Solve the system
+  // Declare a AABB to memorize the bounding box of the intersection
+  // in the coordinates system of tho
+  AABB3D bdgBoxLocal = {
+    .min = {0.0, 0.0, 0.0},
+    .max = {0.0, 0.0, 0.0}
+  };
+  // Declare variables to eliminate the first variable
+  // The size of the array given in the doc is a majoring value.
+  // Instead I use a smaller value which has proven to be sufficient
+  // during tests, validation and qualification, to avoid running
+  // into the heap limit and to optimize slightly the performance
+  float Mp[20][3];
+  float Yp[20];
+  int nbRowsP;
+  // Eliminate the first variable in the original system
+  bool inconsistency =
+    ElimVar3D(
+      M,
+      Y,
+      nbRows,
+      3,
+      Mp,
+      Yp,
+      &nbRowsP);
+  // If the system is inconsistent
+  if (inconsistency == true) {
+    // The two Frames are not in intersection
+    return false;
+  }
+  // Declare variables to eliminate the second variable
+  // The size of the array given in the doc is a majoring value.
+  // Instead I use a smaller value which has proven to be sufficient
+  // during tests, validation and qualification, to avoid running
+  // into the heap limit and to optimize slightly the performance
+  float Mpp[55][3];
+  float Ypp[55];
+  int nbRowsPP;
+  // Eliminate the second variable (which is the first in the new system)
+  inconsistency =
+    ElimVar3D(
+      Mp,
+      Yp,
+      nbRowsP,
+      2,
+      Mpp,
+      Ypp,
+      &nbRowsPP);
+  // If the system is inconsistent
+  if (inconsistency == true) {
+    // The two Frames are not in intersection
+    return false;
+  }
+  // Get the bounds for the remaining third variable
+  GetBoundLastVar3D(
+    2,
+    Mpp,
+    Ypp,
+    nbRowsPP,
+    &bdgBoxLocal);
+  // If the bounds are inconsistent
+  if (bdgBoxLocal.min[2] >= bdgBoxLocal.max[2]) {
+    // The two Frames are not in intersection
+    return false;
+  }
+  // If we've reached here the two Frames are intersecting
+  return true;
 }
 
 bool _FacoidIsInterFacoid(const Facoid* const that, 

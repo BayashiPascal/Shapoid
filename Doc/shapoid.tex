@@ -205,6 +205,10 @@ This algorithm step $P$ to the next position in the path by $delta$ and returns 
 
 The detection of collision between two Spheroids is done as follow. One of the spheroid is converted into the coordinates system of the other and checked against a circle of radius 0.5 centered at the origin of the system. By checking that the position of the converted Spheroid is less than its minor radius plus 0.5 or more than its major radius plus 0.5, the trivial cases of, respectively, interesection and non intersection can be performed. In other cases an incremental search from the center of the converted Spheroid toward the nearest point to the origin inside this Spheroid is performed. The intersection can then be checked by testing if the distance of this point to the origin is less or equal than 0.5.\\
 
+\subsection{Collision detection between Facoid and Pyramidoid}
+
+The intersection detection is impletemented for 2D and 3D static cases only. For optimal performance, in 2D the SAT algorithm is used, in 3D the FMB algorithm is used.
+
 \section{Interface}
 
 \begin{scriptsize}

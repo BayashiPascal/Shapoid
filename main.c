@@ -1949,7 +1949,108 @@ void UnitTestIsInter() {
   ShapoidFree(&facoidA);
   ShapoidFree(&facoidB);
 
-
+  Pyramidoid* pyramidoidC = PyramidoidCreate(3);
+  Pyramidoid* pyramidoidD = PyramidoidCreate(3);
+  Facoid* facoidC = FacoidCreate(3);
+  Facoid* facoidD = FacoidCreate(3);
+  VecFloat3D u = VecFloatCreateStatic3D();
+  if (ShapoidIsInter(pyramidoidC, pyramidoidD) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBPP 1)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(facoidC, pyramidoidD) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBFP 1)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(pyramidoidC, facoidD) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBPF 1)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(facoidC, facoidD) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBFF 1)");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&u, 0, 0.51);
+  ShapoidSetPos(pyramidoidC, &u);
+  if (ShapoidIsInter(pyramidoidC, pyramidoidD) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBPP 2)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(facoidC, pyramidoidC) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBFP 2)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(pyramidoidC, facoidD) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBPF 2)");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&u, 1, 0.51);
+  VecSet(&u, 2, 0.51);
+  ShapoidSetPos(pyramidoidC, &u);
+  if (ShapoidIsInter(pyramidoidC, pyramidoidD) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBPP 3)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(facoidC, pyramidoidC) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBFP 3)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(pyramidoidC, facoidD) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBPF 3)");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&u, 0, 1.51);
+  ShapoidSetPos(pyramidoidC, &u);
+  if (ShapoidIsInter(pyramidoidC, pyramidoidD) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBPP 4)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(facoidC, pyramidoidC) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBFP 4)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(pyramidoidC, facoidD) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBPF 4)");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&u, 0, -0.5);
+  VecSet(&u, 1, -0.5);
+  VecSet(&u, 2, -0.5);
+  ShapoidSetPos(pyramidoidC, &u);
+  VecSet(&u, 0, 1.0);
+  VecSet(&u, 1, 1.0);
+  VecSet(&u, 2, -1.0);
+  ShapoidSetAxis(pyramidoidC, 0, &u);
+  VecSet(&u, 0, 0.0);
+  VecSet(&u, 1, 1.0);
+  VecSet(&u, 2, -1.0);
+  ShapoidSetAxis(pyramidoidC, 1, &u);
+  VecSet(&u, 0, 1.0);
+  VecSet(&u, 1, 1.0);
+  VecSet(&u, 2, 1.0);
+  ShapoidSetAxis(pyramidoidC, 2, &u);
+  if (ShapoidIsInter(pyramidoidC, facoidD) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (FMBPF 5)");
+    PBErrCatch(ShapoidErr);
+  }
+  ShapoidFree(&pyramidoidC);
+  ShapoidFree(&pyramidoidD);
+  ShapoidFree(&facoidC);
+  ShapoidFree(&facoidD);
 
   printf("UnitTestIsInter OK\n");
 }
@@ -2161,8 +2262,7 @@ void UnitTestAll() {
 }
 
 int main() {
-  //UnitTestAll();
-  UnitTestIsInter();
+  UnitTestAll();
   // Return success code
   return 0;
 }

@@ -6,10 +6,11 @@
 \contentsline {subsection}{\numberline {1.5}Depth and Center}{4}
 \contentsline {subsection}{\numberline {1.6}Iterator on Spheroid}{5}
 \contentsline {subsection}{\numberline {1.7}Collision detection of Spheroid}{7}
+\contentsline {subsection}{\numberline {1.8}Collision detection between Facoid and Pyramidoid}{8}
 \contentsline {section}{\numberline {2}Interface}{8}
-\contentsline {section}{\numberline {3}Code}{27}
-\contentsline {subsection}{\numberline {3.1}shapoid.c}{27}
-\contentsline {subsection}{\numberline {3.2}shapoid-inline.c}{48}
-\contentsline {section}{\numberline {4}Makefile}{80}
-\contentsline {section}{\numberline {5}Unit tests}{80}
-\contentsline {section}{\numberline {6}Unit tests output}{114}
+\contentsline {section}{\numberline {3}Code}{28}
+\contentsline {subsection}{\numberline {3.1}shapoid.c}{28}
+\contentsline {subsection}{\numberline {3.2}shapoid-inline.c}{74}
+\contentsline {section}{\numberline {4}Makefile}{105}
+\contentsline {section}{\numberline {5}Unit tests}{106}
+\contentsline {section}{\numberline {6}Unit tests output}{143}
