@@ -1861,6 +1861,96 @@ void UnitTestIsInter() {
   }
   ShapoidFree(&spheroidA);
   ShapoidFree(&spheroidB);
+
+  Pyramidoid* pyramidoidA = PyramidoidCreate(2);
+  Pyramidoid* pyramidoidB = PyramidoidCreate(2);
+  Facoid* facoidA = FacoidCreate(2);
+  Facoid* facoidB = FacoidCreate(2);
+  VecFloat2D w = VecFloatCreateStatic2D();
+  if (ShapoidIsInter(pyramidoidA, pyramidoidB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATPP 1)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(pyramidoidA, facoidB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATPF 1)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(facoidA, pyramidoidB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATFP 1)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(facoidA, facoidB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATFF 1)");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&w, 0, 0.51);
+  ShapoidSetPos(pyramidoidB, &w);
+  if (ShapoidIsInter(pyramidoidA, pyramidoidB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATPP 2)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(pyramidoidB, facoidB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATPF 2)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(facoidB, pyramidoidB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATFP 2)");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&w, 1, 0.51);
+  ShapoidSetPos(pyramidoidB, &w);
+  if (ShapoidIsInter(pyramidoidA, pyramidoidB) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATPP 3)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(pyramidoidB, facoidB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATPF 3)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(facoidB, pyramidoidB) == false) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATFP 3)");
+    PBErrCatch(ShapoidErr);
+  }
+  VecSet(&w, 0, 1.5);
+  ShapoidSetPos(pyramidoidB, &w);
+  if (ShapoidIsInter(pyramidoidA, pyramidoidB) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATPP 4)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(pyramidoidB, facoidB) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATPF 4)");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidIsInter(facoidB, pyramidoidB) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATFP 4)");
+    PBErrCatch(ShapoidErr);
+  }
+  ShapoidSetPos(facoidB, &w);
+  if (ShapoidIsInter(facoidA, facoidB) == true) {
+    ShapoidErr->_type = PBErrTypeUnitTestFailed;
+    sprintf(ShapoidErr->_msg, "ShapoidIsInter failed (SATFF 5)");
+    PBErrCatch(ShapoidErr);
+  }
+  ShapoidFree(&pyramidoidA);
+  ShapoidFree(&pyramidoidB);
+  ShapoidFree(&facoidA);
+  ShapoidFree(&facoidB);
+
+
+
   printf("UnitTestIsInter OK\n");
 }
 
@@ -2071,7 +2161,8 @@ void UnitTestAll() {
 }
 
 int main() {
-  UnitTestAll();
+  //UnitTestAll();
+  UnitTestIsInter();
   // Return success code
   return 0;
 }

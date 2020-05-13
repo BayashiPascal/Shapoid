@@ -565,6 +565,14 @@ GSetShapoid* FacoidAlignedSplitExcludingFacoidAligned(
 // 'that' and 'tho' must have same dimension
 bool _SpheroidIsInterSpheroid(const Spheroid* const that, 
   const Spheroid* const tho);
+bool _FacoidIsInterFacoid(const Facoid* const that, 
+  const Facoid* const tho);
+bool _FacoidIsInterPyramidoid(const Facoid* const that, 
+  const Pyramidoid* const tho);
+bool _PyramidoidIsInterFacoid(const Pyramidoid* const that, 
+  const Facoid* const tho);
+bool _PyramidoidIsInterPyramidoid(const Pyramidoid* const that, 
+  const Pyramidoid* const tho);
 
 // Update the major and minor axis of the Spheroid 'that'
 void SpheroidUpdateMajMinAxis(Spheroid* const that);
@@ -1181,6 +1189,30 @@ const VecFloat* ShapoidIterDelta(const ShapoidIter* const that);
   const Spheroid*: _Generic(ShapB, \
     Spheroid*: _SpheroidIsInterSpheroid, \
     const Spheroid*: _SpheroidIsInterSpheroid, \
+    default: PBErrInvalidPolymorphism), \
+  Pyramidoid*: _Generic(ShapB, \
+    Pyramidoid*: _PyramidoidIsInterPyramidoid, \
+    const Pyramidoid*: _PyramidoidIsInterPyramidoid, \
+    Facoid*: _PyramidoidIsInterFacoid, \
+    const Facoid*: _PyramidoidIsInterFacoid, \
+    default: PBErrInvalidPolymorphism), \
+  const Pyramidoid*: _Generic(ShapB, \
+    Pyramidoid*: _PyramidoidIsInterPyramidoid, \
+    const Pyramidoid*: _PyramidoidIsInterPyramidoid, \
+    Facoid*: _PyramidoidIsInterFacoid, \
+    const Facoid*: _PyramidoidIsInterFacoid, \
+    default: PBErrInvalidPolymorphism), \
+  Facoid*: _Generic(ShapB, \
+    Pyramidoid*: _FacoidIsInterPyramidoid, \
+    const Pyramidoid*: _FacoidIsInterPyramidoid, \
+    Facoid*: _FacoidIsInterFacoid, \
+    const Facoid*: _FacoidIsInterFacoid, \
+    default: PBErrInvalidPolymorphism), \
+  const Facoid*: _Generic(ShapB, \
+    Pyramidoid*: _FacoidIsInterPyramidoid, \
+    const Pyramidoid*: _FacoidIsInterPyramidoid, \
+    Facoid*: _FacoidIsInterFacoid, \
+    const Facoid*: _FacoidIsInterFacoid, \
     default: PBErrInvalidPolymorphism), \
   default: PBErrInvalidPolymorphism) (ShapA, ShapB)
 

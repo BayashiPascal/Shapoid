@@ -997,6 +997,651 @@ bool _SpheroidIsInterSpheroid(const Spheroid* const that,
     return false;
 }
 
+// SAT algorithm on 2D Facoid-Facoid
+bool SATFF(const Facoid* const that, 
+  const Facoid* const tho) {
+  // Declare a variable to loop on Frames and commonalize code
+  const Shapoid* frameEdge = (const Shapoid*)that;
+  // Loop to commonalize code when checking SAT based on that's edges
+  // and then tho's edges
+  for (
+    int iFrame = 2;
+    iFrame--;) {
+    // Declare a variable to memorize the number of edges, by default 2
+    int nbEdges = 2;
+    // Loop on the frame's edges
+    for (
+      int iEdge = nbEdges;
+      iEdge--;) {
+      // Get the current edge
+      const float* edge = frameEdge->_axis[iEdge]->_val;
+      // Declare variables to memorize the boundaries of projection
+      // of the two frames on the current edge
+      float bdgBoxA[2];
+      float bdgBoxB[2];
+      // Declare two variables to loop on Frames and commonalize code
+      const Shapoid* frame = (const Shapoid*)that;
+      float* bdgBox = bdgBoxA;
+      // Loop on Frames
+      for (
+        int jFrame = 2;
+        jFrame--;) {
+        // Shortcuts
+        const float* frameOrig = frame->_pos->_val;
+        const float* frameCompA = frame->_axis[0]->_val;
+        const float* frameCompB = frame->_axis[1]->_val;
+        // Get the number of vertices of frame
+        int nbVertices = 4;
+        // Declare a variable to memorize if the current vertex is
+        // the first in the loop, used to initialize the boundaries
+        bool firstVertex = true;
+        // Loop on vertices of the frame
+        for (
+          int iVertex = nbVertices;
+          iVertex--;) {
+          // Get the vertex
+          float vertex[2];
+          vertex[0] = frameOrig[0];
+          vertex[1] = frameOrig[1];
+          switch (iVertex) {
+            case 3:
+              vertex[0] += frameCompA[0] + frameCompB[0];
+              vertex[1] += frameCompA[1] + frameCompB[1];
+              break;
+            case 2:
+              vertex[0] += frameCompA[0];
+              vertex[1] += frameCompA[1];
+              break;
+            case 1:
+              vertex[0] += frameCompB[0];
+              vertex[1] += frameCompB[1];
+              break;
+            default:
+              break;
+          }
+          // Get the projection of the vertex on the normal of the edge
+          // Orientation of the normal doesn't matter, so we
+          // use arbitrarily the normal (edge[1], -edge[0])
+          float proj = vertex[0] * edge[1] - vertex[1] * edge[0];
+          // If it's the first vertex
+          if (firstVertex == true) {
+            // Initialize the boundaries of the projection of the
+            // Frame on the edge
+            bdgBox[0] = proj;
+            bdgBox[1] = proj;
+            // Update the flag to memorize we did the first vertex
+            firstVertex = false;
+          // Else, it's not the first vertex
+          } else {
+            // Update the boundaries of the projection of the Frame on
+            // the edge
+            if (bdgBox[0] > proj) {
+              bdgBox[0] = proj;
+            }
+            if (bdgBox[1] < proj) {
+              bdgBox[1] = proj;
+            }
+          }
+        }
+        // Switch the frame to check the vertices of the second Frame
+        frame = (const Shapoid*)tho;
+        bdgBox = bdgBoxB;
+      }
+      // If the projections of the two frames on the edge are
+      // not intersecting
+      if (
+        bdgBoxB[1] < bdgBoxA[0] ||
+        bdgBoxA[1] < bdgBoxB[0]) {
+        // There exists an axis which separates the Frames,
+        // thus they are not in intersection
+        return false;
+      }
+    }
+    // Switch the frames to test against the second Frame's edges
+    frameEdge = (const Shapoid*)tho;
+  }
+  // If we reaches here, it means the two Frames are intersecting
+  return true;
+}
+
+// SAT algorithm on 2D Facoid-Pyramidoid
+bool SATFP(const Facoid* const that, 
+  const Pyramidoid* const tho) {
+  // Declare a variable to loop on Frames and commonalize code
+  const Shapoid* frameEdge = (const Shapoid*)that;
+  // Loop to commonalize code when checking SAT based on that's edges
+  // and then tho's edges
+  for (
+    int iFrame = 2;
+    iFrame--;) {
+    // Shortcuts
+    const float* frameEdgeCompA = frameEdge->_axis[0]->_val;
+    const float* frameEdgeCompB = frameEdge->_axis[1]->_val;
+    // Declare a variable to memorize the number of edges, by default 2
+    int nbEdges = 2;
+    // Declare a variable to memorize the third edge in case of
+    // tetrahedron
+    float thirdEdge[2];
+    // If the frame is a tetrahedron
+    if (iFrame == 0) {
+      // Initialise the third edge
+      thirdEdge[0] = frameEdgeCompB[0] - frameEdgeCompA[0];
+      thirdEdge[1] = frameEdgeCompB[1] - frameEdgeCompA[1];
+      // Correct the number of edges
+      nbEdges = 3;
+    }
+    // Loop on the frame's edges
+    for (
+      int iEdge = nbEdges;
+      iEdge--;) {
+      // Get the current edge
+      const float* edge =
+        (iEdge == 2 ? thirdEdge : frameEdge->_axis[iEdge]->_val);
+      // Declare variables to memorize the boundaries of projection
+      // of the two frames on the current edge
+      float bdgBoxA[2];
+      float bdgBoxB[2];
+      // Declare two variables to loop on Frames and commonalize code
+      const Shapoid* frame = (const Shapoid*)that;
+      float* bdgBox = bdgBoxA;
+      // Loop on Frames
+      for (
+        int jFrame = 2;
+        jFrame--;) {
+        // Shortcuts
+        const float* frameOrig = frame->_pos->_val;
+        const float* frameCompA = frame->_axis[0]->_val;
+        const float* frameCompB = frame->_axis[1]->_val;
+        // Get the number of vertices of frame
+        int nbVertices = (jFrame == 0 ? 3 : 4);
+        // Declare a variable to memorize if the current vertex is
+        // the first in the loop, used to initialize the boundaries
+        bool firstVertex = true;
+        // Loop on vertices of the frame
+        for (
+          int iVertex = nbVertices;
+          iVertex--;) {
+          // Get the vertex
+          float vertex[2];
+          vertex[0] = frameOrig[0];
+          vertex[1] = frameOrig[1];
+          switch (iVertex) {
+            case 3:
+              vertex[0] += frameCompA[0] + frameCompB[0];
+              vertex[1] += frameCompA[1] + frameCompB[1];
+              break;
+            case 2:
+              vertex[0] += frameCompA[0];
+              vertex[1] += frameCompA[1];
+              break;
+            case 1:
+              vertex[0] += frameCompB[0];
+              vertex[1] += frameCompB[1];
+              break;
+            default:
+              break;
+          }
+          // Get the projection of the vertex on the normal of the edge
+          // Orientation of the normal doesn't matter, so we
+          // use arbitrarily the normal (edge[1], -edge[0])
+          float proj = vertex[0] * edge[1] - vertex[1] * edge[0];
+          // If it's the first vertex
+          if (firstVertex == true) {
+            // Initialize the boundaries of the projection of the
+            // Frame on the edge
+            bdgBox[0] = proj;
+            bdgBox[1] = proj;
+            // Update the flag to memorize we did the first vertex
+            firstVertex = false;
+          // Else, it's not the first vertex
+          } else {
+            // Update the boundaries of the projection of the Frame on
+            // the edge
+            if (bdgBox[0] > proj) {
+              bdgBox[0] = proj;
+            }
+            if (bdgBox[1] < proj) {
+              bdgBox[1] = proj;
+            }
+          }
+        }
+        // Switch the frame to check the vertices of the second Frame
+        frame = (const Shapoid*)tho;
+        bdgBox = bdgBoxB;
+      }
+      // If the projections of the two frames on the edge are
+      // not intersecting
+      if (
+        bdgBoxB[1] < bdgBoxA[0] ||
+        bdgBoxA[1] < bdgBoxB[0]) {
+        // There exists an axis which separates the Frames,
+        // thus they are not in intersection
+        return false;
+      }
+    }
+    // Switch the frames to test against the second Frame's edges
+    frameEdge = (const Shapoid*)tho;
+  }
+  // If we reaches here, it means the two Frames are intersecting
+  return true;
+}
+
+// SAT algorithm on 2D Pyramidoid-Facoid
+bool SATPF(const Pyramidoid* const that, 
+  const Facoid* const tho) {
+  // Declare a variable to loop on Frames and commonalize code
+  const Shapoid* frameEdge = (const Shapoid*)that;
+  // Loop to commonalize code when checking SAT based on that's edges
+  // and then tho's edges
+  for (
+    int iFrame = 2;
+    iFrame--;) {
+    // Shortcuts
+    const float* frameEdgeCompA = frameEdge->_axis[0]->_val;
+    const float* frameEdgeCompB = frameEdge->_axis[1]->_val;
+    // Declare a variable to memorize the number of edges, by default 2
+    int nbEdges = 2;
+    // Declare a variable to memorize the third edge in case of
+    // tetrahedron
+    float thirdEdge[2];
+    // If the frame is a tetrahedron
+    // Initialise the third edge
+    thirdEdge[0] = frameEdgeCompB[0] - frameEdgeCompA[0];
+    thirdEdge[1] = frameEdgeCompB[1] - frameEdgeCompA[1];
+    // If the frame is a tetrahedron
+    if (iFrame == 1) {
+      // Initialise the third edge
+      thirdEdge[0] = frameEdgeCompB[0] - frameEdgeCompA[0];
+      thirdEdge[1] = frameEdgeCompB[1] - frameEdgeCompA[1];
+      // Correct the number of edges
+      nbEdges = 3;
+    }
+    // Loop on the frame's edges
+    for (
+      int iEdge = nbEdges;
+      iEdge--;) {
+      // Get the current edge
+      const float* edge =
+        (iEdge == 2 ? thirdEdge : frameEdge->_axis[iEdge]->_val);
+      // Declare variables to memorize the boundaries of projection
+      // of the two frames on the current edge
+      float bdgBoxA[2];
+      float bdgBoxB[2];
+      // Declare two variables to loop on Frames and commonalize code
+      const Shapoid* frame = (const Shapoid*)that;
+      float* bdgBox = bdgBoxA;
+      // Loop on Frames
+      for (
+        int jFrame = 2;
+        jFrame--;) {
+        // Shortcuts
+        const float* frameOrig = frame->_pos->_val;
+        const float* frameCompA = frame->_axis[0]->_val;
+        const float* frameCompB = frame->_axis[1]->_val;
+        // Get the number of vertices of frame
+        int nbVertices = (jFrame == 1 ? 3 : 4);
+        // Declare a variable to memorize if the current vertex is
+        // the first in the loop, used to initialize the boundaries
+        bool firstVertex = true;
+        // Loop on vertices of the frame
+        for (
+          int iVertex = nbVertices;
+          iVertex--;) {
+          // Get the vertex
+          float vertex[2];
+          vertex[0] = frameOrig[0];
+          vertex[1] = frameOrig[1];
+          switch (iVertex) {
+            case 3:
+              vertex[0] += frameCompA[0] + frameCompB[0];
+              vertex[1] += frameCompA[1] + frameCompB[1];
+              break;
+            case 2:
+              vertex[0] += frameCompA[0];
+              vertex[1] += frameCompA[1];
+              break;
+            case 1:
+              vertex[0] += frameCompB[0];
+              vertex[1] += frameCompB[1];
+              break;
+            default:
+              break;
+          }
+          // Get the projection of the vertex on the normal of the edge
+          // Orientation of the normal doesn't matter, so we
+          // use arbitrarily the normal (edge[1], -edge[0])
+          float proj = vertex[0] * edge[1] - vertex[1] * edge[0];
+          // If it's the first vertex
+          if (firstVertex == true) {
+            // Initialize the boundaries of the projection of the
+            // Frame on the edge
+            bdgBox[0] = proj;
+            bdgBox[1] = proj;
+            // Update the flag to memorize we did the first vertex
+            firstVertex = false;
+          // Else, it's not the first vertex
+          } else {
+            // Update the boundaries of the projection of the Frame on
+            // the edge
+            if (bdgBox[0] > proj) {
+              bdgBox[0] = proj;
+            }
+            if (bdgBox[1] < proj) {
+              bdgBox[1] = proj;
+            }
+          }
+        }
+        // Switch the frame to check the vertices of the second Frame
+        frame = (const Shapoid*)tho;
+        bdgBox = bdgBoxB;
+      }
+      // If the projections of the two frames on the edge are
+      // not intersecting
+      if (
+        bdgBoxB[1] < bdgBoxA[0] ||
+        bdgBoxA[1] < bdgBoxB[0]) {
+        // There exists an axis which separates the Frames,
+        // thus they are not in intersection
+        return false;
+      }
+    }
+    // Switch the frames to test against the second Frame's edges
+    frameEdge = (const Shapoid*)tho;
+  }
+  // If we reaches here, it means the two Frames are intersecting
+  return true;
+}
+
+// SAT algorithm on 2D Pyramidoid-Pyramidoid
+bool SATPP(const Pyramidoid* const that, 
+  const Pyramidoid* const tho) {
+  // Declare a variable to loop on Frames and commonalize code
+  const Shapoid* frameEdge = (const Shapoid*)that;
+  // Loop to commonalize code when checking SAT based on that's edges
+  // and then tho's edges
+  for (
+    int iFrame = 2;
+    iFrame--;) {
+    // Shortcuts
+    const float* frameEdgeCompA = frameEdge->_axis[0]->_val;
+    const float* frameEdgeCompB = frameEdge->_axis[1]->_val;
+    // Declare a variable to memorize the number of edges, by default 2
+    int nbEdges = 3;
+    // Declare a variable to memorize the third edge in case of
+    // tetrahedron
+    float thirdEdge[2];
+    // If the frame is a tetrahedron
+    // Initialise the third edge
+    thirdEdge[0] = frameEdgeCompB[0] - frameEdgeCompA[0];
+    thirdEdge[1] = frameEdgeCompB[1] - frameEdgeCompA[1];
+    // Loop on the frame's edges
+    for (
+      int iEdge = nbEdges;
+      iEdge--;) {
+      // Get the current edge
+      const float* edge =
+        (iEdge == 2 ? thirdEdge : frameEdge->_axis[iEdge]->_val);
+      // Declare variables to memorize the boundaries of projection
+      // of the two frames on the current edge
+      float bdgBoxA[2];
+      float bdgBoxB[2];
+      // Declare two variables to loop on Frames and commonalize code
+      const Shapoid* frame = (const Shapoid*)that;
+      float* bdgBox = bdgBoxA;
+      // Loop on Frames
+      for (
+        int iFrame = 2;
+        iFrame--;) {
+        // Shortcuts
+        const float* frameOrig = frame->_pos->_val;
+        const float* frameCompA = frame->_axis[0]->_val;
+        const float* frameCompB = frame->_axis[1]->_val;
+        // Get the number of vertices of frame
+        int nbVertices = 3;
+        // Declare a variable to memorize if the current vertex is
+        // the first in the loop, used to initialize the boundaries
+        bool firstVertex = true;
+        // Loop on vertices of the frame
+        for (
+          int iVertex = nbVertices;
+          iVertex--;) {
+          // Get the vertex
+          float vertex[2];
+          vertex[0] = frameOrig[0];
+          vertex[1] = frameOrig[1];
+          switch (iVertex) {
+            case 2:
+              vertex[0] += frameCompA[0];
+              vertex[1] += frameCompA[1];
+              break;
+            case 1:
+              vertex[0] += frameCompB[0];
+              vertex[1] += frameCompB[1];
+              break;
+            default:
+              break;
+          }
+          // Get the projection of the vertex on the normal of the edge
+          // Orientation of the normal doesn't matter, so we
+          // use arbitrarily the normal (edge[1], -edge[0])
+          float proj = vertex[0] * edge[1] - vertex[1] * edge[0];
+          // If it's the first vertex
+          if (firstVertex == true) {
+            // Initialize the boundaries of the projection of the
+            // Frame on the edge
+            bdgBox[0] = proj;
+            bdgBox[1] = proj;
+            // Update the flag to memorize we did the first vertex
+            firstVertex = false;
+          // Else, it's not the first vertex
+          } else {
+            // Update the boundaries of the projection of the Frame on
+            // the edge
+            if (bdgBox[0] > proj) {
+              bdgBox[0] = proj;
+            }
+            if (bdgBox[1] < proj) {
+              bdgBox[1] = proj;
+            }
+          }
+        }
+        // Switch the frame to check the vertices of the second Frame
+        frame = (const Shapoid*)tho;
+        bdgBox = bdgBoxB;
+      }
+      // If the projections of the two frames on the edge are
+      // not intersecting
+      if (
+        bdgBoxB[1] < bdgBoxA[0] ||
+        bdgBoxA[1] < bdgBoxB[0]) {
+        // There exists an axis which separates the Frames,
+        // thus they are not in intersection
+        return false;
+      }
+    }
+    // Switch the frames to test against the second Frame's edges
+    frameEdge = (const Shapoid*)tho;
+  }
+  // If we reaches here, it means the two Frames are intersecting
+  return true;
+}
+
+// FMB algorithm on 3D Facoid-Facoid
+bool FMBFF(const Facoid* const that, 
+  const Facoid* const tho) {
+  (void)that;(void)tho;
+  return false;
+}
+
+// FMB algorithm on 3D Facoid-Pyramidoid
+bool FMBFP(const Facoid* const that, 
+  const Pyramidoid* const tho) {
+  (void)that;(void)tho;
+  return false;
+}
+
+// FMB algorithm on 3D Pyramidoid-Facoid
+bool FMBPF(const Pyramidoid* const that, 
+  const Facoid* const tho) {
+  (void)that;(void)tho;
+  return false;
+}
+
+// FMB algorithm on 3D Pyramidoid-Pyramidoid
+bool FMBPP(const Pyramidoid* const that, 
+  const Pyramidoid* const tho) {
+  (void)that;(void)tho;
+  return false;
+}
+
+bool _FacoidIsInterFacoid(const Facoid* const that, 
+  const Facoid* const tho) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (tho == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'tho' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidGetDim(that) != ShapoidGetDim(tho)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' and 'tho' have different dimensions (%d==%d)",
+      ShapoidGetDim(that), ShapoidGetDim(tho));
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidGetDim(that) != 2 && ShapoidGetDim(that) != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' and 'tho' have invalid dimensions (2<=%d<=3)",
+      ShapoidGetDim(that));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  if (ShapoidGetDim(that) == 2) {
+    return SATFF(that, tho);
+  } else if (ShapoidGetDim(that) == 3) {
+    return FMBFF(that, tho); 
+  } else {
+    return false;
+  }
+}
+
+bool _FacoidIsInterPyramidoid(const Facoid* const that, 
+  const Pyramidoid* const tho) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (tho == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'tho' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidGetDim(that) != ShapoidGetDim(tho)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' and 'tho' have different dimensions (%d==%d)",
+      ShapoidGetDim(that), ShapoidGetDim(tho));
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidGetDim(that) != 2 && ShapoidGetDim(that) != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' and 'tho' have invalid dimensions (2<=%d<=3)",
+      ShapoidGetDim(that));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  if (ShapoidGetDim(that) == 2) {
+    return SATFP(that, tho);
+  } else if (ShapoidGetDim(that) == 3) {
+    return FMBFP(that, tho); 
+  } else {
+    return false;
+  }
+}
+
+bool _PyramidoidIsInterFacoid(const Pyramidoid* const that, 
+  const Facoid* const tho) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (tho == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'tho' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidGetDim(that) != ShapoidGetDim(tho)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' and 'tho' have different dimensions (%d==%d)",
+      ShapoidGetDim(that), ShapoidGetDim(tho));
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidGetDim(that) != 2 && ShapoidGetDim(that) != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' and 'tho' have invalid dimensions (2<=%d<=3)",
+      ShapoidGetDim(that));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  if (ShapoidGetDim(that) == 2) {
+    return SATPF(that, tho);
+  } else if (ShapoidGetDim(that) == 3) {
+    return FMBPF(that, tho); 
+  } else {
+    return false;
+  }
+}
+
+bool _PyramidoidIsInterPyramidoid(const Pyramidoid* const that, 
+  const Pyramidoid* const tho) {
+#if BUILDMODE == 0
+  if (that == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'that' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (tho == NULL) {
+    ShapoidErr->_type = PBErrTypeNullPointer;
+    sprintf(ShapoidErr->_msg, "'tho' is null");
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidGetDim(that) != ShapoidGetDim(tho)) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' and 'tho' have different dimensions (%d==%d)",
+      ShapoidGetDim(that), ShapoidGetDim(tho));
+    PBErrCatch(ShapoidErr);
+  }
+  if (ShapoidGetDim(that) != 2 && ShapoidGetDim(that) != 3) {
+    ShapoidErr->_type = PBErrTypeInvalidArg;
+    sprintf(ShapoidErr->_msg, 
+      "'that' and 'tho' have invalid dimensions (2<=%d<=3)",
+      ShapoidGetDim(that));
+    PBErrCatch(ShapoidErr);
+  }
+#endif
+  if (ShapoidGetDim(that) == 2) {
+    return SATPP(that, tho);
+  } else if (ShapoidGetDim(that) == 3) {
+    return FMBPP(that, tho); 
+  } else {
+    return false;
+  }
+}
+
 // Update the major and minor axis of the Spheroid 'that'
 void SpheroidUpdateMajMinAxis(Spheroid* const that) {
 #if BUILDMODE == 0
