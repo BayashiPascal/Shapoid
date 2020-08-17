@@ -264,19 +264,23 @@ void UnitTestGetSetTypeDimPosAxis() {
   }
   VecFree(&w);
   for (int i = dim; i--;) {
+    VecFloat* facoidPos = ShapoidGetPos(facoid);
     if (!ISEQUALF(ShapoidPosGet(facoid, i), 
-      VecGet(ShapoidGetPos(facoid), i))) {
+      VecGet(facoidPos, i))) {
       ShapoidErr->_type = PBErrTypeUnitTestFailed;
       sprintf(ShapoidErr->_msg, "ShapoidPosGet failed");
       PBErrCatch(ShapoidErr);
     }
+    VecFree(&facoidPos);
     for (int j = dim; j--;) {
+      VecFloat* facoidAxis = ShapoidGetAxis(facoid, i);
       if (!ISEQUALF(ShapoidAxisGet(facoid, i, j), 
-        VecGet(ShapoidGetAxis(facoid, i), j))) {
+        VecGet(facoidAxis, j))) {
         ShapoidErr->_type = PBErrTypeUnitTestFailed;
         sprintf(ShapoidErr->_msg, "ShapoidAxisGet failed");
         PBErrCatch(ShapoidErr);
       }
+      VecFree(&facoidAxis);
     }
   }
   ShapoidFree(&facoid);
